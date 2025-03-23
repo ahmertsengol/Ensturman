@@ -156,5 +156,6 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  logger.info(`Server URL: http://localhost:${PORT}`);
   logger.info('Press Ctrl+C to stop the server');
 }); 
