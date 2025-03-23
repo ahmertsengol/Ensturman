@@ -16,7 +16,8 @@ router.post('/login', authController.postLogin);
 // Register process
 router.post('/register', authController.postRegister);
 
-// Logout
+// Logout - support both GET and POST for backward compatibility
 router.get('/logout', authController.logout);
+router.post('/logout', authController.logout);
 
 module.exports = router; 
