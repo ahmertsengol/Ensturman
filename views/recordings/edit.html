@@ -4,53 +4,86 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/theme.css">
   <title>Edit Recording - Voice Recorder App</title>
 </head>
-<body>
-  <header>
+<body class="theme-light">
+  <header class="header">
     <div class="container">
-      <h1>Voice Recorder App</h1>
+      <h1 class="app-title">Voice Recorder App</h1>
       <div class="header-buttons">
-        <a href="/dashboard" class="btn">Dashboard</a>
-        <a href="/auth/logout" class="btn btn-outline">Logout</a>
+        <a href="/dashboard" class="btn btn-outline">Dashboard</a>
+        <form action="/auth/logout" method="POST" style="display: inline;">
+          <button type="submit" class="btn btn-outline">Logout</button>
+        </form>
       </div>
     </div>
   </header>
 
   <main>
     <div class="container">
-      <h2>Edit Recording</h2>
+      <h2 class="section-title animate-fadeIn">Edit Recording</h2>
       
-      <div class="recording-edit-container">
-        <div class="audio-preview">
+      <!-- Flash Messages -->
+      <div id="flash-messages">
+        <script>
+          // Check for flash messages in cookies
+          document.addEventListener('DOMContentLoaded', () => {
+            const getCookie = (name) => {
+              const value = `; ${document.cookie}`;
+              const parts = value.split(`; ${name}=`);
+              if (parts.length === 2) return parts.pop().split(';').shift();
+            };
+            
+            const successMsg = getCookie('success_msg');
+            const errorMsg = getCookie('error_msg');
+            const flashMessages = document.getElementById('flash-messages');
+            
+            if (successMsg) {
+              const successAlert = document.createElement('div');
+              successAlert.className = 'alert alert-success animate-fadeIn';
+              successAlert.textContent = decodeURIComponent(successMsg);
+              flashMessages.appendChild(successAlert);
+              document.cookie = 'success_msg=; Max-Age=0; path=/;';
+            }
+            
+            if (errorMsg) {
+              const errorAlert = document.createElement('div');
+              errorAlert.className = 'alert alert-error animate-fadeIn';
+              errorAlert.textContent = decodeURIComponent(errorMsg);
+              flashMessages.appendChild(errorAlert);
+              document.cookie = 'error_msg=; Max-Age=0; path=/;';
+            }
+          });
+        </script>
+      </div>
+      
+      <div class="recording-edit-container card animate-fadeIn">
+        <div class="audio-preview animate-slideUp" style="animation-delay: 100ms;">
           <h3>Audio Preview</h3>
-          <div id="audio-player-container">
-            <audio id="audio-player" controls></audio>
-          </div>
+          <audio id="audio-player" controls></audio>
         </div>
         
-        <div class="recording-form">
-          <form id="edit-form" action="/recordings" method="POST">
-            <input type="hidden" name="_method" value="PUT">
-            <div class="form-group">
-              <label for="title">Title</label>
-              <input type="text" id="title" name="title" required>
-            </div>
-            <div class="form-group">
-              <label for="description">Description (optional)</label>
-              <textarea id="description" name="description" rows="3"></textarea>
-            </div>
-            <div class="form-buttons">
-              <a href="/dashboard" class="btn btn-outline">Cancel</a>
-              <button type="submit" class="btn btn-lg">Update Recording</button>
-            </div>
-          </form>
-        </div>
+        <form id="edit-form" method="POST" class="animate-slideUp" style="animation-delay: 200ms;">
+          <input type="hidden" name="_method" value="PUT">
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label for="description">Description (optional)</label>
+            <textarea id="description" name="description" class="form-input" rows="3"></textarea>
+          </div>
+          <div class="form-buttons">
+            <a href="/dashboard" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
       </div>
     </div>
   </main>
 
-  <footer>
+  <footer class="footer">
     <div class="container">
       <p>&copy; 2025 Voice Recorder App</p>
     </div>
@@ -59,8 +92,13 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        // Fetch recording data from URL path
+        // Get recording ID from URL
         const recordingId = window.location.pathname.split('/').pop();
+        
+        // Set form action
+        document.getElementById('edit-form').action = `/recordings/${recordingId}`;
+        
+        // Fetch recording data
         const response = await fetch(`/api/recordings/${recordingId}`);
         const recording = await response.json();
         
@@ -68,13 +106,11 @@
         document.getElementById('title').value = recording.title;
         document.getElementById('description').value = recording.description || '';
         
-        // Set form action
-        document.getElementById('edit-form').action = `/recordings/${recording.id}`;
-        
         // Set audio player source
-        document.getElementById('audio-player').src = `/uploads/${recording.audioFile}`;
+        document.getElementById('audio-player').src = `/uploads/${recording.filename}`;
       } catch (error) {
         console.error('Error loading recording data:', error);
+        alert('Failed to load recording data. Please try again later.');
       }
     });
   </script>

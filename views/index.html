@@ -4,15 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/theme.css">
   <title>Voice Recorder App</title>
 </head>
-<body>
-  <header>
+<body class="theme-light">
+  <header class="header">
     <div class="container">
-      <h1>Voice Recorder App</h1>
+      <h1 class="app-title">Voice Recorder App</h1>
       <div class="header-buttons">
-        <a href="/auth/login" class="btn">Login</a>
-        <a href="/auth/register" class="btn">Register</a>
+        <a href="/auth/login" class="btn btn-primary">Login</a>
+        <a href="/auth/register" class="btn btn-outline">Register</a>
       </div>
     </div>
   </header>
@@ -36,7 +37,7 @@
             
             if (successMsg) {
               const successAlert = document.createElement('div');
-              successAlert.className = 'alert alert-success';
+              successAlert.className = 'alert alert-success animate-fadeIn';
               successAlert.textContent = decodeURIComponent(successMsg);
               flashMessages.appendChild(successAlert);
               document.cookie = 'success_msg=; Max-Age=0; path=/;';
@@ -44,7 +45,7 @@
             
             if (errorMsg) {
               const errorAlert = document.createElement('div');
-              errorAlert.className = 'alert alert-error';
+              errorAlert.className = 'alert alert-error animate-fadeIn';
               errorAlert.textContent = decodeURIComponent(errorMsg);
               flashMessages.appendChild(errorAlert);
               document.cookie = 'error_msg=; Max-Age=0; path=/;';
@@ -53,33 +54,33 @@
         </script>
       </div>
       
-      <div class="home-content">
+      <div class="home-content animate-fadeIn">
         <div class="intro">
-          <h2>Welcome to Voice Recorder App</h2>
-          <p>Record, save and manage your audio recordings securely.</p>
+          <h2 class="section-title">Welcome to Voice Recorder App</h2>
+          <p class="intro-text">Record, save and manage your audio recordings securely.</p>
           <div class="features">
-            <div class="feature">
+            <div class="feature-card animate-slideUp" style="animation-delay: 100ms;">
               <h3>Record</h3>
               <p>High-quality voice recording straight from your browser</p>
             </div>
-            <div class="feature">
+            <div class="feature-card animate-slideUp" style="animation-delay: 200ms;">
               <h3>Store</h3>
               <p>Save your recordings securely in your personal account</p>
             </div>
-            <div class="feature">
+            <div class="feature-card animate-slideUp" style="animation-delay: 300ms;">
               <h3>Manage</h3>
               <p>Organize, edit, and access your recordings anytime</p>
             </div>
           </div>
           <div class="cta">
-            <a href="/auth/register" class="btn btn-lg">Get Started</a>
+            <a href="/auth/register" class="btn btn-primary btn-lg animate-pulse">Get Started</a>
           </div>
         </div>
       </div>
     </div>
   </main>
 
-  <footer>
+  <footer class="footer">
     <div class="container">
       <p>&copy; 2025 Voice Recorder App</p>
     </div>

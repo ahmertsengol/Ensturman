@@ -4,39 +4,73 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/theme.css">
   <title>Dashboard - Voice Recorder App</title>
 </head>
-<body>
-  <header>
+<body class="theme-light">
+  <header class="header">
     <div class="container">
-      <h1>Voice Recorder App</h1>
+      <h1 class="app-title">Voice Recorder App</h1>
       <div class="header-buttons">
-        <a href="/recordings/add" class="btn">New Recording</a>
-        <a href="/auth/logout" class="btn btn-outline">Logout</a>
+        <a href="/recordings/add" class="btn btn-primary">New Recording</a>
+        <form action="/auth/logout" method="POST" style="display: inline;">
+          <button type="submit" class="btn btn-outline">Logout</button>
+        </form>
       </div>
     </div>
   </header>
 
   <main>
     <div class="container">
-      <h2>Welcome <span id="username"></span></h2>
+      <!-- Flash Messages -->
+      <div id="flash-messages">
+        <script>
+          // Check for flash messages in cookies
+          document.addEventListener('DOMContentLoaded', () => {
+            const getCookie = (name) => {
+              const value = `; ${document.cookie}`;
+              const parts = value.split(`; ${name}=`);
+              if (parts.length === 2) return parts.pop().split(';').shift();
+            };
+            
+            const successMsg = getCookie('success_msg');
+            const errorMsg = getCookie('error_msg');
+            const flashMessages = document.getElementById('flash-messages');
+            
+            if (successMsg) {
+              const successAlert = document.createElement('div');
+              successAlert.className = 'alert alert-success animate-fadeIn';
+              successAlert.textContent = decodeURIComponent(successMsg);
+              flashMessages.appendChild(successAlert);
+              document.cookie = 'success_msg=; Max-Age=0; path=/;';
+            }
+            
+            if (errorMsg) {
+              const errorAlert = document.createElement('div');
+              errorAlert.className = 'alert alert-error animate-fadeIn';
+              errorAlert.textContent = decodeURIComponent(errorMsg);
+              flashMessages.appendChild(errorAlert);
+              document.cookie = 'error_msg=; Max-Age=0; path=/;';
+            }
+          });
+        </script>
+      </div>
       
-      <div class="dashboard-content">
-        <div class="recordings-list">
+      <div class="dashboard-content card animate-fadeIn">
+        <h2 class="section-title">Dashboard</h2>
+        <p class="dashboard-welcome animate-slideUp" style="animation-delay: 100ms;">Welcome <span id="user-name"></span>!</p>
+        
+        <div class="recordings-list animate-slideUp" style="animation-delay: 200ms;">
           <h3>Your Recordings</h3>
           <div id="recordings-container">
-            <!-- Recordings will be loaded here -->
-            <div class="no-recordings" id="no-recordings">
-              <p>You don't have any recordings yet.</p>
-              <a href="/recordings/add" class="btn">Create Your First Recording</a>
-            </div>
+            <!-- Recordings will be displayed here -->
           </div>
         </div>
       </div>
     </div>
   </main>
 
-  <footer>
+  <footer class="footer">
     <div class="container">
       <p>&copy; 2025 Voice Recorder App</p>
     </div>
@@ -46,49 +80,71 @@
     // Fetch user data and recordings
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        // Display username
+        // Get user data
         const userResponse = await fetch('/api/user');
         const userData = await userResponse.json();
-        document.getElementById('username').textContent = userData.username;
         
-        // Fetch recordings
+        document.getElementById('user-name').textContent = userData.name;
+        
+        // Get recordings
         const recordingsResponse = await fetch('/api/recordings');
         const recordings = await recordingsResponse.json();
         
         const recordingsContainer = document.getElementById('recordings-container');
-        const noRecordings = document.getElementById('no-recordings');
         
-        if (recordings.length > 0) {
-          noRecordings.style.display = 'none';
-          
+        if (recordings.length === 0) {
+          recordingsContainer.innerHTML = `
+            <div class="no-recordings animate-fadeIn">
+              <p>You don't have any recordings yet.</p>
+              <a href="/recordings/add" class="btn btn-primary">Create Your First Recording</a>
+            </div>
+          `;
+        } else {
           recordings.forEach(recording => {
-            const recordingElement = document.createElement('div');
-            recordingElement.className = 'recording-item';
-            recordingElement.innerHTML = `
+            const recordingDate = new Date(recording.createdAt).toLocaleString();
+            const duration = recording.duration ? formatDuration(recording.duration) : 'Unknown';
+            
+            const recordingItem = document.createElement('div');
+            recordingItem.className = 'recording-item animate-fadeIn';
+            
+            recordingItem.innerHTML = `
               <div class="recording-info">
                 <h4>${recording.title}</h4>
                 <p>${recording.description || 'No description'}</p>
-                <p class="recording-date">Recorded on: ${new Date(recording.createdAt).toLocaleDateString()}</p>
+                <div class="recording-meta">
+                  <span class="recording-date">Recorded: ${recordingDate}</span>
+                  <span class="recording-duration">Duration: ${duration}</span>
+                </div>
               </div>
               <div class="recording-controls">
-                <audio controls src="/uploads/${recording.audioFile}"></audio>
-                <div class="recording-actions">
-                  <a href="/recordings/edit/${recording.id}" class="btn btn-sm">Edit</a>
-                  <form action="/recordings/${recording.id}" method="POST" class="delete-form">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                  </form>
-                </div>
+                <audio src="/uploads/${recording.filename}" controls class="audio-player"></audio>
+              </div>
+              <div class="recording-actions">
+                <a href="/recordings/edit/${recording.id}" class="btn btn-sm btn-outline">Edit</a>
+                <form action="/recordings/${recording.id}?_method=DELETE" method="POST" class="delete-form">
+                  <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
               </div>
             `;
             
-            recordingsContainer.appendChild(recordingElement);
+            recordingsContainer.appendChild(recordingItem);
           });
         }
       } catch (error) {
-        console.error('Error loading dashboard data:', error);
+        console.error('Error fetching data:', error);
+        document.getElementById('recordings-container').innerHTML = `
+          <div class="alert alert-error animate-fadeIn">
+            Failed to load recordings. Please try again later.
+          </div>
+        `;
       }
     });
+    
+    function formatDuration(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
   </script>
 </body>
 </html> 

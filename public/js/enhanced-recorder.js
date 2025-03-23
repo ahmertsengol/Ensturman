@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const playButton = document.getElementById('play-button');
   const saveButton = document.getElementById('save-button');
   const recordStatus = document.getElementById('record-status');
+  const recorderStatusContainer = document.querySelector('.recorder-status');
   const timerDisplay = document.getElementById('timer');
   const visualizer = document.getElementById('visualizer');
   const audioPlayer = document.getElementById('audio-player');
@@ -46,6 +47,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function initMicrophoneList() {
     // We need to request permission first to get labeled devices
     try {
+      // Add loading indicator to select
+      microphoneSelect.innerHTML = '<option value="">Loading microphones...</option>';
+      microphoneSelect.classList.add('loading');
+      
       // Temporary stream to get permission
       const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
@@ -58,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       // Clear existing options
       microphoneSelect.innerHTML = '';
+      microphoneSelect.classList.remove('loading');
       
       // Add each device as an option
       audioInputDevices.forEach(device => {
@@ -93,6 +99,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       // Reset any previous recording
       resetRecording();
+      
+      // Add recording class to UI
+      document.body.classList.add('is-recording');
+      recorderStatusContainer.classList.add('recording');
+      recordButton.classList.add('recording');
+      
+      // Show ripple animation on record button
+      recordButton.classList.add('animate-ripple');
       
       // Get user media with selected device
       const constraints = {
@@ -134,6 +148,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       saveButton.disabled = true;
       microphoneSelect.disabled = true;
       
+      // Add animation to recording UI
+      visualizer.classList.add('animate-pulse');
+      
       // Start timer
       startTimer();
       
@@ -146,6 +163,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       // When recording stops
       mediaRecorder.onstop = () => {
+        // Remove recording classes
+        document.body.classList.remove('is-recording');
+        recorderStatusContainer.classList.remove('recording');
+        recordButton.classList.remove('recording');
+        recordButton.classList.remove('animate-ripple');
+        visualizer.classList.remove('animate-pulse');
+        
         // Create audio blob
         audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
         audioUrl = URL.createObjectURL(audioBlob);
@@ -187,6 +211,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveButton.disabled = false;
         microphoneSelect.disabled = false;
         
+        // Add success animation to save button
+        saveButton.classList.add('animate-pulse');
+        setTimeout(() => {
+          saveButton.classList.remove('animate-pulse');
+        }, 2000);
+        
         // Stop all tracks
         audioStream.getTracks().forEach(track => track.stop());
       };
@@ -196,6 +226,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       recordStatus.textContent = 'Error: Could not access microphone';
       microphoneSelect.disabled = false;
       recordButton.disabled = false;
+      
+      // Remove recording classes
+      document.body.classList.remove('is-recording');
+      recorderStatusContainer.classList.remove('recording');
+      recordButton.classList.remove('recording');
+      recordButton.classList.remove('animate-ripple');
     }
   }
   
@@ -211,6 +247,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Play recording
   function playRecording() {
     audioPlayer.play();
+    
+    // Add animation while playing
+    playButton.classList.add('animate-pulse');
+    
+    // Remove animation when playback ends
+    audioPlayer.onended = () => {
+      playButton.classList.remove('animate-pulse');
+    };
+    
+    // Remove animation if playback is paused
+    audioPlayer.onpause = () => {
+      playButton.classList.remove('animate-pulse');
+    };
   }
   
   // Reset recording
@@ -222,6 +271,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     clearInterval(timerInterval);
     timerDisplay.textContent = '00:00';
     canvasContext.clearRect(0, 0, visualizer.width, visualizer.height);
+    
+    // Reset animations
+    document.body.classList.remove('is-recording');
+    recorderStatusContainer.classList.remove('recording');
+    recordButton.classList.remove('recording');
+    recordButton.classList.remove('animate-ripple');
+    visualizer.classList.remove('animate-pulse');
+    playButton.classList.remove('animate-pulse');
     
     // Stop any existing audio stream
     if (audioStream) {
@@ -256,7 +313,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       analyser.getByteFrequencyData(dataArray);
       
-      canvasContext.fillStyle = '#f4f4f4';
+      canvasContext.fillStyle = '#f1f5f9'; // var(--gray-100)
       canvasContext.fillRect(0, 0, visualizer.width, visualizer.height);
       
       const barWidth = (visualizer.width / bufferLength) * 2.5;
@@ -265,7 +322,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i] / 2;
         
-        canvasContext.fillStyle = `rgb(${barHeight + 100}, 50, 150)`;
+        // Gradient based on our theme colors
+        const gradient = canvasContext.createLinearGradient(0, visualizer.height, 0, visualizer.height - barHeight);
+        gradient.addColorStop(0, '#4f46e5'); // var(--primary-dark)
+        gradient.addColorStop(1, '#818cf8'); // var(--primary-light)
+        
+        canvasContext.fillStyle = gradient;
         canvasContext.fillRect(x, visualizer.height - barHeight, barWidth, barHeight);
         
         x += barWidth + 1;
@@ -277,7 +339,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Stop visualizer
   function stopVisualizer() {
-    canvasContext.fillStyle = '#f4f4f4';
+    canvasContext.fillStyle = '#f1f5f9'; // var(--gray-100)
     canvasContext.fillRect(0, 0, visualizer.width, visualizer.height);
   }
   
@@ -329,13 +391,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (errorEl) {
       errorEl.textContent = message;
       errorEl.style.display = 'block';
+      errorEl.classList.add('animate-slideUp');
       
       setTimeout(() => {
-        errorEl.style.display = 'none';
-      }, 5000);
+        errorEl.classList.remove('animate-slideUp');
+        setTimeout(() => {
+          errorEl.style.display = 'none';
+        }, 300);
+      }, 4700);
     } else {
       console.error(message);
       alert(message);
+    }
+  }
+  
+  // Show success message
+  function showSuccess(message) {
+    const successEl = document.getElementById('success-message');
+    if (successEl) {
+      successEl.textContent = message;
+      successEl.style.display = 'block';
+      successEl.classList.add('animate-slideUp');
+      
+      setTimeout(() => {
+        successEl.classList.remove('animate-slideUp');
+        setTimeout(() => {
+          successEl.style.display = 'none';
+        }, 300);
+      }, 4700);
     }
   }
   
@@ -344,6 +427,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     selectedDeviceId = this.value;
     const selectedOption = this.options[this.selectedIndex];
     recordStatus.textContent = 'Ready to record using: ' + selectedOption.text;
+    
+    // Add animation for selection
+    recorderStatusContainer.classList.add('animate-pulse');
+    setTimeout(() => {
+      recorderStatusContainer.classList.remove('animate-pulse');
+    }, 500);
   });
   
   // Event listeners
@@ -358,16 +447,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!titleInput.value.trim()) {
       e.preventDefault();
       showError('Please enter a title for your recording');
+      titleInput.focus();
       return;
     }
     
     if (!audioFileInput.files || !audioFileInput.files.length) {
       e.preventDefault();
       showError('Please make a recording first');
+      recordButton.focus();
       return;
     }
     
     // Log file info for debugging
     console.log('Submitting file:', audioFileInput.files[0]);
+    
+    // Show success animation
+    saveButton.classList.add('animate-pulse');
+  });
+  
+  // Add animation when buttons are focused
+  const buttons = document.querySelectorAll('.recorder-buttons button');
+  buttons.forEach(button => {
+    button.addEventListener('focus', () => {
+      if (!button.disabled) {
+        button.classList.add('animate-pulse');
+        setTimeout(() => {
+          button.classList.remove('animate-pulse');
+        }, 500);
+      }
+    });
   });
 }); 
