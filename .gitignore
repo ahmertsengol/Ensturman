@@ -11,7 +11,7 @@ yarn-error.log
 uploads/
 
 # Logs
-logs
+logs/
 *.log
 
 # Runtime data

@@ -1,5 +1,15 @@
 // config/db.js - Database connection configuration
 const { Sequelize } = require('sequelize');
+const logger = require('./logger');
+
+// Custom logging function that uses our winston logger
+const customLogger = (msg) => {
+  if (msg.includes('Executing')) {
+    logger.debug(msg);
+  } else {
+    logger.info(msg);
+  }
+};
 
 // PostgreSQL connection
 const sequelize = new Sequelize(
@@ -10,7 +20,7 @@ const sequelize = new Sequelize(
     host: process.env.PG_HOST || 'localhost',
     port: process.env.PG_PORT || 5432,
     dialect: 'postgres',
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    logging: process.env.NODE_ENV === 'development' ? customLogger : false,
     dialectOptions: {
       ssl: process.env.PG_SSL === 'true' ? {
         require: true,
@@ -30,15 +40,15 @@ const sequelize = new Sequelize(
 const connectDB = async () => {
   try {
     await sequelize.authenticate();
-    console.log('PostgreSQL Connection has been established successfully.');
+    logger.info('PostgreSQL Connection has been established successfully.');
     
     // Sync models with database
     await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
-    console.log('Database synchronized');
+    logger.info('Database synchronized');
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    logger.error('Unable to connect to the database:', error);
     process.exit(1);
   }
 };
 
-module.exports = { connectDB, sequelize }; 
+module.exports = { sequelize, connectDB }; 

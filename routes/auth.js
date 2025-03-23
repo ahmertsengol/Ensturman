@@ -2,7 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { ensureGuest } = require('../middlewares/auth');
+const { ensureGuest, ensureAuthenticated } = require('../middlewares/auth');
+const logger = require('../config/logger');
 
 // Login page
 router.get('/login', ensureGuest, authController.getLogin);
@@ -11,13 +12,12 @@ router.get('/login', ensureGuest, authController.getLogin);
 router.get('/register', ensureGuest, authController.getRegister);
 
 // Login process
-router.post('/login', authController.postLogin);
+router.post('/login', authController.login);
 
 // Register process
-router.post('/register', authController.postRegister);
+router.post('/register', authController.register);
 
-// Logout - support both GET and POST for backward compatibility
-router.get('/logout', authController.logout);
-router.post('/logout', authController.logout);
+// Logout
+router.get('/logout', ensureAuthenticated, authController.logout);
 
 module.exports = router; 

@@ -4,7 +4,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const recordingController = require('../controllers/recordingController');
-const { ensureAuth } = require('../middlewares/auth');
+const { ensureAuthenticated } = require('../middlewares/auth');
 
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
@@ -41,18 +41,18 @@ const upload = multer({
 });
 
 // Add recording page
-router.get('/add', ensureAuth, recordingController.getAddRecording);
+router.get('/add', ensureAuthenticated, recordingController.getAddRecording);
 
 // Add recording - POST
-router.post('/', ensureAuth, upload.single('audio'), recordingController.addRecording);
+router.post('/', ensureAuthenticated, upload.single('audio'), recordingController.addRecording);
 
 // Edit recording page
-router.get('/edit/:id', ensureAuth, recordingController.getEditRecording);
+router.get('/edit/:id', ensureAuthenticated, recordingController.getEditRecording);
 
 // Update recording
-router.put('/:id', ensureAuth, recordingController.updateRecording);
+router.put('/:id', ensureAuthenticated, recordingController.updateRecording);
 
 // Delete recording
-router.delete('/:id', ensureAuth, recordingController.deleteRecording);
+router.delete('/:id', ensureAuthenticated, recordingController.deleteRecording);
 
 module.exports = router; 
