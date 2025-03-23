@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/recorder.css">
   <title>Record Audio - Voice Recorder App</title>
 </head>
 <body>
@@ -29,6 +30,14 @@
       
       <div class="recording-container">
         <div class="recorder-controls">
+          <!-- Microphone Selection -->
+          <div class="microphone-selection">
+            <label for="microphone-select">Select Microphone:</label>
+            <select id="microphone-select">
+              <option value="">Loading microphones...</option>
+            </select>
+          </div>
+          
           <div class="recorder-status">
             <div id="record-status">Ready to record</div>
             <div id="timer">00:00</div>
@@ -76,7 +85,7 @@
     </div>
   </footer>
 
-  <script src="/js/recorder.js"></script>
+  <script src="/js/enhanced-recorder.js"></script>
   <script>
     // Display flash messages
     document.addEventListener('DOMContentLoaded', () => {

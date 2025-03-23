@@ -1,0 +1,213 @@
+/* public/css/recorder.css - Styles for the enhanced voice recorder */
+
+.recording-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.recorder-controls {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.microphone-selection {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  border: 1px solid #eee;
+}
+
+.microphone-selection label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.microphone-selection select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: white;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.microphone-selection select:focus {
+  outline: none;
+  border-color: #6c63ff;
+}
+
+.recorder-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f4f4f4;
+  border-radius: 4px;
+}
+
+#record-status {
+  font-weight: bold;
+  color: #333;
+}
+
+#timer {
+  font-family: monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #6c63ff;
+}
+
+.recorder-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.recorder-buttons button {
+  flex: 1;
+  min-width: 120px;
+  padding: 12px 15px;
+  border-radius: 30px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+#record-button {
+  background-color: #ff5252;
+  color: white;
+}
+
+#record-button:hover:not(:disabled) {
+  background-color: #ff3838;
+  transform: scale(1.05);
+}
+
+#stop-button {
+  background-color: #333;
+  color: white;
+}
+
+#stop-button:hover:not(:disabled) {
+  background-color: #222;
+}
+
+#play-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+#play-button:hover:not(:disabled) {
+  background-color: #3d8b40;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.audio-visualizer {
+  margin-bottom: 20px;
+}
+
+#visualizer {
+  width: 100%;
+  height: 100px;
+  background-color: #f4f4f4;
+  border-radius: 4px;
+}
+
+#audio-player-container {
+  margin-top: 15px;
+}
+
+#audio-player {
+  width: 100%;
+  border-radius: 30px;
+}
+
+.recording-form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #6c63ff;
+}
+
+.form-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.alert {
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  border-left: 4px solid;
+}
+
+.alert-error {
+  background-color: #ffebee;
+  border-left-color: #f44336;
+  color: #d32f2f;
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  border-left-color: #4caf50;
+  color: #2e7d32;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .recording-container {
+    flex-direction: row;
+  }
+  
+  .recorder-controls {
+    flex: 1.5;
+    margin-right: 20px;
+  }
+  
+  .recording-form {
+    flex: 1;
+  }
+} 
