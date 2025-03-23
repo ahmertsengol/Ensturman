@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/style.css">
+  <title>Login - Voice Recorder App</title>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Voice Recorder App</h1>
+      <div class="header-buttons">
+        <a href="/" class="btn">Home</a>
+        <a href="/auth/register" class="btn">Register</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="form-container">
+        <h2>Login to Your Account</h2>
+        
+        <!-- Flash Messages -->
+        <div id="flash-messages">
+          <script>
+            // Check for flash messages in cookies
+            document.addEventListener('DOMContentLoaded', () => {
+              const getCookie = (name) => {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+              };
+              
+              const successMsg = getCookie('success_msg');
+              const errorMsg = getCookie('error_msg');
+              const flashMessages = document.getElementById('flash-messages');
+              
+              if (successMsg) {
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success';
+                successAlert.textContent = decodeURIComponent(successMsg);
+                flashMessages.appendChild(successAlert);
+                document.cookie = 'success_msg=; Max-Age=0; path=/;';
+              }
+              
+              if (errorMsg) {
+                const errorAlert = document.createElement('div');
+                errorAlert.className = 'alert alert-error';
+                errorAlert.textContent = decodeURIComponent(errorMsg);
+                flashMessages.appendChild(errorAlert);
+                document.cookie = 'error_msg=; Max-Age=0; path=/;';
+              }
+            });
+          </script>
+        </div>
+        
+        <form action="/auth/login" method="POST">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+          </div>
+          <button type="submit" class="btn btn-lg">Login</button>
+        </form>
+        <p class="form-text">
+          Don't have an account? <a href="/auth/register">Register</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Voice Recorder App</p>
+    </div>
+  </footer>
+</body>
+</html> 

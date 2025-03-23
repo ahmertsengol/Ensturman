@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/style.css">
+  <title>Edit Recording - Voice Recorder App</title>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Voice Recorder App</h1>
+      <div class="header-buttons">
+        <a href="/dashboard" class="btn">Dashboard</a>
+        <a href="/auth/logout" class="btn btn-outline">Logout</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h2>Edit Recording</h2>
+      
+      <div class="recording-edit-container">
+        <div class="audio-preview">
+          <h3>Audio Preview</h3>
+          <div id="audio-player-container">
+            <audio id="audio-player" controls></audio>
+          </div>
+        </div>
+        
+        <div class="recording-form">
+          <form id="edit-form" action="/recordings" method="POST">
+            <input type="hidden" name="_method" value="PUT">
+            <div class="form-group">
+              <label for="title">Title</label>
+              <input type="text" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+              <label for="description">Description (optional)</label>
+              <textarea id="description" name="description" rows="3"></textarea>
+            </div>
+            <div class="form-buttons">
+              <a href="/dashboard" class="btn btn-outline">Cancel</a>
+              <button type="submit" class="btn btn-lg">Update Recording</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Voice Recorder App</p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Fetch recording data from URL path
+        const recordingId = window.location.pathname.split('/').pop();
+        const response = await fetch(`/api/recordings/${recordingId}`);
+        const recording = await response.json();
+        
+        // Fill form with recording data
+        document.getElementById('title').value = recording.title;
+        document.getElementById('description').value = recording.description || '';
+        
+        // Set form action
+        document.getElementById('edit-form').action = `/recordings/${recording.id}`;
+        
+        // Set audio player source
+        document.getElementById('audio-player').src = `/uploads/${recording.audioFile}`;
+      } catch (error) {
+        console.error('Error loading recording data:', error);
+      }
+    });
+  </script>
+</body>
+</html>
