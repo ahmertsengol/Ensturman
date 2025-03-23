@@ -10,7 +10,7 @@ const User = require('../models/User');
 router.get('/user', ensureAuth, (req, res) => {
   res.json({
     id: req.user.id,
-    username: req.user.username,
+    name: req.user.username,
     email: req.user.email
   });
 });

@@ -3,11 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Favicon -->
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <style>
+    /* Inline critical styles to prevent FOUC */
+    body { opacity: 0; transition: opacity 0.5s ease; }
+    .loading-overlay { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background-color: #f8fafc; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 9999; 
+    }
+    .loading-spinner {
+      width: 40px; 
+      height: 40px; 
+      border: 3px solid rgba(99, 102, 241, 0.2); 
+      border-radius: 50%; 
+      border-top-color: #6366f1; 
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/theme.css">
   <title>Edit Recording - Voice Recorder App</title>
 </head>
 <body class="theme-light">
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
+
   <header class="header">
     <div class="container">
       <h1 class="app-title">Voice Recorder App</h1>
@@ -107,11 +142,24 @@
         document.getElementById('description').value = recording.description || '';
         
         // Set audio player source
-        document.getElementById('audio-player').src = `/uploads/${recording.filename}`;
+        document.getElementById('audio-player').src = `/uploads/${recording.audioFile}`;
       } catch (error) {
         console.error('Error loading recording data:', error);
         alert('Failed to load recording data. Please try again later.');
       }
+    });
+    
+    // Handle page loading
+    window.addEventListener('load', function() {
+      // Show the body once everything is loaded
+      document.body.style.opacity = 1;
+      
+      // Hide loading overlay
+      const loadingOverlay = document.getElementById('loading-overlay');
+      loadingOverlay.style.opacity = 0;
+      setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+      }, 500);
     });
   </script>
 </body>
