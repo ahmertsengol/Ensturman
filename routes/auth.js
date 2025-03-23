@@ -20,4 +20,7 @@ router.post('/register', authController.register);
 // Logout
 router.get('/logout', ensureAuthenticated, authController.logout);
 
+// Add POST method for logout to handle form submissions
+router.post('/logout', ensureAuthenticated, authController.logout);
+
 module.exports = router; 
