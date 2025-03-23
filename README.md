@@ -9,9 +9,6 @@ A full-featured voice recording web application with user authentication built u
 - Save, edit, and delete recordings
 - Visualize audio with a real-time waveform
 - Mobile-responsive design
-- Multiple microphone recording
-- Playback recordings from the system
-- PostgreSQL database integration
 
 ## Prerequisites
 
