@@ -131,9 +131,12 @@ logger.info('Render override configured');
 
 // Routes
 app.use('/', require('./routes/index'));
-app.use('/auth', require('./routes/auth'));
+const authRoutes = require('./routes/auth');
+app.use('/auth', authRoutes);
+app.use('/', authRoutes); // Mount auth routes at root as well
 app.use('/recordings', require('./routes/recordings'));
 app.use('/api', require('./routes/api'));
+
 logger.info('Routes registered');
 
 // Error routes
