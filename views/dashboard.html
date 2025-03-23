@@ -156,7 +156,8 @@
               </div>
               <div class="recording-actions">
                 <a href="/recordings/edit/${recording.id}" class="btn btn-sm btn-outline">Edit</a>
-                <form action="/recordings/${recording.id}?_method=DELETE" method="POST" class="delete-form">
+                <form action="/recordings/${recording.id}" method="POST" class="delete-form">
+                  <input type="hidden" name="_method" value="DELETE">
                   <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                 </form>
               </div>

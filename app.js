@@ -69,12 +69,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Uploads folder - make accessible
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Method override for PUT and DELETE
+// Method override for PUT and DELETE - check both body and query parameters
 app.use((req, res, next) => {
+  // Check body parameters (form submissions)
   if (req.body && req.body._method) {
     req.method = req.body._method;
     delete req.body._method;
   }
+  
+  // Check query parameters (URL parameters)
+  if (req.query && req.query._method) {
+    req.method = req.query._method;
+    delete req.query._method;
+  }
+  
   next();
 });
 
