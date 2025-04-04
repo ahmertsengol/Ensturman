@@ -24,14 +24,15 @@ Web/logs/
 Web/dist/
 
 # Mobile project specific
-Mobil/.expo/
-Mobil/dist/
-Mobil/web-build/
-Mobil/expo-env.d.ts
-Mobil/*.orig.*
-Mobil/*.jks
-Mobil/*.p8
-Mobil/*.p12
-Mobil/*.key
-Mobil/*.mobileprovision
-Mobil/.metro-health-check* 
+Mobile/.expo/
+Mobile/dist/
+Mobile/web-build/
+Mobile/expo-env.d.ts
+Mobile/*.orig.*
+Mobile/*.jks
+Mobile/*.p8
+Mobile/*.p12
+Mobile/*.key
+Mobile/*.mobileprovision
+Mobile/.metro-health-check* 
+Mobile/updates/
