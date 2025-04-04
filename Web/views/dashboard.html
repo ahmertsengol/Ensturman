@@ -48,6 +48,7 @@
       <h1 class="app-title">Voice Recorder App</h1>
       <div class="header-buttons">
         <a href="/recordings/add" class="btn btn-primary">New Recording</a>
+        <a href="/pitch-detection" class="btn btn-accent">Note Detection</a>
         <form action="/auth/logout" method="POST" style="display: inline;">
           <button type="submit" class="btn btn-outline">Logout</button>
         </form>
@@ -94,6 +95,13 @@
       <div class="dashboard-content card animate-fadeIn">
         <h2 class="section-title">Dashboard</h2>
         <p class="dashboard-welcome animate-slideUp" style="animation-delay: 100ms;">Welcome <span id="user-name"></span>!</p>
+        
+        <!-- New Feature Card -->
+        <div class="feature-highlight animate-slideUp" style="animation-delay: 150ms; margin-bottom: 20px; padding: 15px; background-color: #f0f9ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
+          <h3 style="margin-top: 0;">New Feature: Real-time Note Detection</h3>
+          <p>Try our new real-time music note detection tool! Play your instrument and get instant feedback.</p>
+          <a href="/pitch-detection" class="btn btn-accent">Try Note Detection</a>
+        </div>
         
         <div class="recordings-list animate-slideUp" style="animation-delay: 200ms;">
           <h3>Your Recordings</h3>

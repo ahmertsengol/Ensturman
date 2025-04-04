@@ -1,0 +1,154 @@
+/* public/css/pitch-detector.css */
+.pitch-detection-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.microphone-selection {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.microphone-selection label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.form-select {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+  margin: 0 auto;
+}
+
+.form-select:focus {
+  border-color: #6366f1;
+  outline: none;
+}
+
+.form-select:disabled {
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+}
+
+.note-feedback {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+#note-display {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  height: 40px;
+}
+
+#note-visualization {
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.note-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.correct-note {
+  background-color: #4ade80; /* green */
+  color: white;
+  animation: pulse 0.5s ease-in-out;
+}
+
+.incorrect-note {
+  background-color: #f87171; /* red */
+  color: white;
+  animation: shake 0.5s ease-in-out;
+}
+
+.exercise {
+  background-color: #f1f5f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.exercise h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.expected-notes {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.expected-notes span {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e2e8f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.expected-notes span.highlighted {
+  background-color: #4ade80;
+  color: white;
+  transform: scale(1.1);
+}
+
+#exercise-progress {
+  height: 10px;
+  background-color: #e2e8f0;
+  border-radius: 5px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+#exercise-progress .progress-bar {
+  height: 100%;
+  background-color: #6366f1; /* indigo */
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+} 

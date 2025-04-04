@@ -17,4 +17,13 @@ router.get('/', (req, res) => {
 // Dashboard
 router.get('/dashboard', ensureAuthenticated, recordingController.getDashboard);
 
+// Pitch Detection - New page for real-time note detection
+router.get('/pitch-detection', ensureAuthenticated, (req, res) => {
+  logger.debug(`Pitch detection page accessed by user ${req.user.id}`);
+  res.render('pitch-detection', {
+    title: 'Real-time Note Detection',
+    user: req.user
+  });
+});
+
 module.exports = router; 

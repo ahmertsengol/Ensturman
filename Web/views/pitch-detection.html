@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Favicon -->
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <style>
+    /* Inline critical styles to prevent FOUC */
+    body { opacity: 0; transition: opacity 0.5s ease; }
+    .loading-overlay { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background-color: #f8fafc; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 9999; 
+    }
+    .loading-spinner {
+      width: 40px; 
+      height: 40px; 
+      border: 3px solid rgba(99, 102, 241, 0.2); 
+      border-radius: 50%; 
+      border-top-color: #6366f1; 
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/pitch-detector.css">
+  <title>Gerçek Zamanlı Nota Algılama</title>
+</head>
+<body class="theme-light">
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <header class="header">
+    <div class="container">
+      <h1 class="app-title">Nota Algılama</h1>
+      <div class="header-buttons">
+        <a href="/dashboard" class="btn btn-outline">Gösterge Paneli</a>
+        <a href="/auth/logout" class="btn btn-secondary">Çıkış</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container pitch-detection-container">
+      <!-- Flash Messages -->
+      <div id="flash-messages">
+        <script>
+          // Check for flash messages in cookies
+          document.addEventListener('DOMContentLoaded', () => {
+            const getCookie = (name) => {
+              const value = `; ${document.cookie}`;
+              const parts = value.split(`; ${name}=`);
+              if (parts.length === 2) return parts.pop().split(';').shift();
+            };
+            
+            const successMsg = getCookie('success_msg');
+            const errorMsg = getCookie('error_msg');
+            const flashMessages = document.getElementById('flash-messages');
+            
+            if (successMsg) {
+              const successAlert = document.createElement('div');
+              successAlert.className = 'alert alert-success animate-fadeIn';
+              successAlert.textContent = decodeURIComponent(successMsg);
+              flashMessages.appendChild(successAlert);
+              document.cookie = 'success_msg=; Max-Age=0; path=/;';
+            }
+            
+            if (errorMsg) {
+              const errorAlert = document.createElement('div');
+              errorAlert.className = 'alert alert-error animate-fadeIn';
+              errorAlert.textContent = decodeURIComponent(errorMsg);
+              flashMessages.appendChild(errorAlert);
+              document.cookie = 'error_msg=; Max-Age=0; path=/;';
+            }
+          });
+        </script>
+      </div>
+      
+      <div class="pitch-detection-content animate-fadeIn">
+        <h2 class="section-title">Gerçek Zamanlı Nota Algılama</h2>
+        <p class="intro-text">Enstrümanınızı çalın ve notaların anında algılanmasını izleyin.</p>
+        
+        <!-- Mikrofon izni bilgilendirme kutucuğu -->
+        <div class="card" style="margin-bottom: 20px; background-color: #fff7ed; border-left: 4px solid #f97316;">
+          <h3 style="margin-top: 0; color: #9a3412;">Mikrofon İzni Gerekli</h3>
+          <p>Bu özelliği kullanabilmek için tarayıcının mikrofon erişimine izin vermeniz gerekmektedir. "Mikrofona Erişim İzni Ver" butonuna tıkladığınızda tarayıcı izin isteyecektir.</p>
+          <p><strong>Not:</strong> Eğer mikrofon izni daha önce reddedilmişse, tarayıcı ayarlarınızdan izinleri sıfırlamanız gerekebilir.</p>
+        </div>
+        
+        <!-- Mikrofon seçimi -->
+        <div class="microphone-selection">
+          <label for="microphone-select">Mikrofon Seçin:</label>
+          <select id="microphone-select" class="form-select" disabled>
+            <option value="">Mikrofon yükleniyor...</option>
+          </select>
+        </div>
+        
+        <div class="controls">
+          <button id="start-analysis" class="btn btn-primary">Mikrofona Erişim İzni Ver</button>
+          <button id="stop-analysis" class="btn btn-secondary" disabled>Dinlemeyi Durdur</button>
+        </div>
+        
+        <div class="note-feedback">
+          <h2 id="note-display">Notalar bekleniyor...</h2>
+          <div id="note-visualization" class="visualization"></div>
+        </div>
+        
+        <div class="exercise">
+          <h3>Mevcut Egzersiz: Do Majör Gamı</h3>
+          <div class="expected-notes">
+            <span>C</span>
+            <span>D</span>
+            <span>E</span>
+            <span>F</span>
+            <span>G</span>
+            <span>A</span>
+            <span>B</span>
+            <span>C</span>
+          </div>
+          <p>Her notayı sırasıyla çalın, Do'dan Do'ya</p>
+          <div id="exercise-progress">
+            <div class="progress-bar" style="width: 0%"></div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h3>Nasıl Kullanılır</h3>
+          <ol>
+            <li>Kullanmak istediğiniz mikrofonu listeden seçin</li>
+            <li>"Mikrofona Erişim İzni Ver" butonuna tıklayın ve tarayıcı izinlerini onaylayın</li>
+            <li>İzin verdikten sonra "Dinlemeye Başla" butonuna tıklayın</li> 
+            <li>Enstrümanınızı (gitar, piyano veya şarkı söyleyin) mikrofonunuza yakın çalın</li>
+            <li>Uygulama çaldığınız notaları gerçek zamanlı olarak algılayacaktır</li>
+            <li>Egzersizde gösterildiği gibi Do Majör Gamı'nı sırayla çalmaya çalışın</li>
+          </ol>
+        </div>
+        
+        <div class="card" style="margin-top: 20px; background-color: #f0f9ff; border-left: 4px solid #3b82f6;">
+          <h3 style="margin-top: 0;">Sorun Giderme</h3>
+          <ul>
+            <li><strong>Notalar algılanmıyorsa:</strong> Mikrofonunuzun çalıştığından ve sesinizin yeterince yüksek olduğundan emin olun</li>
+            <li><strong>Hatalı nota tespiti:</strong> Arka plan gürültüsünü azaltmayı ve enstrümanınızı daha net çalmayı deneyin</li>
+            <li><strong>Tarayıcı izni sorunu:</strong> Adres çubuğundaki kilit simgesine tıklayıp mikrofon izinlerini kontrol edin</li>
+            <li><strong>Farklı bir mikrofon deneyin:</strong> Sisteminizdeki başka bir mikrofonu seçerek daha iyi sonuç alabilirsiniz</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 AI Müzik Eğitmeni</p>
+    </div>
+  </footer>
+
+  <script src="/js/pitch-detector.js"></script>
+  <script>
+    // Handle page loading
+    window.addEventListener('load', function() {
+      // Show the body once everything is loaded
+      document.body.style.opacity = 1;
+      
+      // Hide loading overlay
+      const loadingOverlay = document.getElementById('loading-overlay');
+      loadingOverlay.style.opacity = 0;
+      setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+      }, 500);
+      
+      // Track exercise progress
+      let currentNoteIndex = 0;
+      const expectedNotes = document.querySelectorAll('.expected-notes span');
+      const progressBar = document.querySelector('.progress-bar');
+      
+      document.addEventListener('noteDetected', (e) => {
+        const detectedNote = e.detail.note.replace(/[0-9]/g, '');
+        const expectedNote = expectedNotes[currentNoteIndex].textContent;
+        
+        if (detectedNote === expectedNote) {
+          // Correct note played
+          expectedNotes[currentNoteIndex].classList.add('highlighted');
+          
+          // Move to next note after a short delay
+          setTimeout(() => {
+            expectedNotes[currentNoteIndex].classList.remove('highlighted');
+            currentNoteIndex = (currentNoteIndex + 1) % expectedNotes.length;
+            
+            // Update progress bar
+            const progress = (currentNoteIndex / expectedNotes.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // If completed the scale
+            if (currentNoteIndex === 0) {
+              document.getElementById('note-display').textContent = 'Harika iş! Gamı tamamladınız!';
+              setTimeout(() => {
+                document.getElementById('note-display').textContent = 'Baştan tekrar deneyin';
+              }, 3000);
+            }
+          }, 1000);
+        }
+      });
+    });
+  </script>
+</body>
+</html> 
