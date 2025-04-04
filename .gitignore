@@ -6,7 +6,8 @@ Thumbs.db
 npm-debug.*
 yarn-debug.*
 yarn-error.*
-
+CODEBASE_INDEX.md
+CODEBASE_INDEX_DETAILED.md
 # Environment variables
 .env
 .env*.local
