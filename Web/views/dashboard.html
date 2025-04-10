@@ -35,7 +35,8 @@
   </style>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/theme.css">
-  <title>Dashboard - Voice Recorder App</title>
+  <link rel="stylesheet" href="/css/music-theme.css">
+  <title>Dashboard - Music Recorder</title>
 </head>
 <body class="theme-light">
   <!-- Loading overlay -->
@@ -45,7 +46,7 @@
 
   <header class="header">
     <div class="container">
-      <h1 class="app-title">Voice Recorder App</h1>
+      <h1 class="app-title">Music Recorder</h1>
       <div class="header-buttons">
         <a href="/recordings/add" class="btn btn-primary">New Recording</a>
         <a href="/pitch-detection" class="btn btn-accent">Note Detection</a>
@@ -97,7 +98,7 @@
         <p class="dashboard-welcome animate-slideUp" style="animation-delay: 100ms;">Welcome <span id="user-name"></span>!</p>
         
         <!-- New Feature Card -->
-        <div class="feature-highlight animate-slideUp" style="animation-delay: 150ms; margin-bottom: 20px; padding: 15px; background-color: #f0f9ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
+        <div class="feature-highlight animate-slideUp" style="animation-delay: 150ms; margin-bottom: 20px;">
           <h3 style="margin-top: 0;">New Feature: Real-time Note Detection</h3>
           <p>Try our new real-time music note detection tool! Play your instrument and get instant feedback.</p>
           <a href="/pitch-detection" class="btn btn-accent">Try Note Detection</a>
@@ -115,10 +116,11 @@
 
   <footer class="footer">
     <div class="container">
-      <p>&copy; 2025 Voice Recorder App</p>
+      <p>&copy; 2025 Music Recorder</p>
     </div>
   </footer>
 
+  <script src="/js/music-theme.js"></script>
   <script>
     // Fetch user data and recordings
     document.addEventListener('DOMContentLoaded', async () => {

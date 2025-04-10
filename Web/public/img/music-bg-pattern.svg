@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <defs>
+    <pattern id="pattern" patternUnits="userSpaceOnUse" width="100" height="100">
+      <!-- Quarter note -->
+      <path d="M20,20 Q23,17 23,14 C23,11.5 21,10 19,10 C17,10 15,11.5 15,14 C15,16.5 17,18 19,18 C19.5,18 20,17.9 20.5,17.7 L20.5,30 M20,20 L20,30" stroke="#4a148c" fill="none" stroke-width="0.5" opacity="0.1" />
+      
+      <!-- Eighth note -->
+      <path d="M40,70 Q43,67 43,64 C43,61.5 41,60 39,60 C37,60 35,61.5 35,64 C35,66.5 37,68 39,68 C39.5,68 40,67.9 40.5,67.7 L40.5,80 M40,70 L40,80 M40,75 C45,74 45,77 50,76" stroke="#4a148c" fill="none" stroke-width="0.5" opacity="0.1" />
+      
+      <!-- Treble clef -->
+      <path d="M80,50 C80,45 77,40 73,40 C69,40 66,42 66,46 C66,50 70,52 73,52 C75,52 80,51 80,45 L80,75 C75,82 82,85 80,90" stroke="#4a148c" fill="none" stroke-width="0.5" opacity="0.1" />
+      
+      <!-- Music staff lines-->
+      <line x1="0" y1="30" x2="100" y2="30" stroke="#4a148c" stroke-width="0.2" opacity="0.05" />
+      <line x1="0" y1="40" x2="100" y2="40" stroke="#4a148c" stroke-width="0.2" opacity="0.05" />
+      <line x1="0" y1="50" x2="100" y2="50" stroke="#4a148c" stroke-width="0.2" opacity="0.05" />
+      <line x1="0" y1="60" x2="100" y2="60" stroke="#4a148c" stroke-width="0.2" opacity="0.05" />
+      <line x1="0" y1="70" x2="100" y2="70" stroke="#4a148c" stroke-width="0.2" opacity="0.05" />
+    </pattern>
+  </defs>
+  <rect width="100" height="100" fill="url(#pattern)" />
+</svg> 

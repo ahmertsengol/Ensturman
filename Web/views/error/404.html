@@ -3,14 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Favicon -->
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="stylesheet" href="/css/style.css">
-  <title>404 Not Found</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/music-theme.css">
+  <title>404 Not Found - Music Recorder</title>
 </head>
-<body>
+<body class="theme-light">
+  <!-- Note: music-theme.js will add the music-theme class and create the floating music notes animation in background -->
+  
   <div class="container error-container">
     <h1>404 - Page Not Found</h1>
     <p>Sorry, the page you are looking for does not exist.</p>
-    <a href="/" class="btn">Go Back Home</a>
+    <a href="/" class="btn btn-primary">Go Back Home</a>
   </div>
+
+  <script src="/js/music-theme.js"></script>
 </body>
 </html> 

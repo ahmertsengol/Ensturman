@@ -35,7 +35,8 @@
   </style>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/theme.css">
-  <title>Edit Recording - Voice Recorder App</title>
+  <link rel="stylesheet" href="/css/music-theme.css">
+  <title>Edit Recording - Music Recorder</title>
 </head>
 <body class="theme-light">
   <!-- Loading overlay -->
@@ -43,9 +44,11 @@
     <div class="loading-spinner"></div>
   </div>
 
+  <!-- Note: music-theme.js will add the music-theme class and create the floating music notes animation in background -->
+
   <header class="header">
     <div class="container">
-      <h1 class="app-title">Voice Recorder App</h1>
+      <h1 class="app-title">Music Recorder</h1>
       <div class="header-buttons">
         <a href="/dashboard" class="btn btn-outline">Dashboard</a>
         <form action="/auth/logout" method="POST" style="display: inline;">
@@ -120,10 +123,11 @@
 
   <footer class="footer">
     <div class="container">
-      <p>&copy; 2025 Voice Recorder App</p>
+      <p>&copy; 2025 Music Recorder</p>
     </div>
   </footer>
 
+  <script src="/js/music-theme.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       try {

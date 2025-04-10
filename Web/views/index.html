@@ -32,20 +32,65 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    
+    /* Enhanced music notes animation specifically for homepage */
+    .home-page .music-notes-container {
+      z-index: 1; /* Position between background and content */
+    }
+    
+    .home-page .music-note {
+      width: 28px !important; /* Smaller music notes */
+      height: 28px !important;
+      opacity: 0.25 !important; /* More visible but smaller */
+      filter: drop-shadow(0 0 3px rgba(98, 0, 234, 0.4)) !important;
+    }
+    
+    /* Faster animation for notes */
+    @keyframes fastFloatNote {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0.15;
+      }
+      50% {
+        opacity: 0.25;
+      }
+      100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+    
+    /* Semi-transparent content to let music notes show through */
+    .home-page .home-content {
+      position: relative;
+      z-index: 2;
+    }
+    
+    .home-page .feature-card {
+      background-color: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(5px);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(98, 0, 234, 0.2);
+    }
   </style>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/theme.css">
-  <title>Voice Recorder App</title>
+  <link rel="stylesheet" href="/css/music-theme.css">
+  <title>Music Recorder</title>
 </head>
-<body class="theme-light">
+<body class="theme-light home-page">
   <!-- Loading overlay -->
   <div class="loading-overlay" id="loading-overlay">
     <div class="loading-spinner"></div>
   </div>
 
+  <!-- Note: Enhanced music notes animation for homepage - more visible notes in background -->
+
   <header class="header">
     <div class="container">
-      <h1 class="app-title">Voice Recorder App</h1>
+      <h1 class="app-title">Music Recorder</h1>
       <div class="header-buttons">
         <a href="/auth/login" class="btn btn-primary">Login</a>
         <a href="/auth/register" class="btn btn-outline">Register</a>
@@ -91,20 +136,20 @@
       
       <div class="home-content animate-fadeIn">
         <div class="intro">
-          <h2 class="section-title">Welcome to Voice Recorder App</h2>
-          <p class="intro-text">Record, save and manage your audio recordings securely.</p>
+          <h2 class="section-title">Welcome to Music Recorder</h2>
+          <p class="intro-text">Record, save and manage your music recordings securely.</p>
           <div class="features">
             <div class="feature-card animate-slideUp" style="animation-delay: 100ms;">
               <h3>Record</h3>
-              <p>High-quality voice recording straight from your browser</p>
+              <p>High-quality music recording straight from your browser</p>
             </div>
             <div class="feature-card animate-slideUp" style="animation-delay: 200ms;">
               <h3>Store</h3>
               <p>Save your recordings securely in your personal account</p>
             </div>
             <div class="feature-card animate-slideUp" style="animation-delay: 300ms;">
-              <h3>Manage</h3>
-              <p>Organize, edit, and access your recordings anytime</p>
+              <h3>Analyze</h3>
+              <p>Get real-time note detection for music practice</p>
             </div>
           </div>
           <div class="cta">
@@ -117,10 +162,11 @@
 
   <footer class="footer">
     <div class="container">
-      <p>&copy; 2025 Voice Recorder App</p>
+      <p>&copy; 2025 Music Recorder</p>
     </div>
   </footer>
 
+  <script src="/js/music-theme.js"></script>
   <script>
     // Handle page loading
     window.addEventListener('load', function() {
@@ -133,6 +179,60 @@
       setTimeout(() => {
         loadingOverlay.style.display = 'none';
       }, 500);
+      
+      // Customize music notes animation - increase speed, add more notes
+      document.querySelectorAll('.music-note').forEach(note => {
+        // Make animation faster - use 8-12 seconds instead of 15-25
+        const fastDuration = 8 + Math.random() * 4;
+        note.style.animation = `fastFloatNote ${fastDuration}s linear infinite`;
+        
+        // Randomize starting positions more
+        const randomDelay = Math.random() * 3;
+        note.style.animationDelay = `${randomDelay}s`;
+      });
+      
+      // Create more notes periodically for a denser effect
+      setInterval(() => {
+        if (document.hasFocus()) {
+          const container = document.querySelector('.music-notes-container');
+          if (container) {
+            // Create 2 new notes every 1.5 seconds
+            for (let i = 0; i < 2; i++) {
+              const note = document.createElement('div');
+              note.className = 'music-note';
+              
+              // Random position
+              const posX = Math.random() * 100;
+              
+              // Random size (smaller)
+              const size = 20 + Math.random() * 8;
+              
+              // Fast animation duration
+              const duration = 8 + Math.random() * 4;
+              
+              // Random rotation
+              const rotation = Math.random() * 360;
+              
+              // Apply styles
+              note.style.left = `${posX}%`;
+              note.style.width = `${size}px`;
+              note.style.height = `${size}px`;
+              note.style.opacity = `${0.15 + Math.random() * 0.1}`;
+              note.style.animation = `fastFloatNote ${duration}s linear infinite`;
+              note.style.animationDelay = `${Math.random() * 3}s`;
+              note.style.transform = `translateY(100vh) rotate(${rotation}deg)`;
+              
+              // Add to container
+              container.appendChild(note);
+              
+              // Remove after animation completes to avoid memory leaks
+              setTimeout(() => {
+                note.remove();
+              }, duration * 1000);
+            }
+          }
+        }
+      }, 1500);
     });
   </script>
 </body>
