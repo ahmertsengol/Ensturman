@@ -20,7 +20,7 @@ exports.getLogin = (req, res) => {
 // @desc    Process login
 // @route   POST /login
 exports.login = (req, res, next) => {
-  logger.debug('Login attempt for user:', req.body.username);
+  logger.debug('Login attempt for email:', req.body.email);
   
   passport.authenticate('local', (err, user, info) => {
     if (err) {
@@ -31,7 +31,7 @@ exports.login = (req, res, next) => {
     }
     
     if (!user) {
-      logger.warn(`Failed login attempt for user: ${req.body.username}`);
+      logger.warn(`Failed login attempt for email: ${req.body.email}, reason: ${info.message}`);
       req.session.error_msg = info.message || 'Invalid username or password';
       res.cookie('error_msg', info.message || 'Invalid username or password', { maxAge: 5000 });
       return res.redirect('/login');
@@ -112,15 +112,11 @@ exports.register = async (req, res) => {
       return res.redirect('/register');
     }
     
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    
     // Create user
     const user = await User.create({
       username,
       email,
-      password: hashedPassword
+      password: password // Artık hash kontrolüne gerek yok çünkü düz metin olarak saklıyoruz
     });
     
     logger.info(`New user registered: id=${user.id}, username=${username}`);
