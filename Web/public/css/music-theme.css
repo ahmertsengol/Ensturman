@@ -204,19 +204,18 @@ body.music-theme .btn-outline:hover {
 
 /* ===== CARD STYLING ===== */
 body.music-theme .card {
-  background-color: white;
+  background-color: #ffffff;
+  box-shadow: 0 8px 30px rgba(98, 0, 234, 0.15);
+  border: 1px solid rgba(98, 0, 234, 0.1);
   border-radius: 16px;
-  box-shadow: var(--music-shadow);
-  overflow: hidden;
+  transition: all 0.3s ease;
   position: relative;
-  border: none;
-  padding: 2rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 10;
 }
 
 body.music-theme .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(98, 0, 234, 0.25);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(98, 0, 234, 0.25);
 }
 
 body.music-theme .card::before {
@@ -559,4 +558,22 @@ body.music-theme svg {
 body.music-theme * {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+}
+
+/* Form container specific style */
+body.music-theme .form-container {
+  max-width: 800px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Ensure all content stays above notes */
+body.music-theme main {
+  position: relative;
+  z-index: 5;
+}
+
+body.music-theme .container {
+  position: relative;
+  z-index: 5;
 } 
