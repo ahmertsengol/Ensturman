@@ -1,15 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, TouchableOpacity, TextInput, Alert, Platform, Modal, FlatList, Animated, Easing } from 'react-native';
+import { 
+  StyleSheet, 
+  View, 
+  TouchableOpacity, 
+  TextInput, 
+  Alert, 
+  Platform, 
+  Modal, 
+  FlatList, 
+  Animated, 
+  Easing, 
+  StatusBar,
+  SafeAreaView 
+} from 'react-native';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import { router, useNavigation } from 'expo-router';
+import * as Haptics from 'expo-haptics';
+import Feather from '@expo/vector-icons/Feather';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Button } from '@/components/Button';
+import { TextInputField } from '@/components/TextInputField';
 import { useAuth } from '../context/AuthContext';
 import { recordingService } from '../services/recordingService';
+import { Layout, Spacing } from '@/constants/Spacing';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 interface InputDevice {
   deviceId: string;
@@ -36,6 +54,16 @@ export default function RecordScreen() {
   const [audioSamples, setAudioSamples] = useState<number[]>(Array(50).fill(0));
   const audioLevelRef = useRef(0);
   const dotsTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Get theme colors
+  const backgroundColor = useThemeColor({}, 'background');
+  const cardColor = useThemeColor({}, 'card');
+  const primaryColor = useThemeColor({}, 'primary');
+  const secondaryColor = useThemeColor({}, 'secondary');
+  const accentColor = useThemeColor({}, 'accent');
+  const textColor = useThemeColor({}, 'text');
+  const borderColor = useThemeColor({}, 'border');
+  const errorColor = useThemeColor({}, 'error');
 
   // Timer for the recording indicator dots
   useEffect(() => {
@@ -65,6 +93,8 @@ export default function RecordScreen() {
   useEffect(() => {
     const setupAudio = async () => {
       try {
+        console.log("Setting up audio recording...");
+        
         // Make sure any existing recording is released
         if (recording) {
           try {
@@ -75,7 +105,29 @@ export default function RecordScreen() {
           setRecording(null);
         }
         
+        // Explicitly request and check permissions first - most important step
+        console.log("Requesting audio recording permissions...");
+        const permissionResponse = await Audio.requestPermissionsAsync();
+        console.log("Permission response:", permissionResponse);
+        
+        if (permissionResponse.status !== 'granted') {
+          Alert.alert(
+            'İzin Gerekli',
+            'Ses kaydı yapabilmek için mikrofon izni gereklidir. Lütfen ayarlardan mikrofon iznini açın.',
+            [{ 
+              text: 'Tamam',
+              onPress: () => navigation.goBack()
+            }]
+          );
+          setAudioPermission(false);
+          return;
+        }
+        
+        setAudioPermission(true);
+        console.log("Audio permission granted");
+        
         // Reset Audio mode to ensure clean state
+        console.log("Resetting audio mode...");
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: false,
           playsInSilentModeIOS: false,
@@ -87,7 +139,8 @@ export default function RecordScreen() {
         });
         
         // Audio Session ayarları
-        await Audio.setAudioModeAsync({
+        console.log("Setting up audio mode for recording...");
+        const audioModeResult = await Audio.setAudioModeAsync({
           allowsRecordingIOS: true,
           playsInSilentModeIOS: true,
           staysActiveInBackground: true,
@@ -96,19 +149,8 @@ export default function RecordScreen() {
           shouldDuckAndroid: true,
           playThroughEarpieceAndroid: false
         });
-
-        // Mikrofon izinlerini al
-        const { status } = await Audio.requestPermissionsAsync();
-        setAudioPermission(status === 'granted');
         
-        if (status !== 'granted') {
-          Alert.alert(
-            'İzin Gerekli',
-            'Ses kaydı yapabilmek için mikrofon izni gereklidir.',
-            [{ text: 'Tamam' }]
-          );
-          return;
-        }
+        console.log("Audio mode set:", audioModeResult);
 
         // Kullanılabilir ses giriş cihazlarını kontrol et
         const devices: InputDevice[] = [
@@ -118,21 +160,13 @@ export default function RecordScreen() {
             type: 'builtin'
           }
         ];
+        
+        console.log("Default microphone set");
 
         // Android için harici mikrofon kontrolü
         if (Platform.OS === 'android') {
           try {
-            // Android ses yönlendirme durumunu kontrol et
-            const audioMode = await Audio.setAudioModeAsync({
-              allowsRecordingIOS: true,
-              playsInSilentModeIOS: true,
-              staysActiveInBackground: true,
-              interruptionModeIOS: InterruptionModeIOS.DuckOthers,
-              interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
-              shouldDuckAndroid: true,
-              playThroughEarpieceAndroid: true
-            });
-
+            console.log("Checking for external microphones on Android...");
             // Harici mikrofon seçeneğini ekle
             devices.push({
               deviceId: 'external',
@@ -140,7 +174,7 @@ export default function RecordScreen() {
               type: 'wired'
             });
 
-            // Bluetooth seçeneğini ekle
+            // Bluetooth seçeneğini ekle - cihaz bağlı olmasa bile göster
             devices.push({
               deviceId: 'bluetooth',
               name: 'Bluetooth Mikrofon',
@@ -152,14 +186,14 @@ export default function RecordScreen() {
         }
 
         setInputDevices(devices);
-        // Eğer harici mikrofon varsa onu seç, yoksa dahili mikrofonu seç
-        const externalDevice = devices.find(d => d.deviceId === 'external') || 
-                             devices.find(d => d.deviceId === 'bluetooth');
-        setSelectedDevice(externalDevice || devices[0]);
+        
+        // Default olarak dahili mikrofonu seç - daha güvenli çalışır
+        setSelectedDevice(devices[0]);
+        console.log("Selected default device:", devices[0]);
 
       } catch (error) {
         console.error('Audio setup error:', error);
-        Alert.alert('Hata', 'Ses sistemi başlatılamadı.');
+        Alert.alert('Hata', 'Ses sistemi başlatılamadı: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata'));
       }
     };
 
@@ -188,15 +222,24 @@ export default function RecordScreen() {
   // Kayıt başlat
   const startRecording = async () => {
     try {
+      console.log("Starting recording process...");
+      
       if (!audioPermission) {
-        Alert.alert('İzin Gerekli', 'Ses kaydı için mikrofon izni gerekli.');
-        return;
+        console.log("No audio permission, requesting again...");
+        const { status } = await Audio.requestPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('İzin Gerekli', 'Ses kaydı için mikrofon izni gerekli.');
+          return;
+        }
+        setAudioPermission(true);
       }
 
       if (!selectedDevice) {
         Alert.alert('Hata', 'Lütfen bir mikrofon seçin.');
         return;
       }
+      
+      console.log("Using device:", selectedDevice);
 
       // Eğer hala aktif bir kayıt varsa önce temizle
       if (recording) {
@@ -210,51 +253,69 @@ export default function RecordScreen() {
         setRecording(null);
       }
       
-      // Reset anything that might be in memory
+      // Reset audio system completely
       await Audio.setIsEnabledAsync(false);
       await Audio.setIsEnabledAsync(true);
-
-      console.log('Starting recording with device:', selectedDevice);
       
-      // Seçilen cihaza göre ses ayarlarını güncelle
-      await Audio.setAudioModeAsync({
+      console.log("Audio system reset");
+
+      // Seçilen cihaza göre ses ayarlarını güncelle - high quality settings
+      const audioModeResult = await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
         staysActiveInBackground: true,
         interruptionModeIOS: InterruptionModeIOS.DuckOthers,
         interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
-        shouldDuckAndroid: true,
+        shouldDuckAndroid: false, // Don't reduce volume during recording
         playThroughEarpieceAndroid: selectedDevice.type !== 'builtin'
       });
+      
+      console.log("Audio mode set for recording:", audioModeResult);
 
       // Süre sıfırla
       setRecordingDuration(0);
       setAudioSamples(Array(50).fill(0));
 
-      // Yeni kayıt başlat
-      console.log('Creating new recording...');
-      const { recording: newRecording } = await Audio.Recording.createAsync(
-        {
-          ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
-          android: {
-            ...Audio.RecordingOptionsPresets.HIGH_QUALITY.android,
-            extension: '.m4a',
-            sampleRate: 44100,
-            numberOfChannels: 2,
-            bitRate: 128000,
-          },
-          ios: {
-            ...Audio.RecordingOptionsPresets.HIGH_QUALITY.ios,
-            extension: '.m4a',
-            sampleRate: 44100,
-            numberOfChannels: 2,
-            bitRate: 128000,
-          },
+      // Yeni kayıt başlat with much higher quality settings
+      console.log('Creating new recording with enhanced quality options:');
+      
+      // Define enhanced high-quality recording options
+      const highQualityOptions = {
+        android: {
+          extension: '.m4a',
+          outputFormat: Audio.AndroidOutputFormat.MPEG_4,
+          audioEncoder: Audio.AndroidAudioEncoder.AAC,
+          sampleRate: 48000, // Increased from 44100
+          numberOfChannels: 2,
+          bitRate: 256000, // Increased from 128000 for better quality
+          encodingBitRate: 256000, // Explicit bit rate for encoder
         },
-        onRecordingStatusUpdate
+        ios: {
+          extension: '.m4a',
+          outputFormat: Audio.IOSOutputFormat.MPEG4AAC,
+          audioQuality: Audio.IOSAudioQuality.MAX, // Use maximum quality
+          sampleRate: 48000, // Increased from 44100
+          numberOfChannels: 2,
+          bitRate: 256000, // Increased from 128000
+          linearPCMBitDepth: 24, // Increased from 16 for better dynamic range
+          linearPCMIsBigEndian: false,
+          linearPCMIsFloat: true, // Use floating point for better precision
+        },
+        web: {
+          mimeType: 'audio/webm',
+          bitsPerSecond: 256000,
+        },
+        meteringEnabled: true,
+      };
+      
+      // Create recording with enhanced quality settings
+      const { recording: newRecording } = await Audio.Recording.createAsync(
+        highQualityOptions,
+        onRecordingStatusUpdate,
+        50 // More frequent updates (50ms instead of 100ms)
       );
       
-      console.log('Recording started successfully');
+      console.log('High-quality recording started successfully');
       setRecording(newRecording);
       setRecordingStatus('recording');
       
@@ -275,6 +336,14 @@ export default function RecordScreen() {
 
   // Audio seviyesini izle
   const onRecordingStatusUpdate = (status: any) => {
+    // Log status periodically (not too often)
+    if (Math.random() < 0.05) { // Log ~5% of updates
+      console.log('Recording status update:', 
+        status.isRecording ? 
+        `Recording: metering=${status.metering}, durationMillis=${status.durationMillis}` : 
+        'Not recording');
+    }
+    
     if (status.isRecording) {
       // Metering özelliği iOS ve Android'de farklı çalışabilir
       if (status.metering !== undefined) {
@@ -282,10 +351,25 @@ export default function RecordScreen() {
         // 0'a yakın değerler daha yüksek ses anlamına gelir
         // -160 tamamen sessiz (veya mikrofon sınırının altında) anlamına gelir
         let level = Math.max(-160, status.metering); // -160 dB'den küçük değerleri kırp
-        level = (level + 160) / 160; // 0-1 aralığına normalize et
         
-        // Değerleri yumuşat
-        audioLevelRef.current = audioLevelRef.current * 0.6 + level * 0.4; // Daha hızlı tepki için ağırlıkları değiştirdim
+        // Platform-based normalization
+        if (Platform.OS === 'ios') {
+          // iOS values typically range from -160 to 0
+          level = (level + 160) / 160; // 0-1 aralığına normalize et
+        } else {
+          // Android values are typically lower, often around -40 to -10
+          // Adjust the range to make it more sensitive
+          level = (level + 40) / 40;
+          level = Math.max(0, Math.min(1, level)); // Clamp between 0-1
+        }
+        
+        // Değerleri yumuşat but make sure we see something
+        const minValue = 0.05; // Ensure we always show some activity
+        audioLevelRef.current = Math.max(
+          minValue,
+          audioLevelRef.current * 0.6 + level * 0.4 // Smooth transition
+        );
+        
         setAudioLevel(audioLevelRef.current);
         
         // Yeni örneği ekle ve en eskisini çıkar
@@ -294,15 +378,14 @@ export default function RecordScreen() {
           return newSamples;
         });
       } else {
-        // Metering yoksa sahte dalga hareketi oluştur
+        // Fall back to fake waveform
         setAudioSamples(prev => {
-          // Rastgele değerler oluştur, ama tamamen rastgele değil
-          // Önceki değerle bağlantılı olsun ki daha doğal görünsün
+          // Create more pronounced random values to ensure visibility
           const lastValue = prev[prev.length - 1];
-          const randomChange = (Math.random() - 0.5) * 0.3; // Daha büyük değişimler için aralığı genişlettim
+          const randomChange = (Math.random() - 0.5) * 0.4; // Larger changes
           let newValue = lastValue + randomChange;
-          // 0-1 aralığında tut
-          newValue = Math.max(0.05, Math.min(0.95, newValue));
+          // Keep in 0.1-0.9 range to ensure visibility
+          newValue = Math.max(0.1, Math.min(0.9, newValue));
           
           return [...prev.slice(1), newValue];
         });
@@ -396,6 +479,7 @@ export default function RecordScreen() {
   const stopRecording = async () => {
     try {
       if (!recording) {
+        console.log('No active recording to stop');
         return;
       }
       
@@ -407,14 +491,98 @@ export default function RecordScreen() {
         setDurationTimer(null);
       }
       
-      await recording.stopAndUnloadAsync();
+      try {
+        // Get recording status before stopping to check duration
+        const status = await recording.getStatusAsync();
+        console.log('Final recording status:', status);
+        
+        if (status.durationMillis < 1000) {
+          console.warn('Recording too short, may not have captured audio');
+          Alert.alert('Uyarı', 'Kayıt çok kısa, ses kaydedilmemiş olabilir. Lütfen tekrar deneyin ve mikrofonunuzun çalıştığından emin olun.');
+          await recording.stopAndUnloadAsync();
+          setRecording(null);
+          setRecordingStatus('idle');
+          stopWaveAnimation();
+          return;
+        }
+      } catch (statusError) {
+        console.error('Error getting recording status:', statusError);
+        // Devam et, bu bir kritik hata değil
+      }
+      
+      try {
+        // Kaydı durdur
+        console.log('Stopping and unloading recording...');
+        await recording.stopAndUnloadAsync();
+        console.log('Recording stopped successfully');
+      } catch (stopError) {
+        console.error('Error stopping recording:', stopError);
+        // Bu hatadan kurtulmak için recording nesnesini sıfırla
+        setRecording(null);
+        setRecordingStatus('idle');
+        stopWaveAnimation();
+        Alert.alert('Hata', 'Kayıt durdurulurken bir sorun oluştu. Lütfen tekrar deneyin.');
+        return;
+      }
       
       // Kayıt dosyasını al
-      const uri = recording.getURI();
-      console.log('Recording URI:', uri);
+      let uri;
+      try {
+        uri = recording.getURI();
+        console.log('Recording URI:', uri);
+        
+        if (!uri) {
+          throw new Error('Kayıt URI bulunamadı');
+        }
+      } catch (uriError) {
+        console.error('Error getting recording URI:', uriError);
+        setRecording(null);
+        setRecordingStatus('idle');
+        stopWaveAnimation();
+        Alert.alert('Hata', 'Kayıt dosyası oluşturulamadı. Lütfen tekrar deneyin.');
+        return;
+      }
       
-      if (!uri) {
-        throw new Error('Kayıt URI bulunamadı');
+      // Try to get a content URI for Android
+      let finalUri = uri;
+      if (Platform.OS === 'android' && uri.startsWith('file://')) {
+        try {
+          console.log('Getting content URI for the recording file');
+          finalUri = await FileSystem.getContentUriAsync(uri);
+          console.log('Content URI generated:', finalUri);
+        } catch (contentUriError) {
+          console.warn('Failed to get content URI:', contentUriError);
+          // Continue with file URI
+        }
+      }
+      
+      // Verify file exists and has content
+      let fileSize = 0;
+      try {
+        if (Platform.OS !== 'web') {
+          const fileInfo = await FileSystem.getInfoAsync(uri); // Use original uri for checking
+          console.log('Recording file info:', fileInfo);
+          
+          if (!fileInfo.exists) {
+            throw new Error('Kayıt dosyası oluşturulamadı');
+          }
+          
+          if ('size' in fileInfo) {
+            fileSize = fileInfo.size;
+            console.log(`Recording file size: ${fileSize} bytes`);
+            
+            if (fileSize < 1000) { // Less than 1KB is suspicious
+              console.warn('Recording file too small, may be corrupted or empty');
+              Alert.alert('Uyarı', 'Kayıt dosyası çok küçük, ses kaydedilmemiş olabilir. Lütfen mikrofonunuzu kontrol edip tekrar deneyin.');
+              setRecording(null);
+              setRecordingStatus('idle');
+              return;
+            }
+          }
+        }
+      } catch (fileError) {
+        console.error('Error verifying recording file:', fileError);
+        // Continue anyway, but log the error
       }
       
       // Kayıt başlığı olmadığında tarih ile başlık oluştur
@@ -422,46 +590,109 @@ export default function RecordScreen() {
       
       // Yükleme durumunu göster
       setRecordingStatus('idle');
-      Alert.alert('Yükleniyor', 'Ses kaydınız sunucuya yükleniyor...');
       
-      // Veritabanına kaydet
-      if (user) {
-        console.log('Uploading recording...');
-        const result = await recordingService.addRecording({
-          title,
-          uri,
-          duration: recordingDuration,
-          userId: user.id
-        });
-        
-        console.log('Upload successful:', result);
-        
-        // Kayıt durumunu sıfırla
-        setRecording(null);
-        setRecordingDuration(0);
-        setRecordingName('');
-        
-        // Başarı mesajı göster ve ana ekrana dön
-        Alert.alert(
-          'Kayıt Tamamlandı', 
-          'Ses kaydınız başarıyla yüklendi.',
-          [
-            { 
-              text: 'Tamam',
-              onPress: () => {
-                // Ana ekrana dön
-                navigation.goBack();
+      const loadingAlert = Alert.alert('Yükleniyor', 'Ses kaydınız sunucuya yükleniyor...', [
+        {
+          text: 'İptal',
+          onPress: () => {
+            console.log('Upload canceled by user');
+          },
+          style: 'cancel'
+        }
+      ]);
+      
+      try {
+        // Veritabanına kaydet
+        if (user) {
+          console.log('Uploading recording...');
+          console.log(`File details - URI: ${finalUri}, Size: ${fileSize} bytes, Title: ${title}, Duration: ${recordingDuration}ms`);
+          
+          const result = await recordingService.addRecording({
+            title,
+            uri: finalUri, // Use the content URI if available
+            duration: recordingDuration,
+            userId: user.id
+          });
+          
+          console.log('Upload successful:', result);
+          
+          // Kayıt durumunu sıfırla
+          setRecording(null);
+          setRecordingDuration(0);
+          setRecordingName('');
+          
+          // Başarı mesajı göster ve ana ekrana dön
+          Alert.alert(
+            'Kayıt Tamamlandı', 
+            'Ses kaydınız başarıyla yüklendi.',
+            [
+              { 
+                text: 'Tamam',
+                onPress: () => {
+                  // Ana ekrana dön
+                  navigation.goBack();
+                }
               }
-            }
-          ]
-        );
+            ]
+          );
+        }
+      } catch (uploadError) {
+        console.error('Failed to upload recording:', uploadError);
+        
+        // Daha detaylı hata mesajları
+        let errorMessage = 'Bilinmeyen hata';
+        let showDiagnosticOption = false;
+        
+        if (uploadError instanceof Error) {
+          errorMessage = uploadError.message;
+          
+          // Network hatası kontrolü
+          if (
+            uploadError.message.includes('Network request failed') || 
+            uploadError.message.includes('network') || 
+            uploadError.message.includes('connection') ||
+            uploadError.message.includes('bağlantı') ||
+            uploadError.message.includes('ağ')
+          ) {
+            errorMessage = 'Ağ bağlantısı hatası: Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin.';
+            showDiagnosticOption = true;
+          }
+        }
+        
+        // Ağ hatası durumunda teşhis ekranına gitme seçeneği sun
+        if (showDiagnosticOption) {
+          Alert.alert(
+            'Ağ Hatası', 
+            `Kayıt yüklenemedi: ${errorMessage}`,
+            [
+              { 
+                text: 'Tamam',
+                style: 'cancel'
+              },
+              {
+                text: 'Ağ Teşhis',
+                onPress: () => router.push('/network-diagnostic')
+              }
+            ]
+          );
+        } else {
+          Alert.alert('Hata', 'Kayıt yüklenemedi: ' + errorMessage);
+        }
+      } finally {
+        // Stop animation when recording stops
+        stopWaveAnimation();
+      }
+    } catch (error) {
+      console.error('Unexpected error in stopRecording:', error);
+      
+      // Daha detaylı hata mesajları
+      let errorMessage = 'Bilinmeyen hata';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
       }
       
-      // Stop animation when recording stops
-      stopWaveAnimation();
-    } catch (error) {
-      console.error('Failed to stop recording:', error);
-      Alert.alert('Hata', 'Kayıt durdurulamadı veya yüklenemedi: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata'));
+      Alert.alert('Hata', 'Kayıt işleminde beklenmeyen bir hata oluştu: ' + errorMessage);
       
       // Hata durumunda da sayacı ve animasyonu temizle
       if (durationTimer) {
@@ -469,6 +700,9 @@ export default function RecordScreen() {
         setDurationTimer(null);
       }
       stopWaveAnimation();
+      // Kayıt durumunu sıfırla
+      setRecording(null);
+      setRecordingStatus('idle');
     }
   };
 
@@ -489,8 +723,8 @@ export default function RecordScreen() {
       onRequestClose={() => setShowDeviceModal(false)}
     >
       <ThemedView style={styles.modalContainer}>
-        <ThemedView style={styles.modalContent}>
-          <ThemedText type="title" style={styles.modalTitle}>Mikrofon Seç</ThemedText>
+        <ThemedView card elevated={2} style={styles.modalContent}>
+          <ThemedText variant="h2" style={styles.modalTitle}>Mikrofon Seç</ThemedText>
           
           <FlatList
             data={inputDevices}
@@ -499,84 +733,94 @@ export default function RecordScreen() {
               <TouchableOpacity
                 style={[
                   styles.deviceItem,
-                  selectedDevice?.deviceId === item.deviceId && styles.selectedDevice
+                  selectedDevice?.deviceId === item.deviceId && 
+                  { backgroundColor: primaryColor }
                 ]}
                 onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   setSelectedDevice(item);
                   setShowDeviceModal(false);
                 }}
               >
-                <IconSymbol
-                  name={item.type === 'bluetooth' ? 'airpodspro' : 'mic.fill'}
-                  size={24}
-                  color={selectedDevice?.deviceId === item.deviceId ? '#FFFFFF' : '#4A90E2'}
-                />
-                <ThemedText style={[
-                  styles.deviceName,
-                  selectedDevice?.deviceId === item.deviceId && styles.selectedDeviceText
-                ]}>
+                <View style={styles.deviceIcon}>
+                  <Feather 
+                    name={item.type === 'bluetooth' ? 'bluetooth' : 'mic'} 
+                    size={18} 
+                    color={selectedDevice?.deviceId === item.deviceId ? '#FFFFFF' : textColor} 
+                  />
+                </View>
+                <ThemedText 
+                  variant="bodyMedium" 
+                  style={[
+                    selectedDevice?.deviceId === item.deviceId && { color: '#FFFFFF' }
+                  ]}
+                >
                   {item.name}
                 </ThemedText>
               </TouchableOpacity>
             )}
           />
           
-          <TouchableOpacity
-            style={styles.closeButton}
+          <Button
+            label="Kapat"
+            variant="outline"
             onPress={() => setShowDeviceModal(false)}
-          >
-            <ThemedText style={styles.closeButtonText}>Kapat</ThemedText>
-          </TouchableOpacity>
+            style={styles.closeButton}
+          />
         </ThemedView>
       </ThemedView>
     </Modal>
   );
 
-  // Define animation interpolations
-  const waveScale = waveAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.8, 1.2],
-  });
-
-  const waveOpacity = waveAnimation.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0.4, 0.8, 0.4],
-  });
-
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#F5A742', dark: '#8B4513' }}
-      headerImage={<View />}>
-      <ThemedView style={styles.container}>
-        <ThemedText type="title" style={styles.title}>Ses Kaydı</ThemedText>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
+      <StatusBar barStyle="dark-content" />
+      
+      <View style={styles.container}>
+        <ThemedText variant="h1" style={styles.title}>Ses Kaydı</ThemedText>
         
-        <ThemedView style={styles.titleContainer}>
-          <TextInput
-            style={styles.titleInput}
-            placeholder="Kayıt Başlığı"
-            placeholderTextColor="#8E8E93"
+        <ThemedView card elevated={1} style={styles.titleContainer}>
+          <ThemedText variant="label">Kayıt Başlığı</ThemedText>
+          <TextInputField
             value={recordingName}
             onChangeText={setRecordingName}
+            placeholder="Kayıt başlığını girin"
             editable={recordingStatus !== 'recording'}
           />
         </ThemedView>
 
-        <ThemedView style={styles.durationContainer}>
-          <ThemedText style={styles.durationCaption}>
+        <ThemedView card elevated={2} style={styles.durationContainer}>
+          <ThemedText variant="caption" secondary style={styles.durationCaption}>
             SÜRE
           </ThemedText>
-          <ThemedText style={styles.duration}>
+          <ThemedText variant="display" style={[styles.duration, { color: primaryColor }]}>
             {formatDuration(recordingDuration)}
           </ThemedText>
         </ThemedView>
 
         {recordingStatus !== 'idle' && (
-          <ThemedView style={styles.waveformContainer}>
+          <ThemedView card elevated={1} style={styles.waveformContainer}>
             <View style={styles.recordingIndicator}>
-              <View style={styles.statusDot} />
-              <ThemedText style={styles.recordingText}>
-                Kayıt yapılıyor{dots}
+              <View style={[styles.statusDot, { backgroundColor: recordingStatus === 'recording' ? primaryColor : secondaryColor }]} />
+              <ThemedText style={[styles.recordingText, { color: recordingStatus === 'recording' ? primaryColor : secondaryColor }]}>
+                {recordingStatus === 'recording' ? `Kayıt yapılıyor${dots}` : 'Duraklatıldı'}
               </ThemedText>
+              {recordingStatus === 'recording' && (
+                <Feather 
+                  name="edit-3" 
+                  size={16} 
+                  color={primaryColor} 
+                  style={styles.recordingIcon} 
+                />
+              )}
+              {recordingStatus === 'paused' && (
+                <Feather 
+                  name="pause" 
+                  size={16} 
+                  color={secondaryColor} 
+                  style={styles.recordingIcon} 
+                />
+              )}
             </View>
             <View style={styles.waveBars}>
               {audioSamples.map((sample, i) => {
@@ -588,11 +832,7 @@ export default function RecordScreen() {
                 // Ses seviyesine göre yükseklik hesapla
                 const height = recordingStatus === 'recording'
                   ? 5 + (sample * animFactor * 70) // Sample 0-1 arası bir değer
-                  : 5 + (Math.sin(i * 0.3) * 10 + 15) * animFactor; // Daha hızlı hareket için frekansı artırdım
-                
-                // Renk hesapla - ses seviyesine göre değişim
-                const intensity = sample * animFactor;
-                const speed = (Date.now() % 3000) / 3000; // 3 saniyede tamamlanan renk döngüsü
+                  : 5 + (Math.sin(i * 0.3) * 10 + 15) * animFactor;
                 
                 return (
                   <View 
@@ -602,9 +842,9 @@ export default function RecordScreen() {
                       { 
                         height,
                         backgroundColor: recordingStatus === 'recording'
-                          ? `rgba(65, 132, 255, ${0.5 + intensity * 0.5})` // Mavi ton, ses yükseldikçe opaklık artar
-                          : `rgba(126, 167, 255, ${0.3 + (i % 5) / 10})`, // Durgun halde daha açık mavi
-                        marginHorizontal: 0.5,
+                          ? primaryColor
+                          : secondaryColor,
+                        opacity: recordingStatus === 'recording' ? 0.5 + sample * 0.5 : 0.3 + (i % 5) / 10,
                       }
                     ]} 
                   />
@@ -615,209 +855,208 @@ export default function RecordScreen() {
         )}
 
         <TouchableOpacity
-          style={styles.deviceSelector}
-          onPress={() => setShowDeviceModal(true)}
+          style={[styles.deviceSelector, { backgroundColor: cardColor, borderColor }]}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            setShowDeviceModal(true);
+          }}
         >
-          <IconSymbol
-            name={selectedDevice?.type === 'bluetooth' ? 'airpodspro' : 'mic.fill'}
-            size={24}
-            color="#4A90E2"
-          />
-          <ThemedText style={styles.deviceSelectorText}>
+          <View style={[styles.deviceIconContainer, { backgroundColor: primaryColor }]}>
+            <Feather 
+              name={selectedDevice?.type === 'bluetooth' ? 'bluetooth' : 'mic'} 
+              size={18} 
+              color="#FFFFFF" 
+            />
+          </View>
+          <ThemedText variant="bodyMedium" style={styles.deviceSelectorText}>
             {selectedDevice?.name || 'Mikrofon Seç'}
           </ThemedText>
-          <IconSymbol name="chevron.right" size={20} color="#4A90E2" />
+          <Feather name="chevron-right" size={24} color={primaryColor} />
         </TouchableOpacity>
 
-        <ThemedView style={styles.controlsContainer}>
+        <View style={styles.controlsContainer}>
           {recordingStatus === 'idle' && (
             <TouchableOpacity 
-              style={styles.recordButton} 
-              onPress={startRecording}
+              style={[styles.recordButton, { backgroundColor: primaryColor }]} 
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                startRecording();
+              }}
             >
-              <IconSymbol name="mic.fill" size={36} color="#FFFFFF" />
-              <ThemedText style={styles.buttonText}>Kaydı Başlat</ThemedText>
+              <Feather name="edit-3" size={36} color="#FFFFFF" style={styles.recordIcon} />
+              <ThemedText variant="button" style={styles.buttonText}>Kaydı Başlat</ThemedText>
             </TouchableOpacity>
           )}
           
           {recordingStatus === 'recording' && (
-            <ThemedView style={styles.activeControls}>
+            <View style={styles.activeControls}>
               <TouchableOpacity 
-                style={styles.controlButton} 
-                onPress={pauseRecording}
+                style={[styles.controlButton, { backgroundColor: secondaryColor }]} 
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  pauseRecording();
+                }}
               >
-                <IconSymbol name="pause.fill" size={28} color="#FFFFFF" />
-                <ThemedText style={styles.buttonText}>Duraklat</ThemedText>
+                <Feather name="pause" size={24} color="#FFFFFF" style={styles.controlIcon} />
+                <ThemedText variant="button" style={styles.buttonText}>Duraklat</ThemedText>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={[styles.controlButton, styles.stopButton]} 
-                onPress={stopRecording}
+                style={[styles.controlButton, { backgroundColor: errorColor }]} 
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  stopRecording();
+                }}
               >
-                <IconSymbol name="stop.fill" size={28} color="#FFFFFF" />
-                <ThemedText style={styles.buttonText}>Durdur</ThemedText>
+                <FontAwesome5 name="trash-alt" size={24} color="#FFFFFF" style={styles.controlIcon} />
+                <ThemedText variant="button" style={styles.buttonText}>Durdur</ThemedText>
               </TouchableOpacity>
-            </ThemedView>
+            </View>
           )}
           
           {recordingStatus === 'paused' && (
-            <ThemedView style={styles.activeControls}>
+            <View style={styles.activeControls}>
               <TouchableOpacity 
-                style={styles.controlButton} 
-                onPress={resumeRecording}
+                style={[styles.controlButton, { backgroundColor: primaryColor }]} 
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  resumeRecording();
+                }}
               >
-                <IconSymbol name="play.fill" size={28} color="#FFFFFF" />
-                <ThemedText style={styles.buttonText}>Devam Et</ThemedText>
+                <Feather name="play" size={24} color="#FFFFFF" style={styles.controlIcon} />
+                <ThemedText variant="button" style={styles.buttonText}>Devam Et</ThemedText>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={[styles.controlButton, styles.stopButton]} 
-                onPress={stopRecording}
+                style={[styles.controlButton, { backgroundColor: errorColor }]} 
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  stopRecording();
+                }}
               >
-                <IconSymbol name="stop.fill" size={28} color="#FFFFFF" />
-                <ThemedText style={styles.buttonText}>Durdur</ThemedText>
+                <FontAwesome5 name="trash-alt" size={24} color="#FFFFFF" style={styles.controlIcon} />
+                <ThemedText variant="button" style={styles.buttonText}>Durdur</ThemedText>
               </TouchableOpacity>
-            </ThemedView>
+            </View>
           )}
-        </ThemedView>
+        </View>
         
-        <ThemedView style={styles.infoContainer}>
-          <ThemedText style={styles.infoText}>
+        <ThemedView card style={styles.infoContainer}>
+          <ThemedText variant="bodySmall" muted align="center">
             {recordingStatus === 'idle' 
               ? 'Kayda başlamak için butona dokunun' 
               : recordingStatus === 'recording'
-                ? 'Kayıt yapılıyor...'
-                : 'Kayıt duraklatıldı'}
+                ? 'Kayıt yapılıyor... Durdurmak veya duraklatmak için butonları kullanın'
+                : 'Kayıt duraklatıldı. Devam etmek veya durdurmak için seçenekleri kullanın'}
           </ThemedText>
         </ThemedView>
 
         <DeviceSelectionModal />
-      </ThemedView>
-    </ParallaxScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    padding: 16,
+    padding: Spacing.lg,
   },
   title: {
     textAlign: 'center',
-    marginVertical: 20,
-  },
-  headerImageContainer: {
-    position: 'absolute',
-    bottom: -20,
-    left: -35,
-    width: '100%',
-    height: 160,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  headerBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'transparent',
-    zIndex: 0,
-  },
-  waveContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  waveIcon: {
-    opacity: 0.9,
-  },
-  baseWaveIcon: {
-    position: 'absolute',
-    opacity: 0.3,
+    marginBottom: Spacing.lg,
   },
   titleContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    width: '100%',
-  },
-  titleInput: {
-    fontSize: 18,
-    color: '#1A1A1A',
-    borderBottomWidth: 2,
-    borderBottomColor: '#4A90E2',
-    paddingVertical: 12,
-    textAlign: 'center',
-    fontWeight: '500',
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    borderRadius: Layout.borderRadius.md,
   },
   durationContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 5,
-    width: '100%',
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    borderRadius: Layout.borderRadius.md,
     alignItems: 'center',
-    justifyContent: 'center',
-    maxHeight: 120,
   },
   durationCaption: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginBottom: 4,
-    fontWeight: '500',
-    textAlign: 'center',
-    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
   },
   duration: {
-    fontSize: 48,
-    fontWeight: '700',
-    color: '#4A90E2',
     fontVariant: ['tabular-nums'],
     letterSpacing: 2,
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
     includeFontPadding: false,
-    lineHeight: 56,
   },
-  recordingInfo: {
+  waveformContainer: {
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    borderRadius: Layout.borderRadius.md,
     alignItems: 'center',
-    marginVertical: 24,
-    backgroundColor: '#FFFFFF',
+  },
+  recordingIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: Spacing.xs,
+  },
+  recordingText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  recordingIcon: {
+    marginLeft: Spacing.xs,
+  },
+  waveBars: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    height: 80,
+    width: '100%',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.sm,
+  },
+  waveBar: {
+    width: 4,
+    borderRadius: Layout.borderRadius.sm,
+    marginHorizontal: 1.5,
+  },
+  deviceSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderRadius: Layout.borderRadius.md,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+  },
+  deviceIconContainer: {
+    width: 32,
+    height: 32,
     borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.sm,
+  },
+  deviceSelectorText: {
+    flex: 1,
   },
   controlsContainer: {
     alignItems: 'center',
-    marginVertical: 20,
+    marginVertical: Spacing.lg,
   },
   recordButton: {
-    backgroundColor: '#E74C3C',
-    borderRadius: 50,
-    padding: 20,
-    alignItems: 'center',
     width: 150,
     height: 150,
+    borderRadius: 75,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  recordIcon: {
+    marginBottom: Spacing.xs,
   },
   activeControls: {
     flexDirection: 'row',
@@ -825,49 +1064,21 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   controlButton: {
-    backgroundColor: '#4A90E2',
-    borderRadius: 50,
-    padding: 20,
-    alignItems: 'center',
     width: 120,
     height: 120,
+    borderRadius: 60,
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  stopButton: {
-    backgroundColor: '#E74C3C',
+  controlIcon: {
+    marginBottom: Spacing.xs,
   },
   buttonText: {
-    color: 'white',
-    marginTop: 8,
-    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   infoContainer: {
-    marginTop: 20,
-    padding: 16,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  infoText: {
-    textAlign: 'center',
-    fontSize: 16,
-  },
-  deviceSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  deviceSelectorText: {
-    flex: 1,
-    marginLeft: 10,
-    fontSize: 16,
+    padding: Spacing.md,
+    marginTop: Spacing.md,
   },
   modalContainer: {
     flex: 1,
@@ -875,86 +1086,31 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
+    borderTopLeftRadius: Layout.borderRadius.lg,
+    borderTopRightRadius: Layout.borderRadius.lg,
+    padding: Spacing.lg,
     maxHeight: '80%',
   },
   modalTitle: {
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   deviceItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+    padding: Spacing.md,
+    borderRadius: Layout.borderRadius.md,
+    marginBottom: Spacing.sm,
   },
-  selectedDevice: {
-    backgroundColor: '#4A90E2',
-  },
-  deviceName: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  selectedDeviceText: {
-    color: '#FFFFFF',
+  deviceIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.md,
   },
   closeButton: {
-    backgroundColor: '#E74C3C',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  closeButtonText: {
-    color: '#FFFFFF',
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  waveformContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 12,
-    marginVertical: 8,
-    width: '100%',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  recordingIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#4184FF', // Parlak mavi
-    marginRight: 8,
-  },
-  recordingText: {
-    fontSize: 13,
-    color: '#4184FF', // Parlak mavi
-    fontWeight: '600',
-  },
-  waveBars: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    height: 70,
-    width: '100%',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-  },
-  waveBar: {
-    width: 3.5,
-    borderRadius: 8,
-    marginHorizontal: 1,
-  },
+    marginTop: Spacing.md,
+  }
 }); 

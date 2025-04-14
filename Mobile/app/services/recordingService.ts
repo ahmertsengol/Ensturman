@@ -1,6 +1,7 @@
 import 'react-native-get-random-values'; // Bu import UUID için gerekli, ilk satırda olmalı
 import { Recording } from '../models/Recording';
 import { api } from './api';
+import * as FileSystem from 'expo-file-system';
 
 export const recordingService = {
   /**
@@ -67,6 +68,18 @@ export const recordingService = {
   },
 
   /**
+   * Kimlik doğrulama token'ını getir
+   */
+  async getAuthToken(): Promise<string | null> {
+    try {
+      return await api.getToken();
+    } catch (error) {
+      console.error('Error getting auth token:', error);
+      return null;
+    }
+  },
+
+  /**
    * Bir ses kaydını güncelle
    * Not: Backend'de şu an güncelleme endpointi bulunmuyor
    */
@@ -77,6 +90,38 @@ export const recordingService = {
       throw new Error('Güncelleme özelliği henüz desteklenmiyor');
     } catch (error) {
       console.error('Kayıt güncellenirken hata oluştu:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Bir ses kaydını yerel önbelleğe indir
+   */
+  async downloadRecording(recordingId: string): Promise<string> {
+    try {
+      console.log(`Downloading recording ${recordingId} to cache...`);
+      const localUri = await api.downloadAudioToCache(recordingId);
+      console.log(`Recording downloaded successfully to ${localUri}`);
+      return localUri;
+    } catch (error) {
+      console.error(`Error downloading recording ${recordingId}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Tüm önbelleğe alınmış ses kayıtlarını temizle
+   */
+  async clearCache(): Promise<void> {
+    try {
+      const cacheDir = `${FileSystem.cacheDirectory}audio/`;
+      const dirInfo = await FileSystem.getInfoAsync(cacheDir);
+      if (dirInfo.exists) {
+        await FileSystem.deleteAsync(cacheDir, { idempotent: true });
+        console.log('Audio cache cleared successfully');
+      }
+    } catch (error) {
+      console.error('Error clearing audio cache:', error);
       throw error;
     }
   }
