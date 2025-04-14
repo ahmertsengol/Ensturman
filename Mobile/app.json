@@ -9,13 +9,29 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Bu uygulama ses kaydetmek için mikrofon kullanmalıdır.",
+        "UIBackgroundModes": ["audio"],
+        "LSApplicationQueriesSchemes": ["spotify", "music", "soundcloud"],
+        "NSBonjourServices": ["_http._tcp"]
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "RECORD_AUDIO", 
+        "MODIFY_AUDIO_SETTINGS",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "FOREGROUND_SERVICE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -32,10 +48,43 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Bu uygulama ses kaydetmek için mikrofon kullanmalıdır.",
+          "android": {
+            "useNextAudioPipeline": true
+          },
+          "ios": {
+            "avEnableHighQualityAudio": true
+          }
+        }
+      ],
+      [
+        "expo-file-system",
+        {
+          "requestPermissionsFirst": true
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "YOUR_PROJECT_ID"
+      },
+      "audio": {
+        "enableHighQuality": true
+      }
+    },
+    "owner": "your-expo-username",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/YOUR_PROJECT_ID"
     }
   }
 }
