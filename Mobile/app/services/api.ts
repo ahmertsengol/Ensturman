@@ -57,6 +57,43 @@ const AUDIO_MIME_TYPES = {
   default: 'audio/mpeg'
 };
 
+// Önbellek mekanizması için yardımcı fonksiyon
+async function fetchWithCache(url: string, options: any, cacheKey: string, cacheMinutes: number = 5): Promise<any> {
+  try {
+    // Önbellekten kontrol et
+    const cachedData = await AsyncStorage.getItem(cacheKey);
+    if (cachedData) {
+      const { data, timestamp } = JSON.parse(cachedData);
+      // Belirtilen dakikadan daha yeni ise önbellekten sun
+      if (Date.now() - timestamp < cacheMinutes * 60 * 1000) {
+        console.log(`[CACHE] Using cached data for: ${url}`);
+        return data;
+      }
+    }
+    
+    // Önbellekte yoksa veya süresi dolmuşsa API'den al
+    console.log(`[CACHE] Cache miss or expired for: ${url}`);
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Önbelleğe kaydet
+    await AsyncStorage.setItem(cacheKey, JSON.stringify({
+      data,
+      timestamp: Date.now()
+    }));
+    console.log(`[CACHE] Updated cache for: ${url}`);
+    
+    return data;
+  } catch (error) {
+    console.error(`[CACHE] Error for ${url}:`, error);
+    throw error;
+  }
+}
+
 // Helper functions for API
 const logNetworkError = (error: any, endpoint: string) => {
   console.error(`Network error for ${endpoint}:`, error);
@@ -398,19 +435,20 @@ export const api = {
       }
 
       console.log('Fetching recordings from API...');
-      const response = await fetch(`${API_URL}/recordings`, {
-        headers: {
-          'x-auth-token': token
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('API error:', errorData);
-        throw new Error(errorData.message || 'Kayıtlar getirilemedi');
-      }
-
-      const data = await response.json();
+      
+      // Önbellekli veri çekme
+      const cacheKey = 'api_recordings_cache';
+      const data = await fetchWithCache(
+        `${API_URL}/recordings`,
+        {
+          headers: {
+            'x-auth-token': token
+          }
+        },
+        cacheKey,
+        2 // 2 dakika önbellek süresi
+      );
+      
       console.log(`Received ${data.length} recordings from API`);
 
       // API yanıtını Recording modeline dönüştür
@@ -436,17 +474,18 @@ export const api = {
       const token = await this.getToken();
       if (!token) throw new Error('Oturum açmanız gerekiyor');
 
-      const response = await fetch(`${API_URL}/recordings/${id}`, {
-        headers: {
-          'x-auth-token': token
-        }
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Kayıt getirilemedi');
-      }
+      // Önbellekli veri çekme
+      const cacheKey = `api_recording_${id}_cache`;
+      const data = await fetchWithCache(
+        `${API_URL}/recordings/${id}`,
+        {
+          headers: {
+            'x-auth-token': token
+          }
+        },
+        cacheKey,
+        5 // 5 dakika önbellek süresi
+      );
 
       // API yanıtını Recording modeline dönüştür
       const recording: Recording = {
@@ -642,6 +681,35 @@ export const api = {
       }
     } catch (error) {
       console.error('API delete recording error:', error);
+      throw error;
+    }
+  },
+
+  // Önbellekten belirli bir kaydı veya tüm kayıtları temizle
+  async clearCache(recordingId?: string): Promise<void> {
+    try {
+      if (recordingId) {
+        // Belirli bir kaydın önbelleğini temizle
+        const cacheKey = `api_recording_${recordingId}_cache`;
+        await AsyncStorage.removeItem(cacheKey);
+        console.log(`Cleared cache for recording ${recordingId}`);
+      } else {
+        // Tüm kayıt önbelleklerini temizle
+        const allKeys = await AsyncStorage.getAllKeys();
+        const cacheKeys = allKeys.filter(key => 
+          key.startsWith('api_recording_') || 
+          key === 'api_recordings_cache'
+        );
+        
+        if (cacheKeys.length > 0) {
+          await AsyncStorage.multiRemove(cacheKeys);
+          console.log(`Cleared ${cacheKeys.length} recording cache items`);
+        } else {
+          console.log('No recording caches found to clear');
+        }
+      }
+    } catch (error) {
+      console.error('Error clearing API cache:', error);
       throw error;
     }
   }
