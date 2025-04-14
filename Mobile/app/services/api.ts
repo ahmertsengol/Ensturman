@@ -7,7 +7,7 @@ import { Platform, NativeModules } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 
 // API istek zaman aşımı süresi (ms)
-const REQUEST_TIMEOUT = 10000;
+const REQUEST_TIMEOUT = 20000; // 20 saniye
 
 /**
  * Zaman aşımı ile HTTP isteği
@@ -17,14 +17,17 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout 
   const id = setTimeout(() => controller.abort(), timeout);
   
   try {
+    console.log(`API isteği başlatılıyor: ${url}`);
     const response = await fetch(url, {
       ...options,
       signal: controller.signal
     });
     clearTimeout(id);
+    console.log(`API isteği tamamlandı: ${url}, status: ${response.status}`);
     return response;
   } catch (error) {
     clearTimeout(id);
+    console.error(`API isteği başarısız: ${url}`, error);
     throw error;
   }
 }
@@ -167,24 +170,55 @@ export const api = {
   // Kullanıcı girişi
   async loginUser(email: string, password: string): Promise<LoginResponse> {
     try {
+      console.log(`Kullanıcı girişi deneniyor: ${email}`);
+      
+      // API'ye bağlanmaya çalış
       const response = await fetchWithTimeout(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      // API yanıtını önce text olarak al, sonra JSON'a dönüştür
+      // Bu, geçersiz JSON yanıtlarını yakalamak için daha güvenilir
+      const responseText = await response.text();
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('API login yanıtı geçersiz JSON:', responseText);
+        throw new Error('Sunucu yanıtı geçersiz format içeriyor');
+      }
 
       if (!response.ok) {
         throw new Error(data.message || 'Giriş yapılamadı');
       }
 
+      console.log('Kullanıcı girişi başarılı');
       return data;
-    } catch (error) {
-      console.error('API login error:', error);
-      throw error;
+    } catch (error: any) {
+      // Daha detaylı hata mesajları
+      let errorMessage = 'Bilinmeyen hata';
+      
+      if (error.name === 'AbortError') {
+        errorMessage = 'Sunucu yanıt vermedi, lütfen internet bağlantınızı kontrol edin (zaman aşımı)';
+      } else if (error.message === 'Network request failed') {
+        errorMessage = 'Ağ bağlantısı hatası. Sunucu çalışıyor mu? İnternet bağlantınızı kontrol edin.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      console.error('API login error:', {
+        error,
+        message: errorMessage,
+        url: `${API_URL}/auth/login`
+      });
+      
+      throw new Error(errorMessage);
     }
   },
 

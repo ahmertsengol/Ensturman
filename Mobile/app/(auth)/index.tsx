@@ -42,15 +42,62 @@ export default function LoginScreen() {
   useEffect(() => {
     const checkApiConnection = async () => {
       try {
-        const response = await fetch('http://10.0.2.2:3000/api/auth/test');
-        const data = await response.json();
-        if (data.message === 'Auth API is working') {
-          setApiStatus('success');
-        } else {
+        // Zaman aşımı kontrolü ile API'ye istek at
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 saniye zaman aşımı
+        
+        try {
+          const response = await fetch('http://10.0.2.2:3000/api/auth/test', {
+            signal: controller.signal,
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          clearTimeout(timeoutId);
+          const data = await response.json();
+          
+          if (data.message === 'Auth API is working') {
+            setApiStatus('success');
+          } else {
+            setApiStatus('error');
+          }
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          console.error('API bağlantı hatası (fetch):', fetchError);
+          
+          // Sunucu IP adresini alternatif olarak dene
+          try {
+            // Alternatif IP adresi ile deneme yap (yerel IP)
+            const backupController = new AbortController();
+            const backupTimeoutId = setTimeout(() => backupController.abort(), 5000); // 5 saniye zaman aşımı
+            
+            const backupResponse = await fetch('http://192.168.1.6:3000/api/auth/test', {
+              method: 'GET',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+              },
+              signal: backupController.signal
+            });
+            
+            clearTimeout(backupTimeoutId);
+            const backupData = await backupResponse.json();
+            if (backupData.message === 'Auth API is working') {
+              setApiStatus('success');
+              console.log("Alternatif sunucu adresi başarılı");
+              return;
+            }
+          } catch (backupError) {
+            console.error('Alternatif API adresi de başarısız:', backupError);
+          }
+          
           setApiStatus('error');
         }
       } catch (error) {
-        console.error('API bağlantısı hatası:', error);
+        console.error('API genel bağlantı hatası:', error);
         setApiStatus('error');
       }
     };
