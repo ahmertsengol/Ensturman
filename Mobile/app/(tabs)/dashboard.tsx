@@ -12,7 +12,6 @@ import { Recording } from '../models/Recording';
 import { Audio } from 'expo-av';
 import { RecordingCard } from '@/components/RecordingCard';
 import Feather from '@expo/vector-icons/Feather';
-import { api } from '../services/api';
 
 // Error boundary component
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
@@ -98,12 +97,6 @@ export default function DashboardScreen() {
       // Only update state if component is still mounted
       if (isMounted.current) {
         setRecordings(validRecordings);
-        
-        // Optimize by preloading first recording audio
-        if (validRecordings.length > 0) {
-          // Start downloading the first recording audio in background
-          api.preloadFirstRecordingAudio(validRecordings);
-        }
       }
     } catch (error) {
       console.error('Error loading recordings:', error);

@@ -3,12 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/theme.css">
+  <!-- Favicon -->
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <!-- Base CSS -->
+  <link rel="stylesheet" href="/css/base/variables.css">
+  <link rel="stylesheet" href="/css/base/reset.css">
+  <link rel="stylesheet" href="/css/base/typography.css">
+  
+  <!-- Components CSS -->
+  <link rel="stylesheet" href="/css/components/loading.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/cards.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/navigation.css">
+  <link rel="stylesheet" href="/css/components/modals.css">
+  <link rel="stylesheet" href="/css/components/alerts.css">
+  <link rel="stylesheet" href="/css/components/tables.css">
+  
+  <!-- Layout CSS -->
+  <link rel="stylesheet" href="/css/layout/header.css">
+  <link rel="stylesheet" href="/css/layout/footer.css">
+  <link rel="stylesheet" href="/css/layout/main.css">
+  
+  <!-- Theme CSS -->
   <link rel="stylesheet" href="/css/music-theme.css">
   <title>Register - Music Recorder</title>
 </head>
 <body class="theme-light">
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
+
   <header class="header">
     <div class="container">
       <h1 class="app-title">Music Recorder</h1>
@@ -84,15 +111,26 @@
     </div>
   </main>
 
-  <footer class="footer">
+  <footer class="footer simple-footer">
     <div class="container">
-      <p>&copy; 2025 Music Recorder</p>
+      <p>&copy; 2025 Music Recorder | <a href="/privacy">Gizlilik</a> | <a href="/terms">Kullanım Şartları</a></p>
     </div>
   </footer>
 
   <script src="/js/music-theme.js"></script>
   <script>
-    // ... existing code ...
+    // Handle page loading
+    window.addEventListener('load', function() {
+      // Show the body once everything is loaded
+      document.body.style.opacity = 1;
+      
+      // Hide loading overlay
+      const loadingOverlay = document.getElementById('loading-overlay');
+      loadingOverlay.style.opacity = 0;
+      setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+      }, 500);
+    });
   </script>
 </body>
 </html> 

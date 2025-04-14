@@ -2,41 +2,66 @@
 
 /* ===== MUSIC THEME VARIABLES ===== */
 :root {
-  /* Music-themed Color Palette - Enhanced vibrance */
-  --music-primary: #6200ea;        /* Deeper, more vibrant Purple */
-  --music-primary-dark: #3700b3;   /* Deeper Purple */
-  --music-primary-light: #9d46ff;  /* Brighter Light Purple */
-  --music-secondary: #ff8f00;      /* Brighter Orange - like brass instruments */
-  --music-secondary-dark: #f57c00; /* More vibrant Dark Orange */
-  --music-accent: #00b8d4;         /* Brighter Teal - like piano keys */
-  --music-dark: #1a237e;           /* Indigo - like nightclub */
-  --music-light: #f3f0ff;          /* Off-white with purple tint */
-  --music-gray-100: #f8f9fa;
-  --music-gray-200: #e9ecef;
-  --music-gray-300: #dee2e6;
-  --music-gray-400: #ced4da;
-  --music-gray-500: #adb5bd;
-  --music-gray-600: #6c757d;
-  --music-gray-700: #495057;
-  --music-gray-800: #343a40;
-  --music-gray-900: #212529;
-  --music-success: #00c853;        /* Green - like success notes */
-  --music-warning: #ffd600;        /* Yellow - like warning notes */
-  --music-error: #d50000;          /* Red - like error notes */
-  --music-info: #0091ea;           /* Blue - like info notes */
-  
+  /* Music Colors */
+  --music-primary: #3d2c8d;
+  --music-primary-dark: #2a1b7a;
+  --music-primary-light: #916bbf;
+  --music-secondary: #ea4f6d;
+  --music-secondary-dark: #d33a58;
+  --music-accent: #10b981;
+  --music-dark: #333;
+  --music-light: #f4f4f4;
+  --music-gray-100: #f1f5f9;
+  --music-gray-200: #e2e8f0;
+  --music-gray-300: #cbd5e1;
+  --music-gray-400: #94a3b8;
+  --music-gray-500: #64748b;
+  --music-gray-600: #475569;
+  --music-gray-700: #334155;
+  --music-gray-800: #1e293b;
+  --music-gray-900: #0f172a;
+  --music-success: #28a745;
+  --music-warning: #f59e0b;
+  --music-error: #dc3545;
+  --music-info: #0ea5e9;
+
+  /* Music Gradients */
+  --music-gradient-primary: linear-gradient(135deg, var(--music-primary), var(--music-primary-light));
+  --music-gradient-secondary: linear-gradient(135deg, var(--music-secondary), var(--music-secondary-dark));
+  --music-gradient-accent: linear-gradient(135deg, var(--music-accent), var(--music-accent-dark));
+
+  /* Music Shadows */
+  --music-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --music-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --music-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --music-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --music-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+  /* Music Transitions */
+  --music-transition-fast: 150ms;
+  --music-transition-normal: 300ms;
+  --music-transition-slow: 500ms;
+  --music-transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --music-transition-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
   /* Special Music Theme Properties */
-  --music-gradient: linear-gradient(135deg, var(--music-primary), var(--music-secondary));
-  --music-shadow: 0 4px 20px rgba(98, 0, 234, 0.3);
+  --music-gradient: linear-gradient(135deg, #3d2c8d, #916bbf, #c996cc, #d38ba3, #ea4f6d);
+  --music-shadow: 0 4px 20px rgba(61, 44, 141, 0.3);
   --music-font: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ===== GLOBAL THEME OVERRIDES ===== */
 body.music-theme {
-  background-color: var(--music-light);
-  background-image: none; /* Removed music-bg-pattern.svg */
+  /* Background */
+  background: linear-gradient(135deg, var(--music-light), var(--music-gray-100));
+  background-attachment: fixed;
   color: var(--music-gray-800);
+
+  /* Typography */
   font-family: var(--music-font);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: all 0.3s ease;
 }
 
@@ -92,7 +117,8 @@ body.music-theme::before {
 /* ===== HEADER STYLING ===== */
 body.music-theme header {
   background: var(--music-gradient);
-  box-shadow: var(--music-shadow);
+  color: white;
+  box-shadow: var(--music-shadow-lg);
   padding: var(--space-md) 0;
   position: relative;
   overflow: hidden;
@@ -106,7 +132,8 @@ body.music-theme header::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: none; /* Removed piano-keys-pattern.svg */
+  background-image: url('/img/pattern.svg');
+  background-size: cover;
   opacity: 0.1;
   z-index: 0;
 }
@@ -147,10 +174,11 @@ body.music-theme .app-title::before {
 
 /* ===== BUTTON STYLING ===== */
 body.music-theme .btn {
-  background-color: var(--music-primary);
-  border-radius: 50px;
-  box-shadow: 0 4px 12px rgba(98, 0, 234, 0.3);
-  transition: all 0.3s ease;
+  background: var(--music-gradient-primary);
+  color: white;
+  border: none;
+  box-shadow: var(--music-shadow-md);
+  transition: all var(--music-transition-normal) var(--music-transition-ease);
   position: relative;
   overflow: hidden;
   font-weight: 600;
@@ -165,19 +193,19 @@ body.music-theme .btn::after {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: none; /* Removed piano-keys-pattern.svg */
+  background-image: url('/img/pattern.svg');
+  background-size: cover;
   opacity: 0.05;
   z-index: 0;
 }
 
 body.music-theme .btn:hover {
-  background-color: var(--music-primary-dark);
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(98, 0, 234, 0.4);
+  transform: translateY(-2px);
+  box-shadow: var(--music-shadow-lg);
 }
 
 body.music-theme .btn-primary {
-  background-color: var(--music-primary);
+  background: var(--music-gradient);
   color: white;
 }
 
@@ -192,30 +220,34 @@ body.music-theme .btn-secondary {
 }
 
 body.music-theme .btn-outline {
-  background-color: transparent;
-  border: 2px solid white;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.8);
   color: white;
 }
 
 body.music-theme .btn-outline:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
   color: white;
+}
+
+body.music-theme .btn-danger {
+  background: var(--music-gradient-secondary);
 }
 
 /* ===== CARD STYLING ===== */
 body.music-theme .card {
-  background-color: #ffffff;
-  box-shadow: 0 8px 30px rgba(98, 0, 234, 0.15);
-  border: 1px solid rgba(98, 0, 234, 0.1);
-  border-radius: 16px;
-  transition: all 0.3s ease;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--music-shadow-md);
+  transition: all var(--music-transition-normal) var(--music-transition-ease);
   position: relative;
   z-index: 10;
 }
 
 body.music-theme .card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 40px rgba(98, 0, 234, 0.25);
+  transform: translateY(-4px);
+  box-shadow: var(--music-shadow-xl);
 }
 
 body.music-theme .card::before {
@@ -307,7 +339,7 @@ body.music-theme .form-input {
 
 body.music-theme .form-input:focus {
   border-color: var(--music-primary);
-  box-shadow: 0 0 0 3px rgba(98, 0, 234, 0.15);
+  box-shadow: 0 0 0 3px rgba(74, 110, 181, 0.1);
   outline: none;
 }
 
@@ -324,7 +356,7 @@ body.music-theme .form-select {
 
 body.music-theme .form-select:focus {
   border-color: var(--music-primary);
-  box-shadow: 0 0 0 3px rgba(98, 0, 234, 0.15);
+  box-shadow: 0 0 0 3px rgba(74, 110, 181, 0.1);
   outline: none;
 }
 
@@ -486,21 +518,22 @@ body.music-theme .feature-highlight::before {
 /* ===== ALERT STYLING ===== */
 body.music-theme .alert {
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--music-shadow-sm);
   margin-bottom: 1rem;
   font-weight: 500;
 }
 
 body.music-theme .alert-success {
-  background-color: rgba(0, 200, 83, 0.15);
-  color: #00843c;
-  border-left: 4px solid var(--music-success);
+  background-color: rgba(40, 167, 69, 0.1);
+  border: 1px solid var(--music-success);
+  color: var(--music-success);
 }
 
 body.music-theme .alert-error {
-  background-color: rgba(213, 0, 0, 0.15);
-  color: #c30000;
-  border-left: 4px solid var(--music-error);
+  background-color: rgba(220, 53, 69, 0.1);
+  border: 1px solid var(--music-error);
+  color: var(--music-error);
 }
 
 /* ===== ANIMATIONS ===== */

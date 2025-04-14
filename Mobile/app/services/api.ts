@@ -6,32 +6,6 @@ import * as FileSystem from 'expo-file-system';
 import { Platform, NativeModules } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 
-// API istek zaman aşımı süresi (ms)
-const REQUEST_TIMEOUT = 20000; // 20 saniye
-
-/**
- * Zaman aşımı ile HTTP isteği
- */
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = REQUEST_TIMEOUT): Promise<Response> {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-  
-  try {
-    console.log(`API isteği başlatılıyor: ${url}`);
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal
-    });
-    clearTimeout(id);
-    console.log(`API isteği tamamlandı: ${url}, status: ${response.status}`);
-    return response;
-  } catch (error) {
-    clearTimeout(id);
-    console.error(`API isteği başarısız: ${url}`, error);
-    throw error;
-  }
-}
-
 // API URL configuration based on platform - ensure it's directly accessible
 // 10.0.2.2 is equivalent to localhost for Android emulator
 // For iOS simulator, localhost works fine
@@ -132,8 +106,15 @@ export const api = {
     try {
       console.log('Testing API connection to:', `${API_URL}/auth/test`);
       
+      const controller = new AbortController();
+      // 10 saniyelik timeout ekle
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
       try {
-        const response = await fetchWithTimeout(`${API_URL}/auth/test`);
+        const response = await fetch(`${API_URL}/auth/test`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
         
         const data = await response.json();
         console.log('API test response:', data);
@@ -145,6 +126,8 @@ export const api = {
           url: `${API_URL}/auth/test`
         };
       } catch (error: any) {
+        clearTimeout(timeoutId);
+        
         if (error.name === 'AbortError') {
           console.error('API test request timed out after 10 seconds');
           return {
@@ -170,62 +153,31 @@ export const api = {
   // Kullanıcı girişi
   async loginUser(email: string, password: string): Promise<LoginResponse> {
     try {
-      console.log(`Kullanıcı girişi deneniyor: ${email}`);
-      
-      // API'ye bağlanmaya çalış
-      const response = await fetchWithTimeout(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
         body: JSON.stringify({ email, password }),
       });
 
-      // API yanıtını önce text olarak al, sonra JSON'a dönüştür
-      // Bu, geçersiz JSON yanıtlarını yakalamak için daha güvenilir
-      const responseText = await response.text();
-      
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (jsonError) {
-        console.error('API login yanıtı geçersiz JSON:', responseText);
-        throw new Error('Sunucu yanıtı geçersiz format içeriyor');
-      }
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || 'Giriş yapılamadı');
       }
 
-      console.log('Kullanıcı girişi başarılı');
       return data;
-    } catch (error: any) {
-      // Daha detaylı hata mesajları
-      let errorMessage = 'Bilinmeyen hata';
-      
-      if (error.name === 'AbortError') {
-        errorMessage = 'Sunucu yanıt vermedi, lütfen internet bağlantınızı kontrol edin (zaman aşımı)';
-      } else if (error.message === 'Network request failed') {
-        errorMessage = 'Ağ bağlantısı hatası. Sunucu çalışıyor mu? İnternet bağlantınızı kontrol edin.';
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      console.error('API login error:', {
-        error,
-        message: errorMessage,
-        url: `${API_URL}/auth/login`
-      });
-      
-      throw new Error(errorMessage);
+    } catch (error) {
+      console.error('API login error:', error);
+      throw error;
     }
   },
 
   // Kullanıcı kaydı
   async registerUser(name: string, email: string, password: string): Promise<RegisterResponse> {
     try {
-      const response = await fetchWithTimeout(`${API_URL}/auth/register`, {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -446,7 +398,7 @@ export const api = {
       }
 
       console.log('Fetching recordings from API...');
-      const response = await fetchWithTimeout(`${API_URL}/recordings`, {
+      const response = await fetch(`${API_URL}/recordings`, {
         headers: {
           'x-auth-token': token
         }
@@ -475,22 +427,6 @@ export const api = {
     } catch (error) {
       console.error('API get recordings error:', error);
       throw error;
-    }
-  },
-
-  // Kayıtları önceden yükle (preload) - performans optimizasyonu
-  async preloadFirstRecordingAudio(recordings: Recording[]): Promise<void> {
-    if (!recordings || recordings.length === 0) return;
-    
-    try {
-      // İlk kayıdı indirmeye başla (async)
-      console.log(`Preloading first recording: ${recordings[0].id}`);
-      this.downloadAudioToCache(recordings[0].id)
-        .then((uri) => console.log(`Preload complete: ${uri}`))
-        .catch((error) => console.warn(`Preload error: ${error}`));
-    } catch (error) {
-      console.warn('Error starting audio preload:', error);
-      // Sessiz bir şekilde hataları yoksay - bu sadece performans optimizasyonu
     }
   },
 

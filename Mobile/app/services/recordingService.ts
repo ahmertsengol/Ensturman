@@ -2,107 +2,20 @@ import 'react-native-get-random-values'; // Bu import UUID için gerekli, ilk sa
 import { Recording } from '../models/Recording';
 import { api } from './api';
 import * as FileSystem from 'expo-file-system';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// Önbellek süresi (milisaniye): 2 dakika
-const CACHE_EXPIRY = 2 * 60 * 1000;
-
-// Kayıtların önbellekteki anahtarı
-const RECORDINGS_CACHE_KEY = 'cached_recordings';
-const RECORDING_TIMESTAMP_KEY = 'cached_recordings_timestamp';
 
 export const recordingService = {
   /**
-   * Tüm ses kayıtlarını getir, önbellekten kontrol et ve gerekirse API'den al
+   * Tüm ses kayıtlarını getir
    */
   async getAllRecordings(): Promise<Recording[]> {
     try {
       console.log('Getting all recordings...');
-      
-      // Öncelikle önbellekteki kayıtları kontrol et
-      const cachedRecordings = await this.getCachedRecordings();
-      if (cachedRecordings) {
-        console.log(`Retrieved ${cachedRecordings.length} recordings from cache`);
-        return cachedRecordings;
-      }
-      
-      // Önbellekte yoksa API'den al
       const recordings = await api.getRecordings();
-      console.log(`Retrieved ${recordings.length} recordings from API`);
-      
-      // Kayıtları önbelleğe al
-      await this.cacheRecordings(recordings);
-      
+      console.log(`Retrieved ${recordings.length} recordings`);
       return recordings;
     } catch (error) {
       console.error('Error in getAllRecordings:', error);
-      
-      // Hata durumunda önbellekteki kayıtları kullanmaya çalış (internet bağlantısı yoksa)
-      const cachedRecordings = await this.getCachedRecordings(true);
-      if (cachedRecordings) {
-        console.log(`Fallback: Using ${cachedRecordings.length} cached recordings due to API error`);
-        return cachedRecordings;
-      }
-      
       throw error;
-    }
-  },
-
-  /**
-   * Kayıtları önbelleğe al
-   */
-  async cacheRecordings(recordings: Recording[]): Promise<void> {
-    try {
-      await AsyncStorage.setItem(RECORDINGS_CACHE_KEY, JSON.stringify(recordings));
-      await AsyncStorage.setItem(RECORDING_TIMESTAMP_KEY, Date.now().toString());
-      console.log(`Cached ${recordings.length} recordings`);
-    } catch (error) {
-      console.error('Error caching recordings:', error);
-      // Önbelleğe alma hatası kritik değil, sessizce devam et
-    }
-  },
-
-  /**
-   * Önbellekteki kayıtları getir
-   * @param ignoreExpiry Süre aşımını kontrol etme (acil durum için)
-   */
-  async getCachedRecordings(ignoreExpiry = false): Promise<Recording[] | null> {
-    try {
-      // Önbellek zaman damgasını kontrol et
-      const timestampStr = await AsyncStorage.getItem(RECORDING_TIMESTAMP_KEY);
-      
-      if (!ignoreExpiry && timestampStr) {
-        const timestamp = parseInt(timestampStr);
-        const now = Date.now();
-        
-        // Önbellek süresi dolmuşsa null döndür
-        if (now - timestamp > CACHE_EXPIRY) {
-          console.log('Cache expired, will fetch fresh data');
-          return null;
-        }
-      }
-      
-      // Önbellekteki kayıtları al
-      const recordingsJson = await AsyncStorage.getItem(RECORDINGS_CACHE_KEY);
-      if (!recordingsJson) return null;
-      
-      return JSON.parse(recordingsJson);
-    } catch (error) {
-      console.error('Error retrieving cached recordings:', error);
-      return null;
-    }
-  },
-
-  /**
-   * Önbelleği temizle
-   */
-  async clearRecordingsCache(): Promise<void> {
-    try {
-      await AsyncStorage.removeItem(RECORDINGS_CACHE_KEY);
-      await AsyncStorage.removeItem(RECORDING_TIMESTAMP_KEY);
-      console.log('Recordings cache cleared');
-    } catch (error) {
-      console.error('Error clearing recordings cache:', error);
     }
   },
 
@@ -112,18 +25,12 @@ export const recordingService = {
   async getUserRecordings(userId: string): Promise<Recording[]> {
     try {
       console.log(`Getting recordings for user ${userId}...`);
-      
-      // Tüm kayıtları getir (önbellekten veya API'den)
-      const allRecordings = await this.getAllRecordings();
-      
-      // Kullanıcıya ait olanları filtrele
-      const userRecordings = allRecordings.filter(rec => rec.userId === userId);
-      
-      console.log(`Retrieved ${userRecordings.length} recordings for user ${userId}`);
-      return userRecordings;
+      const recordings = await api.getRecordings();
+      console.log(`Retrieved ${recordings.length} recordings for user ${userId}`);
+      return recordings;
     } catch (error) {
       console.error(`Error in getUserRecordings for user ${userId}:`, error);
-      throw error;
+      throw error; // Hatayı yukarı ilet
     }
   },
 
@@ -133,19 +40,12 @@ export const recordingService = {
   async addRecording(newRecording: Omit<Recording, 'id' | 'created'>): Promise<Recording> {
     try {
       console.log('Adding new recording:', newRecording.title);
-      
-      // API'ye yükle
       const result = await api.uploadRecording(
         newRecording.uri,
         newRecording.title,
         newRecording.duration
       );
-      
       console.log('Recording added successfully:', result.id);
-      
-      // Önbelleği temizle (yeni kayıt eklendi)
-      await this.clearRecordingsCache();
-      
       return result;
     } catch (error) {
       console.error('Error in addRecording:', error);
@@ -161,9 +61,6 @@ export const recordingService = {
       console.log(`Deleting recording ${id}...`);
       await api.deleteRecording(id);
       console.log(`Recording ${id} deleted successfully`);
-      
-      // Önbelleği temizle (kayıt silindi)
-      await this.clearRecordingsCache();
     } catch (error) {
       console.error(`Error in deleteRecording for id ${id}:`, error);
       throw error;
@@ -223,9 +120,6 @@ export const recordingService = {
         await FileSystem.deleteAsync(cacheDir, { idempotent: true });
         console.log('Audio cache cleared successfully');
       }
-      
-      // Kayıt önbelleğini de temizle
-      await this.clearRecordingsCache();
     } catch (error) {
       console.error('Error clearing audio cache:', error);
       throw error;

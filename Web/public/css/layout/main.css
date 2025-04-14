@@ -1,0 +1,175 @@
+/* public/css/layout/main.css - Main Layout */
+
+.main {
+  min-height: calc(100vh - var(--header-height) - var(--footer-height));
+  padding: var(--space-xl) 0;
+  position: relative;
+  z-index: 5;
+}
+
+.container {
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 5;
+}
+
+/* Grid System */
+.grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Flex System */
+.flex {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-center {
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-between {
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Spacing Utilities */
+.mt-auto { margin-top: auto; }
+.mb-auto { margin-bottom: auto; }
+.ml-auto { margin-left: auto; }
+.mr-auto { margin-right: auto; }
+
+/* Responsive Grid */
+@media (max-width: 1200px) {
+  .grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .container {
+    max-width: 960px;
+  }
+}
+
+@media (max-width: 992px) {
+  .grid-3, .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .container {
+    max-width: 720px;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 {
+    grid-template-columns: 1fr;
+  }
+  .container {
+    max-width: 540px;
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    max-width: 100%;
+    padding: 0 10px;
+  }
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn var(--transition-slow) ease-in;
+}
+
+.slide-up {
+  animation: slideUp var(--transition-slow) ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Main content area */
+main {
+  min-height: calc(100vh - 140px); /* Account for header and footer */
+  padding: 2rem 0;
+}
+
+/* Form and card containers - centered with narrower width */
+.form-container, 
+.recording-container,
+.recording-edit-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Narrower container for login/register forms */
+.form-container.card {
+  max-width: 500px;
+  margin: 2rem auto;
+}
+
+/* Error pages */
+.error-container {
+  text-align: center;
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: 2rem;
+}
+
+/* Dashboard and recording listings */
+.recordings-list {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Intro section on homepage */
+.form-container.home-intro {
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+/* Section titles */
+.section-title {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Centered alert messages */
+#flash-messages,
+#messages {
+  max-width: 800px;
+  margin: 0 auto 1.5rem;
+} 

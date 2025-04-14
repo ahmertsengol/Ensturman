@@ -1,0 +1,77 @@
+/* public/css/components/recorder.css - Voice Recorder Component */
+
+.recorder-container {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.recorder-controls {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.recorder-status {
+  text-align: center;
+  margin-bottom: var(--space-md);
+  color: var(--gray-600);
+}
+
+#record-status {
+  font-weight: var(--font-weight-medium);
+  color: var(--primary);
+}
+
+#timer {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xl);
+  color: var(--gray-700);
+}
+
+.recorder-buttons {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+}
+
+.audio-visualizer {
+  width: 100%;
+  height: 100px;
+  background: var(--gray-100);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+}
+
+#visualizer {
+  width: 100%;
+  height: 100%;
+}
+
+#audio-player-container {
+  margin-top: var(--space-lg);
+}
+
+#audio-player {
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .recorder-container {
+    margin: var(--space-md);
+  }
+  
+  .recorder-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .recorder-buttons .btn {
+    width: 100%;
+    max-width: 200px;
+  }
+} 

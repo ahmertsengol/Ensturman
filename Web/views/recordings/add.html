@@ -6,36 +6,36 @@
   <!-- Favicon -->
   <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <style>
-    /* Inline critical styles to prevent FOUC */
-    body { opacity: 0; transition: opacity 0.5s ease; }
-    .loading-overlay { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      background-color: #f8fafc; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      z-index: 9999; 
-    }
-    .loading-spinner {
-      width: 40px; 
-      height: 40px; 
-      border: 3px solid rgba(99, 102, 241, 0.2); 
-      border-radius: 50%; 
-      border-top-color: #6366f1; 
-      animation: spin 1s ease-in-out infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/theme.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Base CSS -->
+  <link rel="stylesheet" href="/css/base/variables.css">
+  <link rel="stylesheet" href="/css/base/reset.css">
+  <link rel="stylesheet" href="/css/base/typography.css">
+  
+  <!-- Components CSS -->
+  <link rel="stylesheet" href="/css/components/loading.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/cards.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/navigation.css">
+  <link rel="stylesheet" href="/css/components/modals.css">
+  <link rel="stylesheet" href="/css/components/alerts.css">
+  <link rel="stylesheet" href="/css/components/tables.css">
+  
+  <!-- Layout CSS -->
+  <link rel="stylesheet" href="/css/layout/header.css">
+  <link rel="stylesheet" href="/css/layout/footer.css">
+  <link rel="stylesheet" href="/css/layout/main.css">
+  
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/recorder.css">
+  
+  <!-- Theme CSS -->
   <link rel="stylesheet" href="/css/music-theme.css">
   <title>Record Audio - Music Recorder</title>
 </head>
@@ -50,8 +50,12 @@
   <header class="header">
     <div class="container">
       <h1 class="app-title">Music Recorder</h1>
+      <nav class="header-nav">
+        <a href="/dashboard" class="nav-link">Dashboard</a>
+        <a href="/recordings/add" class="nav-link active">New Recording</a>
+        <a href="/pitch-detection" class="nav-link">Note Detection</a>
+      </nav>
       <div class="header-buttons">
-        <a href="/dashboard" class="btn btn-outline">Dashboard</a>
         <form action="/auth/logout" method="POST" style="display: inline;">
           <button type="submit" class="btn btn-outline">Logout</button>
         </form>
@@ -120,9 +124,9 @@
     </div>
   </main>
 
-  <footer class="footer">
+  <footer class="footer simple-footer">
     <div class="container">
-      <p>&copy; 2025 Music Recorder</p>
+      <p>&copy; 2025 Music Recorder | <a href="/privacy">Gizlilik</a> | <a href="/terms">Kullanım Şartları</a></p>
     </div>
   </footer>
 

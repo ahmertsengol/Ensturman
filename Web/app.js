@@ -10,6 +10,7 @@ const fs = require('fs');
 // Import logger
 const logger = require('./config/logger');
 const morganMiddleware = require('./middlewares/morgan');
+const fontsMiddleware = require('./middlewares/fonts');
 
 // Ensure logs directory exists
 const logsDir = path.join(__dirname, 'logs');
@@ -23,6 +24,13 @@ const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
   logger.info('Uploads directory created');
+}
+
+// Ensure fonts directory exists
+const fontsDir = path.join(__dirname, 'public/fonts/montserrat');
+if (!fs.existsSync(fontsDir)) {
+  fs.mkdirSync(fontsDir, { recursive: true });
+  logger.info('Fonts directory created');
 }
 
 // Load config
@@ -44,6 +52,44 @@ logger.info('Express app initialized');
 // Apply HTTP request logging middleware
 app.use(morganMiddleware);
 logger.info('Morgan logging middleware applied');
+
+// CORS middleware - Google Fonts için güncellenmiş
+app.use((req, res, next) => {
+  // Google Fonts API ve CDN için CORS izinleri ayarla
+  if (req.headers.origin) {
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    // Preflight OPTIONS isteği için hızlı yanıt
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+  }
+  next();
+});
+logger.info('CORS middleware with proper Google Fonts support applied');
+
+// MIME type güvenliği için middleware - Güncellenmiş sürüm
+app.use((req, res, next) => {
+  // Font veya SVG dosyaları için MIME türü ayarla
+  if (req.url.endsWith('.woff2')) {
+    res.setHeader('Content-Type', 'font/woff2');
+  } else if (req.url.endsWith('.woff')) {
+    res.setHeader('Content-Type', 'font/woff');
+  } else if (req.url.endsWith('.svg')) {
+    res.setHeader('Content-Type', 'image/svg+xml');
+  }
+  
+  // X-Content-Type-Options ile MIME türü uyumsuzluklarını önle ama fonts için değil
+  if (!req.url.includes('fonts.googleapis.com') && !req.url.includes('fonts.gstatic.com')) {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+  }
+  
+  next();
+});
+logger.info('MIME type security middleware updated');
 
 // Body parser
 app.use(express.urlencoded({ extended: false }));
@@ -88,9 +134,26 @@ app.use((req, res, next) => {
 });
 logger.info('Global middleware applied');
 
-// Static folder
-app.use(express.static(path.join(__dirname, 'public')));
-logger.info('Static file middleware applied');
+// Font middleware - for handling missing font files
+app.use(fontsMiddleware);
+logger.info('Font middleware applied');
+
+// Static folder - Doğru MIME türleriyle
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, path) => {
+    // Font dosyaları için doğru MIME türlerini ayarla
+    if (path.endsWith('.woff2')) {
+      res.setHeader('Content-Type', 'font/woff2');
+    } else if (path.endsWith('.woff')) {
+      res.setHeader('Content-Type', 'font/woff');
+    } else if (path.endsWith('.ttf')) {
+      res.setHeader('Content-Type', 'font/ttf');
+    } else if (path.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+    }
+  }
+}));
+logger.info('Static file middleware applied with MIME type headers');
 
 // Uploads folder - make accessible
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

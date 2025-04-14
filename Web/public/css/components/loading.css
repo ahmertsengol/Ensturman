@@ -1,0 +1,94 @@
+/* public/css/components/loading.css */
+
+/* Inline critical styles to prevent FOUC */
+body { 
+  opacity: 0; 
+  transition: opacity 0.5s ease; 
+}
+
+body.loaded {
+  opacity: 1;
+}
+
+.loading-overlay { 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  background-color: #f8fafc; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  z-index: 9999; 
+}
+
+.loading-spinner {
+  width: 40px; 
+  height: 40px; 
+  border: 3px solid rgba(99, 102, 241, 0.2); 
+  border-radius: 50%; 
+  border-top-color: #6366f1; 
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Z-index layer management */
+.music-notes-container {
+  z-index: -1;
+}
+
+main, .container {
+  position: relative;
+  z-index: 5;
+}
+
+.form-container, .card {
+  position: relative;
+  z-index: 10;
+}
+
+/* Enhanced music notes animation specifically for homepage */
+.home-page .music-notes-container {
+  z-index: 1; /* Position between background and content */
+}
+
+.home-page .music-note {
+  width: 28px !important; /* Smaller music notes */
+  height: 28px !important;
+  opacity: 0.25 !important; /* More visible but smaller */
+  filter: drop-shadow(0 0 3px rgba(98, 0, 234, 0.4)) !important;
+}
+
+/* Faster animation for notes on homepage */
+@keyframes fastFloatNote {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.25;
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Homepage specific styles */
+.home-page .home-content {
+  position: relative;
+  z-index: 2;
+}
+
+.home-page .feature-card {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(98, 0, 234, 0.2);
+} 

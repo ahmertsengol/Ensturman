@@ -8,56 +8,56 @@ class PitchDetector {
     this.detectedNotes = [];
     this.buffer = new Float32Array(2048);
     this.noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-    this.debugMode = true; // Hata ayıklama modunu etkinleştir
-    this.availableMicrophones = []; // Kullanılabilir mikrofonları saklayacak
-    this.selectedDeviceId = null; // Seçili mikrofon ID'sini saklayacak
+    this.debugMode = true; // Enable debug mode
+    this.availableMicrophones = []; // Store available microphones
+    this.selectedDeviceId = null; // Store selected microphone ID
   }
 
-  // Kullanılabilir mikrofonları listeleyip dropdown'a ekler
+  // List available microphones and add them to the dropdown
   async listMicrophones() {
     try {
-      // Önce ses cihazlarına erişim izni alalım
+      // First get permission to access audio devices
       console.log("Requesting temporary microphone access for listing devices...");
       const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Geçici stream'i durduralım
+      // Stop temporary stream
       tempStream.getTracks().forEach(track => track.stop());
       
-      // Şimdi tüm cihazları alabiliriz (izinli olduğumuz için etiketlerle birlikte)
+      // Now we can get all devices (with labels since we have permission)
       const devices = await navigator.mediaDevices.enumerateDevices();
       this.availableMicrophones = devices.filter(device => device.kind === 'audioinput');
       
       console.log("Available microphones:", this.availableMicrophones);
       
-      // Mikrofon listesini dropdown'a ekleyelim
+      // Add microphone list to dropdown
       const microphoneSelect = document.getElementById('microphone-select');
       if (!microphoneSelect) {
         console.error("Microphone select dropdown not found in DOM");
         return false;
       }
       
-      // Dropdown'ı temizleyelim
+      // Clear dropdown
       microphoneSelect.innerHTML = '';
       
-      // Her mikrofon için bir option ekleyelim
+      // Add an option for each microphone
       this.availableMicrophones.forEach((device, index) => {
         const option = document.createElement('option');
         option.value = device.deviceId;
-        option.text = device.label || `Mikrofon ${index + 1}`;
+        option.text = device.label || `Microphone ${index + 1}`;
         microphoneSelect.appendChild(option);
       });
       
-      // İlk mikrofonu varsayılan olarak seçelim
+      // Select first microphone as default
       if (this.availableMicrophones.length > 0) {
         this.selectedDeviceId = this.availableMicrophones[0].deviceId;
         microphoneSelect.value = this.selectedDeviceId;
       }
       
-      // Mikrofon değiştiğinde event listener ekleyelim
+      // Add event listener for microphone change
       microphoneSelect.addEventListener('change', (e) => {
         this.selectedDeviceId = e.target.value;
         console.log("Selected microphone changed to:", this.selectedDeviceId);
         
-        // Eğer analiz devam ediyorsa, yeni mikrofon ile devam edelim
+        // If analysis is in progress, continue with the new microphone
         if (this.isAnalyzing) {
           this.stopAnalysis();
           this.initialize().then(() => {
@@ -75,7 +75,7 @@ class PitchDetector {
 
   async initialize() {
     try {
-      // Önceki bağlantıları temizle
+      // Clean up previous connections
       if (this.source) {
         this.source.disconnect();
       }
@@ -90,7 +90,7 @@ class PitchDetector {
       // Setup analyser with better settings
       this.analyser = this.audioContext.createAnalyser();
       this.analyser.fftSize = 2048;
-      this.analyser.minDecibels = -90; // Daha düşük ses seviyelerini algılayabilme
+      this.analyser.minDecibels = -90; // Detect lower volume levels
       this.analyser.maxDecibels = -10;
       this.analyser.smoothingTimeConstant = 0.85;
       
@@ -117,7 +117,7 @@ class PitchDetector {
         await this.audioContext.resume();
       }
       
-      // Dropdown'u aktifleştir
+      // Enable dropdown
       const microphoneSelect = document.getElementById('microphone-select');
       if (microphoneSelect) {
         microphoneSelect.disabled = false;
@@ -138,7 +138,7 @@ class PitchDetector {
     console.log("Starting audio analysis...");
     this.analyzeAudio();
     
-    // Mikrofon seçimini devre dışı bırakma
+    // Disable microphone selection during analysis
     const microphoneSelect = document.getElementById('microphone-select');
     if (microphoneSelect) {
       microphoneSelect.disabled = true;
@@ -149,13 +149,13 @@ class PitchDetector {
     this.isAnalyzing = false;
     console.log("Stopping audio analysis");
     
-    // Mikrofon seçimini aktifleştirme
+    // Enable microphone selection
     const microphoneSelect = document.getElementById('microphone-select');
     if (microphoneSelect) {
       microphoneSelect.disabled = false;
     }
     
-    // Audio kaynağını temizle
+    // Clean up audio source
     if (this.source) {
       this.source.mediaStream.getTracks().forEach(track => {
         track.stop();
@@ -248,138 +248,111 @@ class PitchDetector {
       }
     }
     
-    if (bestK > 0) {
+    // console.log("Best K:", bestK, "Best R:", bestR);
+    
+    if (bestK > 0 && bestR > 0.01) {
       const fundamentalFreq = sampleRate / bestK;
-      // Only return frequencies in the audible range (20Hz - 4500Hz)
-      if (fundamentalFreq > 20 && fundamentalFreq < 4500) {
-        return fundamentalFreq;
-      }
+      return fundamentalFreq;
     }
     
     return -1; // No pitch detected
   }
-
-  // Get the most recent detected notes
+  
+  // Get most recent detected notes
   getRecentNotes(count = 10) {
+    // Filter out old notes (older than 5 seconds)
+    const now = Date.now();
+    this.detectedNotes = this.detectedNotes.filter(note => (now - note.timestamp) < 5000);
+    
+    // Return most recent notes
     return this.detectedNotes.slice(-count);
   }
 }
 
-// Initialize and use the PitchDetector when DOM is loaded
-document.addEventListener('DOMContentLoaded', async () => {
-  const detector = new PitchDetector();
+// Initialize the pitch detector when the DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("DOM loaded, initializing pitch detector...");
+  const pitchDetector = new PitchDetector();
+  
+  // Add event listeners for buttons
   const startButton = document.getElementById('start-analysis');
   const stopButton = document.getElementById('stop-analysis');
   const noteDisplay = document.getElementById('note-display');
+  const noteVisualization = document.getElementById('note-visualization');
   
-  if (!startButton || !stopButton || !noteDisplay) {
-    console.error('Required elements not found in the DOM');
-    return;
-  }
-  
-  // Check if the browser supports the necessary APIs
-  if (!window.AudioContext && !window.webkitAudioContext) {
-    noteDisplay.textContent = 'Web Audio API desteklenmiyor. Lütfen Chrome veya Firefox kullanın.';
-    startButton.disabled = true;
-    stopButton.disabled = true;
-    return;
-  }
-  
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    noteDisplay.textContent = 'Mikrofon erişimi desteklenmiyor. Lütfen HTTPS kullanın.';
-    startButton.disabled = true;
-    stopButton.disabled = true;
-    return;
-  }
-  
-  // Mikrofonları listele
-  await detector.listMicrophones();
-  
-  // Add click handler to initialize audio when user interacts
-  startButton.textContent = "Mikrofona Erişim İzni Ver";
-  
-  // İlk tıklama işleyicisini bir değişkene atıyoruz (arguments.callee yerine)
+  // Get access to microphone and list available devices
   const initializeMicrophoneHandler = async () => {
-    noteDisplay.textContent = 'Mikrofon izni isteniyor...';
+    noteDisplay.textContent = "Requesting microphone access...";
     
-    const initialized = await detector.initialize();
+    // List available microphones
+    await pitchDetector.listMicrophones();
     
-    if (!initialized) {
-      noteDisplay.textContent = 'Mikrofon erişimi başarısız. Tarayıcı izinlerini kontrol edin.';
-      return;
+    // Initialize audio context and analyser
+    const initialized = await pitchDetector.initialize();
+    
+    if (initialized) {
+      // Change button text and enable
+      startButton.textContent = "Start Listening";
+      noteDisplay.textContent = "Ready to detect notes";
+      
+      // Setup button event listeners for actual analysis
+      startButton.removeEventListener('click', initializeMicrophoneHandler);
+      startButton.addEventListener('click', () => {
+        pitchDetector.startAnalysis();
+        startButton.disabled = true;
+        stopButton.disabled = false;
+        noteDisplay.textContent = "Listening for notes...";
+        noteVisualization.innerHTML = '';
+      });
+      
+      stopButton.addEventListener('click', () => {
+        pitchDetector.stopAnalysis();
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        noteDisplay.textContent = "Listening stopped";
+      });
+    } else {
+      noteDisplay.textContent = "Failed to access microphone";
     }
-    
-    startButton.textContent = "Dinlemeye Başla";
-    // Bu satırı değiştiriyoruz - artık önceki işleyiciyi named handler ile kaldırıyoruz
-    startButton.removeEventListener('click', initializeMicrophoneHandler);
-    
-    startButton.addEventListener('click', () => {
-      detector.startAnalysis();
-      startButton.disabled = true;
-      stopButton.disabled = false;
-      noteDisplay.textContent = 'Dinleniyor...';
-    });
-    
-    stopButton.addEventListener('click', () => {
-      detector.stopAnalysis();
-      startButton.disabled = false;
-      stopButton.disabled = true;
-      noteDisplay.textContent = 'Dinleme durduruldu';
-    });
   };
   
-  // Event listener'ı değişken ile ekliyoruz
+  // Initial setup - request microphone access
   startButton.addEventListener('click', initializeMicrophoneHandler);
   
-  // Listen for detected notes
+  // Listen for note detected events
   document.addEventListener('noteDetected', (e) => {
-    noteDisplay.textContent = `Algılanan Nota: ${e.detail.note} (${e.detail.frequency.toFixed(2)} Hz)`;
-    
-    // Visual feedback for the current note
-    updateNoteVisualization(e.detail.note);
+    const { note, frequency } = e.detail;
+    noteDisplay.textContent = `Detected: ${note} (${Math.round(frequency)} Hz)`;
+    updateNoteVisualization(note);
   });
 });
 
-// Function to provide visual feedback for detected notes
+// Update the note visualization
 function updateNoteVisualization(noteName) {
-  const visualizationElement = document.getElementById('note-visualization');
+  const noteVisualization = document.getElementById('note-visualization');
+  if (!noteVisualization) return;
   
-  if (!visualizationElement) return;
-  
-  // Extract just the note letter (without octave)
-  const noteOnly = noteName.replace(/[0-9]/g, '');
-  
-  // Clear previous visualization
-  visualizationElement.innerHTML = '';
-  
-  // Create visual representation of the note
-  const noteElement = document.createElement('div');
-  noteElement.className = 'note-circle';
-  noteElement.textContent = noteOnly;
-  noteElement.style.animation = 'pulse 0.5s';
-  
-  // Determine if this is a correct note (for exercise)
-  const expectedNotes = document.querySelectorAll('.expected-notes span');
-  let isCorrectNote = false;
-  
-  expectedNotes.forEach(expected => {
-    if (expected.textContent === noteOnly) {
-      isCorrectNote = true;
-      expected.classList.add('highlighted');
-      
-      // Remove highlight after a short delay
-      setTimeout(() => {
-        expected.classList.remove('highlighted');
-      }, 1000);
-    }
-  });
-  
-  // Add class based on correctness
-  if (isCorrectNote) {
-    noteElement.classList.add('correct-note');
-  } else {
-    noteElement.classList.add('incorrect-note');
+  // Clear old notes (keep only last 5)
+  while (noteVisualization.childElementCount > 4) {
+    noteVisualization.removeChild(noteVisualization.firstChild);
   }
   
-  visualizationElement.appendChild(noteElement);
+  // Create new note element
+  const noteElement = document.createElement('div');
+  noteElement.className = 'note';
+  noteElement.textContent = noteName;
+  
+  // Apply random position and animation
+  noteElement.style.left = `${Math.random() * 80 + 10}%`;
+  noteElement.style.animationDuration = `${Math.random() * 2 + 1}s`;
+  
+  // Add to visualization
+  noteVisualization.appendChild(noteElement);
+  
+  // Remove after animation completes
+  setTimeout(() => {
+    if (noteElement.parentNode === noteVisualization) {
+      noteVisualization.removeChild(noteElement);
+    }
+  }, 3000);
 } 

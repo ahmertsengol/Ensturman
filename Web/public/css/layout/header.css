@@ -1,0 +1,152 @@
+/* public/css/layout/header.css - Header Layout */
+
+.header {
+  background: var(--gradient);
+  box-shadow: var(--shadow);
+  padding: var(--space-md) 0;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.1;
+  z-index: 0;
+  background-image: url('/img/pattern.svg');
+  background-size: cover;
+}
+
+.header .container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* App Title */
+.app-title {
+  color: white;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.5px;
+}
+
+.app-title::before {
+  content: '';
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+  background-image: url('/img/music-logo.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+  animation: pulse 2s infinite;
+}
+
+/* Header Buttons */
+.header-buttons {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* Header Navigation */
+.header-nav {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.header-nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.header-nav a:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.header-nav a.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.header-nav a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background-color: white;
+  border-radius: 1px;
+}
+
+/* Header User Menu */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.header-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid white;
+  overflow: hidden;
+}
+
+.header-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Header Mobile Menu */
+.header-mobile-menu {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .header-mobile-menu {
+    display: block;
+  }
+  
+  .header-nav {
+    display: none;
+  }
+  
+  .header-buttons {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .app-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Header Animations */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+} 

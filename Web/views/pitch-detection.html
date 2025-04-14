@@ -1,43 +1,43 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Favicon -->
   <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <style>
-    /* Inline critical styles to prevent FOUC */
-    body { opacity: 0; transition: opacity 0.5s ease; }
-    .loading-overlay { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      background-color: #f8fafc; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      z-index: 9999; 
-    }
-    .loading-spinner {
-      width: 40px; 
-      height: 40px; 
-      border: 3px solid rgba(99, 102, 241, 0.2); 
-      border-radius: 50%; 
-      border-top-color: #6366f1; 
-      animation: spin 1s ease-in-out infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/theme.css">
-  <link rel="stylesheet" href="/css/pitch-detector.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Base CSS -->
+  <link rel="stylesheet" href="/css/base/variables.css">
+  <link rel="stylesheet" href="/css/base/reset.css">
+  <link rel="stylesheet" href="/css/base/typography.css">
+  
+  <!-- Components CSS -->
+  <link rel="stylesheet" href="/css/components/loading.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/cards.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/navigation.css">
+  <link rel="stylesheet" href="/css/components/modals.css">
+  <link rel="stylesheet" href="/css/components/alerts.css">
+  <link rel="stylesheet" href="/css/components/tables.css">
+  
+  <!-- Layout CSS -->
+  <link rel="stylesheet" href="/css/layout/header.css">
+  <link rel="stylesheet" href="/css/layout/footer.css">
+  <link rel="stylesheet" href="/css/layout/main.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/pitch-detection.css">
+  
+  <!-- Theme CSS -->
   <link rel="stylesheet" href="/css/music-theme.css">
-  <title>Gerçek Zamanlı Nota Algılama - Music Recorder</title>
+  <title>Pitch Detection - Music Recorder</title>
 </head>
 <body class="theme-light">
   <!-- Loading overlay -->
@@ -47,10 +47,16 @@
 
   <header class="header">
     <div class="container">
-      <h1 class="app-title">Nota Algılama</h1>
+      <h1 class="app-title">Music Recorder</h1>
+      <nav class="header-nav">
+        <a href="/dashboard" class="nav-link">Dashboard</a>
+        <a href="/recordings/add" class="nav-link">New Recording</a>
+        <a href="/pitch-detection" class="nav-link active">Note Detection</a>
+      </nav>
       <div class="header-buttons">
-        <a href="/dashboard" class="btn btn-outline">Gösterge Paneli</a>
-        <a href="/auth/logout" class="btn btn-secondary">Çıkış</a>
+        <form action="/auth/logout" method="POST" style="display: inline;">
+          <button type="submit" class="btn btn-outline">Logout</button>
+        </form>
       </div>
     </div>
   </header>
@@ -92,36 +98,36 @@
       </div>
       
       <div class="pitch-detection-content animate-fadeIn">
-        <h2 class="section-title">Gerçek Zamanlı Nota Algılama</h2>
-        <p class="intro-text">Enstrümanınızı çalın ve notaların anında algılanmasını izleyin.</p>
+        <h2 class="section-title">Real-Time Note Detection</h2>
+        <p class="intro-text">Play your instrument and watch the notes being detected in real-time.</p>
         
-        <!-- Mikrofon izni bilgilendirme kutucuğu -->
+        <!-- Microphone permission info card -->
         <div class="card" style="margin-bottom: 20px; background-color: #fff7ed; border-left: 4px solid #f97316;">
-          <h3 style="margin-top: 0; color: #9a3412;">Mikrofon İzni Gerekli</h3>
-          <p>Bu özelliği kullanabilmek için tarayıcının mikrofon erişimine izin vermeniz gerekmektedir. "Mikrofona Erişim İzni Ver" butonuna tıkladığınızda tarayıcı izin isteyecektir.</p>
-          <p><strong>Not:</strong> Eğer mikrofon izni daha önce reddedilmişse, tarayıcı ayarlarınızdan izinleri sıfırlamanız gerekebilir.</p>
+          <h3 style="margin-top: 0; color: #9a3412;">Microphone Permission Required</h3>
+          <p>To use this feature, you need to allow browser access to your microphone. Click the "Allow Microphone Access" button and the browser will ask for permission.</p>
+          <p><strong>Note:</strong> If you've previously denied microphone access, you may need to reset permissions in your browser settings.</p>
         </div>
         
-        <!-- Mikrofon seçimi -->
+        <!-- Microphone selection -->
         <div class="microphone-selection">
-          <label for="microphone-select">Mikrofon Seçin:</label>
+          <label for="microphone-select">Select Microphone:</label>
           <select id="microphone-select" class="form-select" disabled>
-            <option value="">Mikrofon yükleniyor...</option>
+            <option value="">Loading microphones...</option>
           </select>
         </div>
         
         <div class="controls">
-          <button id="start-analysis" class="btn btn-primary">Mikrofona Erişim İzni Ver</button>
-          <button id="stop-analysis" class="btn btn-secondary" disabled>Dinlemeyi Durdur</button>
+          <button id="start-analysis" class="btn btn-primary">Allow Microphone Access</button>
+          <button id="stop-analysis" class="btn btn-secondary" disabled>Stop Listening</button>
         </div>
         
         <div class="note-feedback">
-          <h2 id="note-display">Notalar bekleniyor...</h2>
+          <h2 id="note-display">Waiting for notes...</h2>
           <div id="note-visualization" class="visualization"></div>
         </div>
         
         <div class="exercise">
-          <h3>Mevcut Egzersiz: Do Majör Gamı</h3>
+          <h3>Current Exercise: C Major Scale</h3>
           <div class="expected-notes">
             <span>C</span>
             <span>D</span>
@@ -132,40 +138,40 @@
             <span>B</span>
             <span>C</span>
           </div>
-          <p>Her notayı sırasıyla çalın, Do'dan Do'ya</p>
+          <p>Play each note in sequence, from C to C</p>
           <div id="exercise-progress">
             <div class="progress-bar" style="width: 0%"></div>
           </div>
         </div>
         
         <div class="card">
-          <h3>Nasıl Kullanılır</h3>
+          <h3>How to Use</h3>
           <ol>
-            <li>Kullanmak istediğiniz mikrofonu listeden seçin</li>
-            <li>"Mikrofona Erişim İzni Ver" butonuna tıklayın ve tarayıcı izinlerini onaylayın</li>
-            <li>İzin verdikten sonra "Dinlemeye Başla" butonuna tıklayın</li> 
-            <li>Enstrümanınızı (gitar, piyano veya şarkı söyleyin) mikrofonunuza yakın çalın</li>
-            <li>Uygulama çaldığınız notaları gerçek zamanlı olarak algılayacaktır</li>
-            <li>Egzersizde gösterildiği gibi Do Majör Gamı'nı sırayla çalmaya çalışın</li>
+            <li>Select the microphone you want to use from the list</li>
+            <li>Click the "Allow Microphone Access" button and confirm the browser permissions</li>
+            <li>After granting permission, click "Start Listening"</li> 
+            <li>Play your instrument (guitar, piano or sing) close to your microphone</li>
+            <li>The application will detect the notes you play in real-time</li>
+            <li>Try to play the C Major Scale in sequence as shown in the exercise</li>
           </ol>
         </div>
         
         <div class="card" style="margin-top: 20px; background-color: #f0f9ff; border-left: 4px solid #3b82f6;">
-          <h3 style="margin-top: 0;">Sorun Giderme</h3>
+          <h3 style="margin-top: 0;">Troubleshooting</h3>
           <ul>
-            <li><strong>Notalar algılanmıyorsa:</strong> Mikrofonunuzun çalıştığından ve sesinizin yeterince yüksek olduğundan emin olun</li>
-            <li><strong>Hatalı nota tespiti:</strong> Arka plan gürültüsünü azaltmayı ve enstrümanınızı daha net çalmayı deneyin</li>
-            <li><strong>Tarayıcı izni sorunu:</strong> Adres çubuğundaki kilit simgesine tıklayıp mikrofon izinlerini kontrol edin</li>
-            <li><strong>Farklı bir mikrofon deneyin:</strong> Sisteminizdeki başka bir mikrofonu seçerek daha iyi sonuç alabilirsiniz</li>
+            <li><strong>No notes detected:</strong> Make sure your microphone is working and your volume is loud enough</li>
+            <li><strong>Incorrect note detection:</strong> Try reducing background noise and playing your instrument more clearly</li>
+            <li><strong>Browser permission issues:</strong> Click the lock icon in the address bar to check microphone permissions</li>
+            <li><strong>Try a different microphone:</strong> Select another microphone from your system for better results</li>
           </ul>
         </div>
       </div>
     </div>
   </main>
 
-  <footer class="footer">
+  <footer class="footer simple-footer">
     <div class="container">
-      <p>&copy; 2025 Music Recorder</p>
+      <p>&copy; 2025 Music Recorder | <a href="/privacy">Privacy</a> | <a href="/terms">Terms of Use</a></p>
     </div>
   </footer>
 
@@ -208,9 +214,9 @@
             
             // If completed the scale
             if (currentNoteIndex === 0) {
-              document.getElementById('note-display').textContent = 'Harika iş! Gamı tamamladınız!';
+              document.getElementById('note-display').textContent = 'Great job! You completed the scale!';
               setTimeout(() => {
-                document.getElementById('note-display').textContent = 'Baştan tekrar deneyin';
+                document.getElementById('note-display').textContent = 'Try again from the beginning';
               }, 3000);
             }
           }, 1000);

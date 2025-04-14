@@ -1,0 +1,52 @@
+/* public/css/base/variables.css - CSS Variables */
+
+:root {
+  /* Color Palette */
+  --primary: #6200ea;
+  --primary-dark: #3700b3;
+  --primary-light: #9d46ff;
+  --secondary: #ff8f00;
+  --secondary-dark: #f57c00;
+  --accent: #00b8d4;
+  --dark: #1a237e;
+  --light: #f3f0ff;
+  
+  /* Gray Scale */
+  --gray-100: #f8f9fa;
+  --gray-200: #e9ecef;
+  --gray-300: #dee2e6;
+  --gray-400: #ced4da;
+  --gray-500: #adb5bd;
+  --gray-600: #6c757d;
+  --gray-700: #495057;
+  --gray-800: #343a40;
+  --gray-900: #212529;
+  
+  /* Status Colors */
+  --success: #00c853;
+  --warning: #ffd600;
+  --error: #d50000;
+  --info: #0091ea;
+  
+  /* Theme Properties */
+  --gradient: linear-gradient(135deg, #3d2c8d, #916bbf, #c996cc, #d38ba3, #ea4f6d);
+  --shadow: 0 4px 20px rgba(98, 0, 234, 0.3);
+  --font: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+} 

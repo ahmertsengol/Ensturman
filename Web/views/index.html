@@ -6,79 +6,56 @@
   <!-- Favicon -->
   <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="any">
+  
+  <!-- Kritik Fontlar - Inline -->
   <style>
-    /* Inline critical styles to prevent FOUC */
-    body { opacity: 0; transition: opacity 0.5s ease; }
-    .loading-overlay { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      background-color: #f8fafc; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      z-index: 9999; 
-    }
-    .loading-spinner {
-      width: 40px; 
-      height: 40px; 
-      border: 3px solid rgba(99, 102, 241, 0.2); 
-      border-radius: 50%; 
-      border-top-color: #6366f1; 
-      animation: spin 1s ease-in-out infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    /* Öncelikli yüklenen Font Ailesi */
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: local('Inter Regular'), local('Inter-Regular'),
+           url('/fonts/inter/Inter-Regular.woff2') format('woff2');
     }
     
-    /* Enhanced music notes animation specifically for homepage */
-    .home-page .music-notes-container {
-      z-index: 1; /* Position between background and content */
-    }
-    
-    .home-page .music-note {
-      width: 28px !important; /* Smaller music notes */
-      height: 28px !important;
-      opacity: 0.25 !important; /* More visible but smaller */
-      filter: drop-shadow(0 0 3px rgba(98, 0, 234, 0.4)) !important;
-    }
-    
-    /* Faster animation for notes */
-    @keyframes fastFloatNote {
-      0% {
-        transform: translateY(100vh) rotate(0deg);
-        opacity: 0.15;
-      }
-      50% {
-        opacity: 0.25;
-      }
-      100% {
-        transform: translateY(-100px) rotate(360deg);
-        opacity: 0;
-      }
-    }
-    
-    /* Semi-transparent content to let music notes show through */
-    .home-page .home-content {
-      position: relative;
-      z-index: 2;
-    }
-    
-    .home-page .feature-card {
-      background-color: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(5px);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 20px rgba(98, 0, 234, 0.2);
+    /* Sistem Fontlarıyla Fallback */
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
   </style>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/theme.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Base CSS -->
+  <link rel="stylesheet" href="/css/base/variables.css">
+  <link rel="stylesheet" href="/css/base/reset.css">
+  <link rel="stylesheet" href="/css/base/typography.css">
+  
+  <!-- Components CSS -->
+  <link rel="stylesheet" href="/css/components/loading.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/cards.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/navigation.css">
+  <link rel="stylesheet" href="/css/components/modals.css">
+  <link rel="stylesheet" href="/css/components/alerts.css">
+  <link rel="stylesheet" href="/css/components/tables.css">
+  
+  <!-- Layout CSS -->
+  <link rel="stylesheet" href="/css/layout/header.css">
+  <link rel="stylesheet" href="/css/layout/footer.css">
+  <link rel="stylesheet" href="/css/layout/main.css">
+  
+  <!-- Pages CSS -->
+  <link rel="stylesheet" href="/css/pages/home.css">
+  
+  <!-- Theme CSS -->
   <link rel="stylesheet" href="/css/music-theme.css">
-  <title>Music Recorder</title>
+  <title>Music Recorder - Record and Save Your Music</title>
 </head>
 <body class="theme-light home-page">
   <!-- Loading overlay -->
@@ -135,10 +112,11 @@
       </div>
       
       <div class="home-content animate-fadeIn">
-        <div class="form-container card animate-fadeIn">
-          <h2 class="section-title">Welcome to Music Recorder</h2>
-          <p class="intro-text">Record, save and manage your music recordings securely.</p>
-          <div class="features">
+        <div class="form-container card home-intro animate-fadeIn">
+          <h2>Welcome to Music Recorder</h2>
+          <p>Your personal music practice companion. Record, analyze, and improve your musical performances.</p>
+          
+          <div class="grid-3 feature-grid">
             <div class="feature-card animate-slideUp" style="animation-delay: 100ms;">
               <h3>Record</h3>
               <p>High-quality music recording straight from your browser</p>
@@ -160,9 +138,9 @@
     </div>
   </main>
 
-  <footer class="footer">
+  <footer class="footer simple-footer">
     <div class="container">
-      <p>&copy; 2025 Music Recorder</p>
+      <p>&copy; 2025 Music Recorder | <a href="/privacy">Gizlilik</a> | <a href="/terms">Kullanım Şartları</a></p>
     </div>
   </footer>
 

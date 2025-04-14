@@ -35,6 +35,9 @@ document.addEventListener('DOMContentLoaded', function() {
   if (document.title.includes('Voice Recorder')) {
     document.title = document.title.replace('Voice Recorder', 'Music Recorder');
   }
+  
+  // Highlight active navigation item
+  highlightActiveNav();
 });
 
 // Function to update app logo with music note
@@ -165,6 +168,47 @@ function addCustomStyles() {
       align-items: center;
     }
     
+    /* Header Navigation */
+    body.music-theme .header-nav {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    body.music-theme .header-nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s ease;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+    
+    body.music-theme .header-nav a:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+    
+    body.music-theme .header-nav a.active {
+      background-color: rgba(255, 255, 255, 0.2);
+      position: relative;
+    }
+    
+    body.music-theme .header-nav a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 2px;
+      background-color: white;
+      border-radius: 1px;
+    }
+    
     /* Main content should grow to push footer */
     body.music-theme main {
       flex: 1 0 auto;
@@ -183,6 +227,7 @@ function addCustomStyles() {
     body.music-theme footer {
       flex-shrink: 0;
       width: 100%;
+      background: var(--music-gradient);
     }
     
     /* Remove default gray logo from navbar */
@@ -192,9 +237,9 @@ function addCustomStyles() {
     
     /* Improved Button Styling */
     body.music-theme .btn {
-      background-color: var(--music-primary-dark);
+      background: var(--music-gradient);
       border-radius: 50px;
-      box-shadow: 0 4px 12px rgba(98, 0, 234, 0.3);
+      box-shadow: 0 4px 12px rgba(61, 44, 141, 0.3);
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
@@ -208,12 +253,12 @@ function addCustomStyles() {
     
     body.music-theme .btn:hover {
       transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(98, 0, 234, 0.4);
+      box-shadow: 0 6px 16px rgba(61, 44, 141, 0.4);
       filter: brightness(1.1);
     }
     
     body.music-theme .btn-primary {
-      background-color: var(--music-primary-dark);
+      background: var(--music-gradient);
       color: #f0f0f0 !important;
       border: none;
     }
@@ -231,14 +276,14 @@ function addCustomStyles() {
     }
     
     body.music-theme .btn-outline {
-      background-color: var(--music-secondary);
-      border: 2px solid var(--music-secondary);
+      background: transparent;
+      border: 2px solid rgba(255, 255, 255, 0.8);
       color: white !important;
     }
     
     body.music-theme .btn-outline:hover {
-      background-color: var(--music-accent);
-      border-color: var(--music-accent);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: white;
       color: white !important;
     }
     
@@ -497,53 +542,85 @@ function addCustomStyles() {
   document.head.appendChild(style);
 }
 
+// Function to highlight the active navigation link
+function highlightActiveNav() {
+  const currentPath = window.location.pathname;
+  const navLinks = document.querySelectorAll('.header-nav a');
+  
+  navLinks.forEach(link => {
+    const linkPath = link.getAttribute('href');
+    
+    // Remove active class from all links
+    link.classList.remove('active');
+    
+    // Add active class if the link path matches the current path
+    if (currentPath === linkPath) {
+      link.classList.add('active');
+    }
+  });
+}
+
 // Function to create floating music notes
 function createMusicNotes(container, count) {
   for (let i = 0; i < count; i++) {
     const note = document.createElement('div');
     note.className = 'music-note';
     
-    // Random position
-    const posX = Math.random() * 100;
-    const posY = 100 + Math.random() * 20;
+    // Position note randomly
+    note.style.left = `${Math.random() * 100}%`;
+    note.style.top = `${100 + Math.random() * 20}%`;
     
-    // Random size - smaller (was 15-30px, now 18-26px)
-    const size = 18 + Math.random() * 8;
-    
-    // Random animation duration - faster (was 15-25s, now 8-12s)
-    const duration = 8 + Math.random() * 4;
-    
-    // Random rotation
-    const rotation = Math.random() * 360;
-    
-    // Apply styles
-    note.style.left = `${posX}%`;
+    // Random size between 20px and 30px
+    const size = 20 + Math.random() * 10;
     note.style.width = `${size}px`;
     note.style.height = `${size}px`;
-    note.style.opacity = `${0.15 + Math.random() * 0.1}`; // Slightly more visible
-    note.style.animation = `fastFloatNote ${duration}s linear infinite`;
-    note.style.animationDelay = `${Math.random() * 3}s`; // Shorter delay
-    note.style.transform = `translateY(${posY}vh) rotate(${rotation}deg)`;
+    
+    // Random animation duration between 12 and 20 seconds
+    note.style.animationDuration = `${12 + Math.random() * 8}s`;
+    
+    // Random animation delay
+    note.style.animationDelay = `${Math.random() * 5}s`;
+    
+    // Apply random color
+    const colorIndex = Math.floor(Math.random() * 5);
+    const colors = ['#3d2c8d', '#916bbf', '#c996cc', '#d38ba3', '#ea4f6d'];
+    note.style.filter = `drop-shadow(0 0 3px ${colors[colorIndex]})`;
     
     // Add to container
     container.appendChild(note);
     
-    // Remove after animation completes to avoid memory leaks
+    // Remove after animation ends
     setTimeout(() => {
-      note.remove();
-    }, duration * 1000);
+      if (note.parentNode === container) {
+        container.removeChild(note);
+      }
+    }, 25000); // Slightly longer than the max animation duration
   }
 }
 
-// Helper function to check if the device is mobile
+// Function to detect mobile devices
 function isMobileDevice() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+  return (window.innerWidth <= 768) || 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
-// Helper function to add Google Fonts
+// Function to add Google Font
 function addGoogleFont(fontFamily, fontWeights) {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = `https://fonts.googleapis.com/css2?family=${fontFamily}:wght@${fontWeights}&display=swap`;
-  document.head.appendChild(link);
+  if (!document.querySelector(`link[href*="fonts.googleapis.com/css2?family=${fontFamily}"]`)) {
+    const fontLink = document.createElement('link');
+    fontLink.rel = 'preconnect';
+    fontLink.href = 'https://fonts.googleapis.com';
+    document.head.appendChild(fontLink);
+    
+    const gstaticLink = document.createElement('link');
+    gstaticLink.rel = 'preconnect';
+    gstaticLink.href = 'https://fonts.gstatic.com';
+    gstaticLink.crossOrigin = 'anonymous';
+    document.head.appendChild(gstaticLink);
+    
+    const font = document.createElement('link');
+    font.rel = 'stylesheet';
+    font.href = `https://fonts.googleapis.com/css2?family=${fontFamily}:wght@${fontWeights}&display=swap`;
+    document.head.appendChild(font);
+  }
 } 

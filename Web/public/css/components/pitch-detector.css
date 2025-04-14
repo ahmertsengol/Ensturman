@@ -1,0 +1,90 @@
+/* public/css/components/pitch-detector.css - Pitch Detector Component */
+
+.pitch-detector-container {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.pitch-display {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.pitch-value {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary);
+  margin-bottom: var(--space-sm);
+}
+
+.pitch-note {
+  font-size: var(--font-size-2xl);
+  color: var(--gray-600);
+}
+
+.pitch-frequency {
+  font-size: var(--font-size-lg);
+  color: var(--gray-500);
+}
+
+.pitch-visualizer {
+  width: 100%;
+  height: 200px;
+  background: var(--gray-100);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+}
+
+.pitch-controls {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.pitch-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.pitch-setting-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.pitch-setting-label {
+  min-width: 120px;
+  color: var(--gray-600);
+}
+
+.pitch-setting-input {
+  flex: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pitch-detector-container {
+    margin: var(--space-md);
+  }
+  
+  .pitch-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .pitch-controls .btn {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .pitch-setting-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+} 

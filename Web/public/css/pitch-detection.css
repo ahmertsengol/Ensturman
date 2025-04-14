@@ -1,0 +1,200 @@
+/* public/css/pitch-detection.css - Pitch Detection Page Styling */
+
+.pitch-detection-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md);
+}
+
+.pitch-detection-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: var(--space-md);
+  color: var(--primary);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.intro-text {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--gray-700);
+  margin-bottom: var(--space-lg);
+}
+
+/* Microphone Selection */
+.microphone-selection {
+  background: white;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  margin-bottom: var(--space-md);
+}
+
+.microphone-selection label {
+  display: block;
+  margin-bottom: var(--space-sm);
+  font-weight: 500;
+  color: var(--gray-800);
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  margin: var(--space-md) 0;
+}
+
+/* Note Feedback */
+.note-feedback {
+  background: white;
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  text-align: center;
+  margin: var(--space-md) 0;
+  position: relative;
+  background-image: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
+                    url('/img/music-pattern.svg');
+  background-size: cover;
+  border: 1px solid var(--gray-200);
+}
+
+#note-display {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.visualization {
+  height: 150px;
+  position: relative;
+  margin-top: var(--space-lg);
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* Notes in the visualization */
+.note {
+  position: absolute;
+  bottom: 0;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--gradient);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: floatUp 3s ease-out forwards;
+}
+
+@keyframes floatUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(-120px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-140px);
+  }
+}
+
+/* Exercise */
+.exercise {
+  background: white;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  margin: var(--space-md) 0;
+  text-align: center;
+}
+
+.exercise h3 {
+  margin-top: 0;
+  color: var(--primary);
+}
+
+.expected-notes {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin: var(--space-md) 0;
+}
+
+.expected-notes span {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  background: var(--gray-100);
+  border-radius: 50%;
+  font-weight: 600;
+  color: var(--gray-700);
+  transition: all var(--transition-fast);
+}
+
+.expected-notes span.highlighted {
+  background: var(--gradient);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#exercise-progress {
+  height: 4px;
+  background-color: var(--gray-200);
+  border-radius: 2px;
+  margin-top: var(--space-md);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--gradient);
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+  }
+  
+  #note-display {
+    font-size: 2rem;
+  }
+  
+  .visualization {
+    height: 120px;
+  }
+  
+  .expected-notes {
+    flex-wrap: wrap;
+  }
+  
+  .expected-notes span {
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+  }
+} 
