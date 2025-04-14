@@ -1,4 +1,11 @@
 // app/models/Recording.ts
+/**
+ * Model definitions for audio recordings
+ */
+
+/**
+ * Core Recording model representing a saved audio recording
+ */
 export interface Recording {
   id: string;
   title: string;
@@ -8,6 +15,9 @@ export interface Recording {
   userId: string;
 }
 
+/**
+ * Recording metadata used during playback
+ */
 export interface RecordingMetadata {
   title: string;
   isPlaying: boolean;

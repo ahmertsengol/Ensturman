@@ -1,45 +1,95 @@
-import { Image, StyleSheet, TextInput, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { 
+  StyleSheet, 
+  View, 
+  TouchableOpacity, 
+  Alert, 
+  Image, 
+  KeyboardAvoidingView, 
+  Platform,
+  ScrollView,
+  StatusBar,
+  SafeAreaView
+} from 'react-native';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { TextInputField } from '@/components/TextInputField';
+import { Button } from '@/components/Button';
 import { useAuth } from '../context/AuthContext';
+import { Layout, Spacing } from '@/constants/Spacing';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [apiStatus, setApiStatus] = useState('Kontrol ediliyor...');
+  const [apiStatus, setApiStatus] = useState<'checking' | 'success' | 'error'>('checking');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   
   const router = useRouter();
   const { login, isLoading } = useAuth();
+  
+  // Get theme colors
+  const primaryColor = useThemeColor({}, 'primary');
+  const backgroundColor = useThemeColor({}, 'background');
+  const errorColor = useThemeColor({}, 'error');
+  const successColor = useThemeColor({}, 'success');
 
   // API bağlantısını kontrol et
   useEffect(() => {
     const checkApiConnection = async () => {
       try {
-        const response = await fetch('http://10.0.2.2:5000/api/auth/test');
+        const response = await fetch('http://10.0.2.2:3000/api/auth/test');
         const data = await response.json();
         if (data.message === 'Auth API is working') {
-          setApiStatus('API bağlantısı başarılı ✓');
+          setApiStatus('success');
         } else {
-          setApiStatus('API bağlantısı başarısız ✗');
+          setApiStatus('error');
         }
       } catch (error) {
         console.error('API bağlantısı hatası:', error);
-        setApiStatus('API bağlantısı başarısız ✗');
+        setApiStatus('error');
       }
     };
 
     checkApiConnection();
   }, []);
 
+  const validateForm = () => {
+    let isValid = true;
+    
+    // Email validation
+    if (!email.trim()) {
+      setEmailError('E-posta adresi gerekli');
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError('Geçerli bir e-posta adresi girin');
+      isValid = false;
+    } else {
+      setEmailError('');
+    }
+    
+    // Password validation
+    if (!password) {
+      setPasswordError('Şifre gerekli');
+      isValid = false;
+    } else if (password.length < 6) {
+      setPasswordError('Şifre en az 6 karakter olmalıdır');
+      isValid = false;
+    } else {
+      setPasswordError('');
+    }
+    
+    return isValid;
+  };
+
   const handleLogin = async () => {
-    // Basit doğrulama
-    if (!email || !password) {
-      Alert.alert('Hata', 'Lütfen e-posta ve şifre alanlarını doldurun.');
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    
+    if (!validateForm()) {
       return;
     }
     
@@ -49,140 +99,163 @@ export default function LoginScreen() {
       // Başarılı giriş sonrası useAuth hookuna bağlı olarak otomatik yönlendirme olacak
     } catch (error: any) {
       console.error('Login error:', error);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert('Giriş Hatası', error.message || 'Giriş yapılırken bir hata oluştu.');
     }
   };
 
+  // Get API status indicator color
+  const getStatusColor = () => {
+    switch (apiStatus) {
+      case 'success':
+        return successColor;
+      case 'error':
+        return errorColor;
+      default:
+        return '#aaa';
+    }
+  };
+
+  // Get API status message
+  const getStatusMessage = () => {
+    switch (apiStatus) {
+      case 'checking':
+        return 'API bağlantısı kontrol ediliyor...';
+      case 'success':
+        return 'API bağlantısı başarılı ✓';
+      case 'error':
+        return 'API bağlantısı başarısız! Lütfen internet bağlantınızı kontrol edin.';
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Hoş Geldiniz!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      
-      <ThemedView style={styles.statusContainer}>
-        <ThemedText>{apiStatus}</ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.formContainer}>
-        <ThemedText type="subtitle">Giriş Yap</ThemedText>
-        
-        <View style={styles.inputContainer}>
-          <ThemedText>E-posta</ThemedText>
-          <TextInput
-            style={styles.input}
-            placeholder="E-posta adresinizi girin"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            editable={!isLoading}
-          />
-        </View>
-        
-        <View style={styles.inputContainer}>
-          <ThemedText>Şifre</ThemedText>
-          <TextInput
-            style={styles.input}
-            placeholder="Şifrenizi girin"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            editable={!isLoading}
-          />
-        </View>
-        
-        <TouchableOpacity 
-          style={[styles.loginButton, isLoading && styles.disabledButton]} 
-          onPress={handleLogin}
-          disabled={isLoading}
+    <SafeAreaView style={{ flex: 1, backgroundColor }}>
+      <StatusBar barStyle="dark-content" />
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView 
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
         >
-          {isLoading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <ThemedText style={styles.loginButtonText}>Giriş Yap</ThemedText>
-          )}
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.registerButton}
-          disabled={isLoading}
-          onPress={() => router.push('/register')}
-        >
-          <ThemedText style={styles.registerButtonText}>Hesap Oluştur</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
-    </ParallaxScrollView>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('@/assets/images/icon.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+          
+          <ThemedView card elevated={2} style={styles.formCard}>
+            <ThemedText variant="h1" style={styles.title}>
+              Hoş Geldiniz
+            </ThemedText>
+            
+            <ThemedText variant="bodyMedium" muted style={styles.subtitle}>
+              Ses kayıtlarınıza erişmek için giriş yapın
+            </ThemedText>
+
+            <View style={styles.apiStatusContainer}>
+              <View style={[styles.statusIndicator, { backgroundColor: getStatusColor() }]} />
+              <ThemedText variant="caption" style={{ color: getStatusColor() }}>
+                {getStatusMessage()}
+              </ThemedText>
+            </View>
+            
+            <TextInputField
+              label="E-posta Adresi"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="ornek@email.com"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              error={emailError}
+              editable={!isLoading}
+            />
+            
+            <TextInputField
+              label="Şifre"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Şifreniz"
+              secureTextEntry
+              error={passwordError}
+              editable={!isLoading}
+            />
+            
+            <Button
+              label="Giriş Yap"
+              loading={isLoading}
+              disabled={isLoading}
+              fullWidth
+              onPress={handleLogin}
+              style={styles.loginButton}
+            />
+            
+            <TouchableOpacity 
+              onPress={() => router.push('/register')}
+              style={styles.registerLink}
+              disabled={isLoading}
+            >
+              <ThemedText variant="bodySmall">
+                Hesabınız yok mu? <ThemedText variant="bodySmall" style={{ color: primaryColor }}>Kayıt Olun</ThemedText>
+              </ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  scrollContainer: {
+    flexGrow: 1,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
+    paddingBottom: Spacing.xxl,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginTop: Spacing.xxl,
+    marginBottom: Spacing.xl,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+  },
+  formCard: {
+    padding: Spacing.xl,
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: Spacing.xs,
+  },
+  subtitle: {
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
+  },
+  apiStatusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 20,
+    marginBottom: Spacing.md,
+    padding: Spacing.sm,
+    backgroundColor: 'rgba(0,0,0,0.03)',
+    borderRadius: Layout.borderRadius.sm,
   },
-  statusContainer: {
-    marginBottom: 20,
-    padding: 10,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  formContainer: {
-    gap: 16,
-    marginBottom: 20,
-  },
-  inputContainer: {
-    gap: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  statusIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: Spacing.sm,
   },
   loginButton: {
-    backgroundColor: '#4A90E2',
-    borderRadius: 8,
-    padding: 15,
+    marginTop: Spacing.md,
+  },
+  registerLink: {
+    marginTop: Spacing.xl,
     alignItems: 'center',
-    marginTop: 10,
-  },
-  disabledButton: {
-    opacity: 0.7,
-  },
-  loginButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  registerButton: {
-    marginTop: 10,
-    padding: 15,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#4A90E2',
-    borderRadius: 8,
-  },
-  registerButtonText: {
-    color: '#4A90E2',
-    fontSize: 16,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  }
 }); 

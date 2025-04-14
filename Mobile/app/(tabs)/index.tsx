@@ -19,7 +19,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const checkApiConnection = async () => {
       try {
-        const response = await fetch('http://10.0.2.2:5000/api/auth/test');
+        const response = await fetch('http://10.0.2.2:3000/api/auth/test');
         const data = await response.json();
         if (data.message === 'Auth API is working') {
           setApiStatus('API bağlantısı başarılı ✓');
@@ -69,7 +69,7 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Hoş Geldiniz!</ThemedText>
+        <ThemedText variant="h1">Keşfet</ThemedText>
         <HelloWave />
       </ThemedView>
       
@@ -78,7 +78,7 @@ export default function HomeScreen() {
       </ThemedView>
       
       <ThemedView style={styles.formContainer}>
-        <ThemedText type="subtitle">Giriş Yap</ThemedText>
+        <ThemedText variant="h2">Giriş Yap</ThemedText>
         
         <View style={styles.inputContainer}>
           <ThemedText>E-posta</ThemedText>

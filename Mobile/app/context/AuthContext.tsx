@@ -38,7 +38,7 @@ export const AuthContext = createContext<AuthContextType>(defaultContextValue);
 export const useAuth = () => useContext(AuthContext);
 
 // Provider bileşeni
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(user);
       
       // Yönlendirme (opsiyonel, çünkü _layout.tsx'de zaten kontrol var)
-      router.replace('/(tabs)/welcome');
+      router.replace('/(tabs)/home');
     } catch (error) {
       console.error('Login error in context:', error);
       throw error;
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(user);
       
       // Yönlendirme (opsiyonel, çünkü _layout.tsx'de zaten kontrol var)
-      router.replace('/(tabs)/welcome');
+      router.replace('/(tabs)/home');
     } catch (error) {
       console.error('Register error in context:', error);
       throw error;

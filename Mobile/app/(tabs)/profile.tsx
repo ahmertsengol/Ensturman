@@ -1,5 +1,6 @@
 import { StyleSheet, TouchableOpacity, View, Image, Alert } from 'react-native';
 import { useState } from 'react';
+import { useRouter } from 'expo-router';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -10,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const router = useRouter();
 
   const handleLogout = async () => {
     Alert.alert(
@@ -29,6 +31,10 @@ export default function ProfileScreen() {
         }
       ]
     );
+  };
+
+  const navigateToNetworkDiagnostic = () => {
+    router.push('/network-diagnostic');
   };
 
   return (
@@ -51,13 +57,13 @@ export default function ProfileScreen() {
           </View>
           
           <ThemedView style={styles.profileInfo}>
-            <ThemedText type="title">{user?.name || 'Kullanıcı'}</ThemedText>
+            <ThemedText variant="h1">{user?.name || 'Kullanıcı'}</ThemedText>
             <ThemedText>{user?.email || 'Email yok'}</ThemedText>
           </ThemedView>
         </ThemedView>
 
         <ThemedView style={styles.section}>
-          <ThemedText type="subtitle">Hesap Bilgileri</ThemedText>
+          <ThemedText variant="h2">Hesap Bilgileri</ThemedText>
           
           <ThemedView style={styles.infoItem}>
             <IconSymbol size={24} name="person.fill" color="#909090" />
@@ -76,7 +82,7 @@ export default function ProfileScreen() {
         </ThemedView>
 
         <ThemedView style={styles.section}>
-          <ThemedText type="subtitle">Ayarlar</ThemedText>
+          <ThemedText variant="h2">Ayarlar</ThemedText>
           
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingItemContent}>
@@ -90,6 +96,14 @@ export default function ProfileScreen() {
             <View style={styles.settingItemContent}>
               <IconSymbol size={24} name="lock.fill" color="#909090" />
               <ThemedText>Gizlilik ve Güvenlik</ThemedText>
+            </View>
+            <IconSymbol size={24} name="chevron.right" color="#909090" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.settingItem} onPress={navigateToNetworkDiagnostic}>
+            <View style={styles.settingItemContent}>
+              <IconSymbol size={24} name="wifi" color="#909090" />
+              <ThemedText>Ağ Teşhis</ThemedText>
             </View>
             <IconSymbol size={24} name="chevron.right" color="#909090" />
           </TouchableOpacity>

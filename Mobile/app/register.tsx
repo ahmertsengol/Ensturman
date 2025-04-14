@@ -62,7 +62,7 @@ export default function RegisterScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Kayıt Ol</ThemedText>
+        <ThemedText style={{fontSize: 20, fontWeight: 'bold'}}>Kayıt Ol</ThemedText>
       </ThemedView>
       
       <ThemedView style={styles.formContainer}>

@@ -57,7 +57,7 @@ export default function RegisterScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Kayıt Ol</ThemedText>
+        <ThemedText variant="h1">Kayıt Ol</ThemedText>
       </ThemedView>
       
       <ThemedView style={styles.formContainer}>
