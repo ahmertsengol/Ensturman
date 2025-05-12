@@ -48,17 +48,8 @@ const celebrateKeyframes = keyframes`
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 `;
 
-const levelKeyframes = keyframes`
-  0% { height: 10%; }
-  20% { height: 70%; }
-  40% { height: 40%; }
-  60% { height: 80%; }
-  80% { height: 30%; }
-  100% { height: 50%; }
-`;
-
 // Enhanced visualizer with more realistic, dynamic sound wave patterns
-const dynamicVisKeyframes = index => keyframes`
+const dynamicVisKeyframes = () => keyframes`
   0% { height: ${5 + Math.random() * 20}%; }
   20% { height: ${30 + Math.random() * 50}%; }
   40% { height: ${10 + Math.random() * 30}%; }
@@ -118,7 +109,7 @@ const AudioRecorder = () => {
   // Visualizer bar animations with different speeds for natural effect
   const generateLevelAnimations = () => {
     return Array(30).fill().map((_, i) => ({
-      animation: `${dynamicVisKeyframes(i)} ${1.5 + Math.random()}s infinite ease-in-out ${getRandomDelay()}s`,
+      animation: `${dynamicVisKeyframes()} ${1.5 + Math.random()}s infinite ease-in-out ${getRandomDelay()}s`,
       height: `${10 + Math.random() * 90}%`,
       color: i % 3 === 0 ? primaryColor : i % 3 === 1 ? accentColor : 'purple.500'
     }));
