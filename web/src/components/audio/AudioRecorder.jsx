@@ -76,8 +76,8 @@ const AudioRecorder = () => {
   const timerRef = useRef(null);
   
   // Color values
-  const cardBg = useColorModeValue('white', 'dark.300');
-  const borderColor = useColorModeValue('gray.200', 'dark.400');
+  const cardBg = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.600');
   const primaryColor = 'brand.500';
   const accentColor = 'accent.500';
   const headingColor = useColorModeValue('gray.800', 'white');
@@ -87,9 +87,10 @@ const AudioRecorder = () => {
   const waveColor3 = useColorModeValue('red.300', 'rgba(229, 62, 62, 0.7)');
   const stepBgActive = useColorModeValue('brand.500', 'brand.400');
   const stepBgInactive = useColorModeValue('gray.200', 'gray.600');
-  const stepTextColor = useColorModeValue('white', 'white');
-  const inputBg = useColorModeValue('white', 'dark.400');
-  const inputBorderColor = useColorModeValue('gray.300', 'dark.500');
+  const stepActiveTextColor = useColorModeValue('white', 'white');
+  const stepInactiveTextColor = useColorModeValue('gray.600', 'gray.300');
+  const inputBg = useColorModeValue('white', 'gray.700');
+  const inputBorderColor = useColorModeValue('gray.300', 'gray.600');
   const buttonHoverBg = useColorModeValue('gray.100', 'rgba(160, 174, 192, 0.1)');
   
   // Animation properties
@@ -318,7 +319,7 @@ const AudioRecorder = () => {
                 h="50px"
                 borderRadius="full"
                 bg={isActive ? stepBgActive : stepBgInactive}
-                color={stepTextColor}
+                color={isActive ? stepActiveTextColor : stepInactiveTextColor}
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
@@ -329,7 +330,11 @@ const AudioRecorder = () => {
               >
                 {step.icon}
               </Box>
-              <Text fontWeight={isCurrent ? "bold" : "normal"} fontSize="sm">
+              <Text 
+                fontWeight={isCurrent ? "bold" : "normal"} 
+                fontSize="sm"
+                color={isCurrent ? headingColor : textColor}
+              >
                 {step.label}
               </Text>
               
@@ -471,12 +476,12 @@ const AudioRecorder = () => {
       )}
   
       {/* Content based on current step */}
-      <Box w="100%" position="relative">
+      <Box w="100%" position="relative" bg="transparent">
         {/* Initial state - before recording */}
         {recordingStep === 'initial' && (
           <ScaleFade initialScale={0.9} in={recordingStep === 'initial'}>
             <VStack spacing={6} align="center" w="100%">
-              <Text fontSize="lg" mb={2}>Click the microphone button to start recording</Text>
+              <Text fontSize="lg" mb={2} color={textColor}>Click the microphone button to start recording</Text>
               
               <Box 
                 position="relative" 
@@ -534,6 +539,7 @@ const AudioRecorder = () => {
                   colorScheme="blue"
                   size="sm"
                   mt={4}
+                  color="blue.500"
                 >
                   Recording Tips
                 </Button>
@@ -616,6 +622,7 @@ const AudioRecorder = () => {
                 _hover={{
                   bg: 'rgba(229, 62, 62, 0.1)'
                 }}
+                color="red.500"
               >
                 Cancel Recording
               </Button>
@@ -712,6 +719,8 @@ const AudioRecorder = () => {
                       onClick={cancelRecording}
                       _hover={{ bg: buttonHoverBg }}
                       size="md"
+                      color={textColor}
+                      borderColor={borderColor}
                     >
                       Discard
                     </Button>
@@ -755,6 +764,7 @@ const AudioRecorder = () => {
                       {...register("title", { required: "Title is required" })} 
                       placeholder="Enter a title for your recording"
                       bg={inputBg}
+                      color={textColor}
                       borderColor={inputBorderColor}
                       _hover={{ borderColor: 'brand.500' }}
                       _focus={{ borderColor: 'brand.500', boxShadow: 'none' }}
@@ -769,6 +779,7 @@ const AudioRecorder = () => {
                       placeholder="Enter an optional description" 
                       rows={4}
                       bg={inputBg}
+                      color={textColor}
                       borderColor={inputBorderColor}
                       _hover={{ borderColor: 'brand.500' }}
                       _focus={{ borderColor: 'brand.500', boxShadow: 'none' }}
@@ -782,6 +793,8 @@ const AudioRecorder = () => {
                       colorScheme="gray" 
                       onClick={cancelRecording}
                       _hover={{ bg: buttonHoverBg }}
+                      color={textColor}
+                      borderColor={borderColor}
                     >
                       Cancel
                     </Button>
