@@ -426,21 +426,21 @@ function App() {
     <ChakraProvider theme={theme}>
       <AuthProvider>
         <ChatbotProvider>
-          <Router>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/record" element={<RecordPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
+        <Router>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/record" element={<RecordPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/training" element={<TrainingPage />} />
                 <Route path="/training/:id" element={<TrainingPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
               <MusicChatbot />
-            </Layout>
-          </Router>
+          </Layout>
+        </Router>
         </ChatbotProvider>
       </AuthProvider>
     </ChakraProvider>
