@@ -1,0 +1,54 @@
+/* Chatbot Custom Styling */
+
+/* Fix for the problematic CSS classes reported by the user */
+.css-1ht6jsg, 
+div[class*="css-1ht6jsg"],
+.music-chatbot-container .css-1ht6jsg {
+  color: white !important;
+  background-color: #2A2438 !important;
+  border-color: #352F44 !important;
+}
+
+.css-h2yqag,
+div[class*="css-h2yqag"],
+.music-chatbot-container .css-h2yqag {
+  color: white !important;
+  background-color: #1F1D36 !important;
+  border-color: #2A2438 !important;
+}
+
+/* Additional fixes for potential Chakra UI generated classes */
+.music-chatbot-container [class*="chakra-"] {
+  color: white;
+}
+
+/* Ensure the header has proper styling */
+.music-chatbot-container .chakra-avatar {
+  background-color: #1DB954;
+}
+
+/* Button hover states */
+.music-chatbot-container .chakra-button:hover {
+  background-color: rgba(42, 36, 56, 0.8);
+}
+
+/* Input field focus styles */
+.music-chatbot-container .chakra-input:focus {
+  border-color: #1DB954;
+  box-shadow: 0 0 0 1px #1DB954;
+}
+
+/* Spinner styles */
+.music-chatbot-container .chakra-spinner {
+  color: #1DB954;
+}
+
+/* Ensure message bubbles have proper styling */
+.music-chatbot-container .chakra-stack[role="group"] {
+  color: white;
+}
+
+/* Chat bubble pointer */
+.music-chatbot-pointer {
+  border-top-color: #1F1D36 !important;
+} 
