@@ -78,20 +78,23 @@ const AudioRecorder = () => {
   // Color values
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const primaryColor = 'brand.500';
-  const accentColor = 'accent.500';
+  const primaryColor = useColorModeValue('brand.600', 'brand.500');
+  const accentColor = useColorModeValue('accent.600', 'accent.500');
   const headingColor = useColorModeValue('gray.800', 'white');
   const textColor = useColorModeValue('gray.700', 'gray.200');
   const waveColor1 = useColorModeValue('red.100', 'rgba(229, 62, 62, 0.3)');
   const waveColor2 = useColorModeValue('red.200', 'rgba(229, 62, 62, 0.5)');
   const waveColor3 = useColorModeValue('red.300', 'rgba(229, 62, 62, 0.7)');
-  const stepBgActive = useColorModeValue('brand.500', 'brand.400');
+  const stepBgActive = useColorModeValue('brand.600', 'brand.400');
   const stepBgInactive = useColorModeValue('gray.200', 'gray.600');
   const stepActiveTextColor = useColorModeValue('white', 'white');
   const stepInactiveTextColor = useColorModeValue('gray.600', 'gray.300');
   const inputBg = useColorModeValue('white', 'gray.700');
   const inputBorderColor = useColorModeValue('gray.300', 'gray.600');
   const buttonHoverBg = useColorModeValue('gray.100', 'rgba(160, 174, 192, 0.1)');
+  const buttonTextColor = useColorModeValue('gray.700', 'white');
+  const ghostButtonColor = useColorModeValue('blue.600', 'blue.400');
+  const cancelButtonColor = useColorModeValue('red.600', 'red.400');
   
   // Animation properties
   const pulseAnimation = `${pulseKeyframes} 1.5s infinite ease-in-out`;
@@ -539,7 +542,7 @@ const AudioRecorder = () => {
                   colorScheme="blue"
                   size="sm"
                   mt={4}
-                  color="blue.500"
+                  color={ghostButtonColor}
                 >
                   Recording Tips
                 </Button>
@@ -622,7 +625,7 @@ const AudioRecorder = () => {
                 _hover={{
                   bg: 'rgba(229, 62, 62, 0.1)'
                 }}
-                color="red.500"
+                color={cancelButtonColor}
               >
                 Cancel Recording
               </Button>
@@ -719,7 +722,7 @@ const AudioRecorder = () => {
                       onClick={cancelRecording}
                       _hover={{ bg: buttonHoverBg }}
                       size="md"
-                      color={textColor}
+                      color={buttonTextColor}
                       borderColor={borderColor}
                     >
                       Discard
@@ -731,6 +734,7 @@ const AudioRecorder = () => {
                       onClick={proceedToSubmit}
                       _hover={{ bg: 'brand.600' }}
                       size="md"
+                      color="white"
                     >
                       Continue
                     </Button>
@@ -793,7 +797,7 @@ const AudioRecorder = () => {
                       colorScheme="gray" 
                       onClick={cancelRecording}
                       _hover={{ bg: buttonHoverBg }}
-                      color={textColor}
+                      color={buttonTextColor}
                       borderColor={borderColor}
                     >
                       Cancel
@@ -806,8 +810,9 @@ const AudioRecorder = () => {
                       isLoading={isSubmitting}
                       loadingText="Saving..."
                       spinner={<Spinner size="sm" />}
-                      bg="brand.500"
+                      bg={stepBgActive}
                       _hover={{ bg: 'brand.600' }}
+                      color="white"
                     >
                       Save Recording
                     </Button>
