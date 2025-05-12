@@ -9,6 +9,7 @@
 
 ## 📖 Overview
 
+
 Ensturman is a comprehensive music education platform that provides real-time note detection and feedback for musical training. The system helps musicians improve their pitch accuracy through interactive training modules and real-time audio analysis.
 
 Built with modern web technologies and featuring cross-platform compatibility, Ensturman aims to make music education more accessible, interactive, and effective.
