@@ -48,6 +48,11 @@ const celebrateKeyframes = keyframes`
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 `;
 
+const fadeOutKeyframes = keyframes`
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+`;
+
 // Enhanced visualizer with more realistic, dynamic sound wave patterns
 const dynamicVisKeyframes = () => keyframes`
   0% { height: ${5 + Math.random() * 20}%; }
@@ -76,25 +81,25 @@ const AudioRecorder = () => {
   const timerRef = useRef(null);
   
   // Color values
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const primaryColor = useColorModeValue('brand.600', 'brand.500');
-  const accentColor = useColorModeValue('accent.600', 'accent.500');
-  const headingColor = useColorModeValue('gray.800', 'white');
-  const textColor = useColorModeValue('gray.700', 'gray.200');
+  const cardBg = useColorModeValue('gray.700', 'gray.800');
+  const borderColor = useColorModeValue('gray.600', 'gray.600');
+  const primaryColor = useColorModeValue('brand.100', 'brand.400');
+  const accentColor = useColorModeValue('accent.600', 'accent.400');
+  const headingColor = useColorModeValue('gray.300', 'white');
+  const textColor = useColorModeValue('gray.500', 'gray.100');
   const waveColor1 = useColorModeValue('red.100', 'rgba(229, 62, 62, 0.3)');
   const waveColor2 = useColorModeValue('red.200', 'rgba(229, 62, 62, 0.5)');
   const waveColor3 = useColorModeValue('red.300', 'rgba(229, 62, 62, 0.7)');
-  const stepBgActive = useColorModeValue('brand.600', 'brand.400');
-  const stepBgInactive = useColorModeValue('gray.200', 'gray.600');
+  const stepBgActive = useColorModeValue('brand.500', 'brand.400');
+  const stepBgInactive = useColorModeValue('gray.500', 'gray.600');
   const stepActiveTextColor = useColorModeValue('white', 'white');
-  const stepInactiveTextColor = useColorModeValue('gray.600', 'gray.300');
-  const inputBg = useColorModeValue('white', 'gray.700');
-  const inputBorderColor = useColorModeValue('gray.300', 'gray.600');
-  const buttonHoverBg = useColorModeValue('gray.100', 'rgba(160, 174, 192, 0.1)');
-  const buttonTextColor = useColorModeValue('gray.700', 'white');
-  const ghostButtonColor = useColorModeValue('blue.600', 'blue.400');
-  const cancelButtonColor = useColorModeValue('red.600', 'red.400');
+  const stepInactiveTextColor = useColorModeValue('gray.300', 'gray.200');
+  const activeStepShadow = useColorModeValue('0 0 0 4px rgba(49, 130, 206, 0.3)', '0 0 0 4px rgba(99, 179, 237, 0.3)');
+  const inputBg = useColorModeValue('gray.600', 'gray.700');
+  const inputBorderColor = useColorModeValue('gray.500', 'gray.600');
+  const ghostButtonColor = useColorModeValue('blue.300', 'blue.400');
+  const cancelButtonColor = useColorModeValue('red.300', 'red.400');
+  const placeholderColor = useColorModeValue('gray.400', 'gray.400');
   
   // Animation properties
   const pulseAnimation = `${pulseKeyframes} 1.5s infinite ease-in-out`;
@@ -104,6 +109,7 @@ const AudioRecorder = () => {
   const floatAnimation = `${floatKeyframes} 3s infinite ease-in-out`;
   const riseAnimation = `${riseKeyframes} 0.5s ease-out`;
   const celebrateAnimation = `${celebrateKeyframes} 0.8s ease-out`;
+  const fadeOutAnimation = `${fadeOutKeyframes} 0.5s ease-out forwards`;
   
   // Generate random animation delays for a more natural effect
   const getRandomDelay = () => {
@@ -163,10 +169,27 @@ const AudioRecorder = () => {
       setShowCelebration(true);
       const timer = setTimeout(() => {
         setShowCelebration(false);
-      }, 2000);
+      }, 2500);
       return () => clearTimeout(timer);
     }
   }, [recordingStep, audioBlob]);
+  
+  // Apply fade-out animation to celebration
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  
+  useEffect(() => {
+    if (showCelebration) {
+      // Start fade-out animation shortly before hiding
+      const fadeTimer = setTimeout(() => {
+        setIsFadingOut(true);
+      }, 2000);
+      
+      return () => {
+        clearTimeout(fadeTimer);
+        setIsFadingOut(false);
+      };
+    }
+  }, [showCelebration]);
   
   // Start recording
   const startRecording = async () => {
@@ -327,16 +350,22 @@ const AudioRecorder = () => {
                 alignItems="center"
                 justifyContent="center"
                 fontSize="xl"
-                boxShadow={isCurrent ? "0 0 0 4px rgba(66, 153, 225, 0.3)" : "none"}
+                boxShadow={isCurrent ? activeStepShadow : "none"}
                 transition="all 0.3s ease"
                 transform={isCurrent ? "scale(1.1)" : "scale(1)"}
+                borderWidth={isActive ? "0px" : "1px"}
+                borderColor="gray.300"
               >
                 {step.icon}
               </Box>
               <Text 
-                fontWeight={isCurrent ? "bold" : "normal"} 
+                fontWeight={isCurrent ? "bold" : "semibold"} 
                 fontSize="sm"
-                color={isCurrent ? headingColor : textColor}
+                color={isCurrent ? headingColor : stepInactiveTextColor}
+                textShadow={isCurrent ? "0 0 1px rgba(0,0,0,0.2)" : "none"}
+                bg={isCurrent ? "rgba(255,255,255,0.6)" : "transparent"}
+                px={isCurrent ? 2 : 0}
+                borderRadius={isCurrent ? "md" : "none"}
               >
                 {step.label}
               </Text>
@@ -345,12 +374,13 @@ const AudioRecorder = () => {
               {i < steps.length - 1 && (
                 <Box
                   position="absolute"
-                  h="2px"
+                  h="3px"
                   bg={isActive && steps.findIndex(s => s.id === recordingStep) > i ? stepBgActive : stepBgInactive}
                   w="calc(25% - 60px)"
                   left={`calc(${i * 25}% + 55px)`}
                   top="25px"
                   transition="background 0.3s ease"
+                  borderRadius="full"
                 />
               )}
             </VStack>
@@ -434,11 +464,11 @@ const AudioRecorder = () => {
     <VStack spacing={6} align="center" w="100%" position="relative">
       {/* Header */}
       <SlideFade in={true} offsetY="-20px">
-        <Heading size="lg" mb={4} textAlign="center" color={headingColor}>
-          Audio Recorder
+        <Heading size="lg" mb={4} textAlign="center" color={headingColor} fontWeight="bold">
+                              
         </Heading>
-        <Text textAlign="center" mb={6} color={textColor}>
-          Record, preview, and save your audio recordings
+        <Text textAlign="center" mb={6} color={textColor} fontSize="md" fontWeight="medium">
+                                                   
         </Text>
       </SlideFade>
       
@@ -449,17 +479,21 @@ const AudioRecorder = () => {
       {showCelebration && (
         <Box
           position="absolute"
-          top="50%"
+          top="30%"
           left="50%"
           transform="translate(-50%, -50%)"
           zIndex={10}
-          pointerEvents="none"
+          pointerEvents="auto"
+          cursor="pointer"
+          onClick={() => setShowCelebration(false)}
+          animation={isFadingOut ? fadeOutAnimation : undefined}
         >
           <Center
             position="relative"
             w="200px"
             h="200px"
             animation={celebrateAnimation}
+            flexDirection="column"
           >
             <Box
               position="absolute"
@@ -474,6 +508,7 @@ const AudioRecorder = () => {
             >
               <FaCheck color="white" size="60px" />
             </Box>
+            
           </Center>
         </Box>
       )}
@@ -484,7 +519,9 @@ const AudioRecorder = () => {
         {recordingStep === 'initial' && (
           <ScaleFade initialScale={0.9} in={recordingStep === 'initial'}>
             <VStack spacing={6} align="center" w="100%">
-              <Text fontSize="lg" mb={2} color={textColor}>Click the microphone button to start recording</Text>
+              <Text fontSize="lg" mb={2} color={textColor} fontWeight="medium" textShadow="0 0 1px rgba(0,0,0,0.1)">
+                Click the microphone button to start recording
+              </Text>
               
               <Box 
                 position="relative" 
@@ -555,7 +592,7 @@ const AudioRecorder = () => {
         {recordingStep === 'recording' && (
           <SlideFade in={recordingStep === 'recording'} offsetY="20px">
             <VStack spacing={6} align="center" w="100%">
-              <Heading size="lg" color={headingColor}>Recording in Progress</Heading>
+              <Heading size="lg" color={headingColor} fontWeight="bold">Recording in Progress</Heading>
               
               <Text fontSize="6xl" fontFamily="mono" fontWeight="bold" color="red.500">
                 {formatTime(recordingTime)}
@@ -637,7 +674,7 @@ const AudioRecorder = () => {
         {recordingStep === 'preview' && (
           <ScaleFade initialScale={0.9} in={recordingStep === 'preview'}>
             <VStack spacing={6} align="center" w="100%">
-              <Heading size="lg" color={headingColor}>Preview Recording</Heading>
+              <Heading size="lg" color={headingColor} fontWeight="bold">Preview Recording</Heading>
               
               <Box 
                 p={6} 
@@ -648,6 +685,7 @@ const AudioRecorder = () => {
                 maxWidth="500px"
                 boxShadow="lg"
                 bg={cardBg}
+                color={textColor}
                 position="relative"
                 overflow="hidden"
                 animation={riseAnimation}
@@ -668,7 +706,7 @@ const AudioRecorder = () => {
                 <VStack spacing={5} align="center" position="relative" zIndex={1}>
                   <HStack spacing={3} align="center">
                     <FaMusic color={primaryColor} />
-                    <Text fontSize="lg" fontWeight="500" color={textColor}>
+                    <Text fontSize="lg" fontWeight="500" color={headingColor}>
                       Length: {formatTime(recordingTime)}
                     </Text>
                   </HStack>
@@ -707,8 +745,8 @@ const AudioRecorder = () => {
                         />
                         
                         <Flex justify="space-between" w="100%" mt={1}>
-                          <Text fontSize="xs" color={textColor}>0:00</Text>
-                          <Text fontSize="xs" color={textColor}>{formatTime(recordingTime)}</Text>
+                          <Text fontSize="xs" color={headingColor} fontWeight="medium">0:00</Text>
+                          <Text fontSize="xs" color={headingColor} fontWeight="medium">{formatTime(recordingTime)}</Text>
                         </Flex>
                       </Box>
                     </HStack>
@@ -718,21 +756,21 @@ const AudioRecorder = () => {
                     <Button
                       leftIcon={<FaTrash />}
                       variant="outline"
-                      colorScheme="gray" 
+                      colorScheme="red" 
                       onClick={cancelRecording}
-                      _hover={{ bg: buttonHoverBg }}
+                      _hover={{ bg: 'rgba(245, 101, 101, 0.2)' }}
                       size="md"
-                      color={buttonTextColor}
-                      borderColor={borderColor}
+                      color="red.300"
+                      borderColor="red.500"
                     >
                       Discard
                     </Button>
                     
                     <Button 
                       leftIcon={<FaSave />} 
-                      colorScheme="brand" 
+                      colorScheme="green" 
                       onClick={proceedToSubmit}
-                      _hover={{ bg: 'brand.600' }}
+                      _hover={{ bg: 'green.600' }}
                       size="md"
                       color="white"
                     >
@@ -763,30 +801,32 @@ const AudioRecorder = () => {
               >
                 <VStack spacing={5}>
                   <FormControl isRequired isInvalid={errors.title}>
-                    <FormLabel color={textColor}>Title</FormLabel>
+                    <FormLabel color={headingColor} fontWeight="semibold">Title</FormLabel>
                     <Input
                       {...register("title", { required: "Title is required" })} 
                       placeholder="Enter a title for your recording"
                       bg={inputBg}
-                      color={textColor}
+                      color={headingColor}
                       borderColor={inputBorderColor}
                       _hover={{ borderColor: 'brand.500' }}
                       _focus={{ borderColor: 'brand.500', boxShadow: 'none' }}
+                      _placeholder={{ color: placeholderColor }}
                       size="md"
                     />
                   </FormControl>
                   
                   <FormControl>
-                    <FormLabel color={textColor}>Description</FormLabel>
+                    <FormLabel color={headingColor} fontWeight="semibold">Description</FormLabel>
                     <Textarea
                       {...register("description")} 
                       placeholder="Enter an optional description" 
                       rows={4}
                       bg={inputBg}
-                      color={textColor}
+                      color={headingColor}
                       borderColor={inputBorderColor}
                       _hover={{ borderColor: 'brand.500' }}
                       _focus={{ borderColor: 'brand.500', boxShadow: 'none' }}
+                      _placeholder={{ color: placeholderColor }}
                     />
                   </FormControl>
                   
@@ -794,24 +834,23 @@ const AudioRecorder = () => {
                     <Button
                       leftIcon={<FaTrash />} 
                       variant="outline"
-                      colorScheme="gray" 
+                      colorScheme="red" 
                       onClick={cancelRecording}
-                      _hover={{ bg: buttonHoverBg }}
-                      color={buttonTextColor}
-                      borderColor={borderColor}
+                      _hover={{ bg: 'rgba(245, 101, 101, 0.2)' }}
+                      color="red.300"
+                      borderColor="red.500"
                     >
                       Cancel
                     </Button>
                     
                     <Button
                       leftIcon={isSubmitting ? undefined : <FaSave />} 
-                      colorScheme="brand" 
+                      colorScheme="green" 
                       type="submit"
                       isLoading={isSubmitting}
                       loadingText="Saving..."
                       spinner={<Spinner size="sm" />}
-                      bg={stepBgActive}
-                      _hover={{ bg: 'brand.600' }}
+                      _hover={{ bg: 'green.600' }}
                       color="white"
                     >
                       Save Recording
