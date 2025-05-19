@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, ActivityIndicator, Alert, TextInput, Animated, Easing } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { StyleSheet, View, TouchableOpacity, Text, ActivityIndicator, Alert, TextInput, Animated, Easing, Platform, ScrollView } from 'react-native';
 import { Audio } from 'expo-av';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
@@ -9,6 +9,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedLayout } from '@/components/ThemedLayout';
 import AudioRecorder from '@/utils/AudioRecorder';
 import { uploadAudio } from '@/api/api';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Define PlaybackStatus interface
 interface PlaybackStatus {
@@ -18,6 +19,9 @@ interface PlaybackStatus {
 }
 
 export default function AudioRecorderComponent() {
+  // Safe area insets for proper layout on notched devices
+  const insets = useSafeAreaInsets();
+  
   const [recorder] = useState(new AudioRecorder());
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
@@ -30,136 +34,142 @@ export default function AudioRecorderComponent() {
   
   // Animation references
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const waveAnim = useRef(new Animated.Value(0)).current;
-  const waveAnim2 = useRef(new Animated.Value(0)).current;
-  const waveAnim3 = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  
+  // Audio level values for the visualizer bars
+  const NUM_BARS = 12; // Increased number of bars for better visualization
+  const audioLevelBars = useRef(
+    Array.from({ length: NUM_BARS }, (_, i) => new Animated.Value(0.3))
+  ).current;
   
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioLevelTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
   const router = useRouter();
+  
+  // Entry animation
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, [recordingStep]);
   
   // Clean up on unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (audioLevelTimerRef.current) clearInterval(audioLevelTimerRef.current);
       if (soundRef.current) soundRef.current.unloadAsync();
       if (recorder.isRecording()) recorder.cancelRecording();
     };
   }, []);
   
-  // Animation effects when recording
+  // Animation effects for pulse and audio level visualization when recording
   useEffect(() => {
-    let pulseAnimation: Animated.CompositeAnimation;
-    let waveAnimation: Animated.CompositeAnimation;
-    let waveAnimation2: Animated.CompositeAnimation;
-    let waveAnimation3: Animated.CompositeAnimation;
+    let pulseAnimation: Animated.CompositeAnimation | null = null;
     
     if (isRecording) {
-      // Pulsating microphone animation
+      // Pulsating ring animation
       pulseAnimation = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
             toValue: 1.2,
-            duration: 800,
+            duration: 1200,
             easing: Easing.inOut(Easing.ease),
             useNativeDriver: true,
           }),
           Animated.timing(pulseAnim, {
             toValue: 1,
-            duration: 800,
+            duration: 1200,
             easing: Easing.inOut(Easing.ease),
             useNativeDriver: true,
           }),
         ])
       );
       
-      // Wave animations with different timings for natural effect
-      waveAnimation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(waveAnim, {
-            toValue: 1,
-            duration: 700,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(waveAnim, {
-            toValue: 0,
-            duration: 700,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      
-      waveAnimation2 = Animated.loop(
-        Animated.sequence([
-          Animated.timing(waveAnim2, {
-            toValue: 1,
-            duration: 900,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(waveAnim2, {
-            toValue: 0,
-            duration: 900,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      
-      waveAnimation3 = Animated.loop(
-        Animated.sequence([
-          Animated.timing(waveAnim3, {
-            toValue: 1,
-            duration: 500,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(waveAnim3, {
-            toValue: 0,
-            duration: 500,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      
-      // Start all animations
       pulseAnimation.start();
-      waveAnimation.start();
       
-      // Stagger the start of wave animations for more natural effect
-      setTimeout(() => waveAnimation2.start(), 200);
-      setTimeout(() => waveAnimation3.start(), 400);
+      // Start timer to update the audio levels - using a more efficient implementation
+      audioLevelTimerRef.current = setInterval(() => {
+        // Get the current audio level from the recorder
+        const level = recorder.getAudioLevel();
+        
+        // Create batch of animations for all bars
+        const animations = audioLevelBars.map((bar, index) => {
+          // Different timing offsets for each bar to create wave effect
+          const offset = Math.sin((Date.now() / 600) + (index * 0.5)) * 0.3;
+          
+          // Central bars have higher amplitude
+          const centerFactor = 1 - Math.abs((index - (NUM_BARS / 2 - 0.5)) / (NUM_BARS / 2)) * 0.6;
+          
+          // Add small random factor for natural movement
+          const randomFactor = Math.random() * 0.15;
+          
+          // Calculate final level with limits
+          const finalLevel = Math.max(0.3, Math.min(0.95, 
+            (level * 0.7 + 0.3) * centerFactor + offset + randomFactor
+          ));
+          
+          return Animated.timing(bar, {
+            toValue: finalLevel,
+            duration: 150, // Faster updates for responsive visualization
+            useNativeDriver: true,
+          });
+        });
+        
+        Animated.parallel(animations).start();
+      }, 100);
+      
     } else {
       // Reset animations when not recording
       pulseAnim.setValue(1);
-      waveAnim.setValue(0);
-      waveAnim2.setValue(0);
-      waveAnim3.setValue(0);
+      audioLevelBars.forEach(bar => bar.setValue(0.3));
+      
+      // Clear audio level timer
+      if (audioLevelTimerRef.current) {
+        clearInterval(audioLevelTimerRef.current);
+        audioLevelTimerRef.current = null;
+      }
     }
     
     // Clean up animations on state change
     return () => {
       if (pulseAnimation) pulseAnimation.stop();
-      if (waveAnimation) waveAnimation.stop();
-      if (waveAnimation2) waveAnimation2.stop();
-      if (waveAnimation3) waveAnimation3.stop();
+      
+      if (audioLevelTimerRef.current) {
+        clearInterval(audioLevelTimerRef.current);
+        audioLevelTimerRef.current = null;
+      }
     };
-  }, [isRecording]);
+  }, [isRecording, audioLevelBars, pulseAnim, recorder]);
   
   // Format time display (00:00)
-  const formatTime = (milliseconds: number) => {
+  const formatTime = useCallback((milliseconds: number) => {
     const totalSeconds = Math.floor(milliseconds / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
+  }, []);
   
-  // Start recording
-  const startRecording = async () => {
+  // Start recording - memoized to prevent rerenders
+  const startRecording = useCallback(async () => {
     try {
+      // Visual feedback animation before starting
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 0.5,
+          duration: 200,
+          useNativeDriver: true
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true
+        })
+      ]).start();
+      
       await recorder.startRecording();
       setIsRecording(true);
       setRecordingStep('recording');
@@ -178,10 +188,10 @@ export default function AudioRecorderComponent() {
         'Could not access microphone. Please check permissions.'
       );
     }
-  };
+  }, [recorder, fadeAnim]);
   
-  // Stop recording
-  const stopRecording = async () => {
+  // Stop recording with useCallback
+  const stopRecording = useCallback(async () => {
     try {
       const uri = await recorder.stopRecording();
       setIsRecording(false);
@@ -203,10 +213,42 @@ export default function AudioRecorderComponent() {
         'There was a problem with the recording.'
       );
     }
-  };
+  }, [recorder]);
   
-  // Play recorded audio
-  const playRecording = async () => {
+  // Cancel recording with useCallback
+  const cancelRecording = useCallback(async () => {
+    try {
+      // If currently recording, cancel it
+      if (isRecording) {
+        await recorder.cancelRecording();
+        setIsRecording(false);
+        
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+      }
+      
+      // If we have a sound object, unload it
+      if (soundRef.current) {
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+      
+      // Reset recording state
+      setRecordingDuration(0);
+      setAudioUri(null);
+      setRecordingStep('initial');
+      setTitle('');
+      setDescription('');
+      
+    } catch (error) {
+      console.error('Error cancelling recording:', error);
+    }
+  }, [isRecording, recorder]);
+  
+  // Play recording with useCallback
+  const playRecording = useCallback(async () => {
     if (!audioUri) return;
     
     try {
@@ -240,89 +282,15 @@ export default function AudioRecorderComponent() {
       console.error('Error playing recording:', error);
       Alert.alert('Playback Error', 'Could not play the recording.');
     }
-  };
-  
-  // Cancel recording
-  const cancelRecording = async () => {
-    try {
-      // If currently recording, cancel it
-      if (isRecording) {
-        await recorder.cancelRecording();
-        setIsRecording(false);
-        
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-          timerRef.current = null;
-        }
-      }
-      
-      // If we have a sound object, unload it
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
-      
-      // Reset recording state
-      setRecordingDuration(0);
-      setAudioUri(null);
-      setRecordingStep('initial');
-      setTitle('');
-      setDescription('');
-      
-    } catch (error) {
-      console.error('Error cancelling recording:', error);
-    }
-  };
+  }, [audioUri, isPlaying]);
   
   // Continue to submission step
-  const proceedToSubmit = () => {
+  const proceedToSubmit = useCallback(() => {
     setRecordingStep('submit');
-  };
-  
-  // Wave animation component
-  const RecordingWaves = () => (
-    <View style={styles.waveContainer}>
-      <Animated.View 
-        style={[
-          styles.wave, 
-          { 
-            opacity: waveAnim,
-            transform: [
-              { scaleX: Animated.add(1, Animated.multiply(waveAnim, 0.4)) },
-              { scaleY: Animated.add(1, Animated.multiply(waveAnim, 0.4)) }
-            ] 
-          }
-        ]} 
-      />
-      <Animated.View 
-        style={[
-          styles.wave, 
-          { 
-            opacity: waveAnim2,
-            transform: [
-              { scaleX: Animated.add(1, Animated.multiply(waveAnim2, 0.7)) },
-              { scaleY: Animated.add(1, Animated.multiply(waveAnim2, 0.7)) }
-            ] 
-          }
-        ]} 
-      />
-      <Animated.View 
-        style={[
-          styles.wave, 
-          { 
-            opacity: waveAnim3,
-            transform: [
-              { scaleX: Animated.add(1, Animated.multiply(waveAnim3, 1)) },
-              { scaleY: Animated.add(1, Animated.multiply(waveAnim3, 1)) }
-            ] 
-          }
-        ]} 
-      />
-    </View>
-  );
+  }, []);
   
   // Submit recording with metadata
-  const submitRecording = async () => {
+  const submitRecording = useCallback(async () => {
     if (!audioUri) {
       Alert.alert('Error', 'No recording available.');
       return;
@@ -336,40 +304,19 @@ export default function AudioRecorderComponent() {
     setIsSubmitting(true);
     
     try {
-      // Get file info
-      const fileInfo = await FileSystem.getInfoAsync(audioUri);
-      
       // Create form data
       const formData = new FormData();
-      
-      // Determine file extension and mime type
-      // Extract extension from the file URI
       const extension = audioUri.split('.').pop()?.toLowerCase() || 'm4a';
       
-      // Map extension to appropriate MIME type for better cross-platform compatibility
-      let mimeType;
-      switch (extension) {
-        case 'mp3':
-          mimeType = 'audio/mpeg';
-          break;
-        case 'm4a':
-          mimeType = 'audio/aac';
-          break;
-        case 'aac':
-          mimeType = 'audio/aac';
-          break;
-        case 'wav':
-          mimeType = 'audio/wav';
-          break;
-        case 'webm':
-          mimeType = 'audio/webm';
-          break;
-        default:
-          // Default to audio/aac for iOS recorded files
-          mimeType = 'audio/aac';
-      }
-      
-      console.log(`Uploading audio file with extension: ${extension}, MIME type: ${mimeType}`);
+      // Map extension to appropriate MIME type
+      const mimeTypes = {
+        mp3: 'audio/mpeg',
+        m4a: 'audio/aac',
+        aac: 'audio/aac',
+        wav: 'audio/wav',
+        webm: 'audio/webm',
+      };
+      const mimeType = mimeTypes[extension as keyof typeof mimeTypes] || 'audio/aac';
       
       // @ts-ignore - React Native types for FormData are incomplete
       formData.append('audio', {
@@ -401,166 +348,311 @@ export default function AudioRecorderComponent() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-  
-  // Render based on current step
-  if (recordingStep === 'initial') {
-    return (
-      <ThemedLayout>
-        <View style={styles.container}>
-          <ThemedText style={styles.heading}>Record Audio</ThemedText>
-          <ThemedText style={styles.subheading}>Tap the microphone to start recording</ThemedText>
-          
-          <TouchableOpacity
-            style={styles.recordButton}
-            onPress={startRecording}
-          >
-            <MaterialIcons name="mic" size={40} color="white" />
-          </TouchableOpacity>
-        </View>
-      </ThemedLayout>
-    );
-  }
-  
+  }, [audioUri, title, description, cancelRecording, router]);
+
+  // Render recording screen with improved visual design
   if (recordingStep === 'recording') {
     return (
-      <ThemedLayout>
-        <View style={styles.container}>
-          <ThemedText style={styles.heading}>Recording...</ThemedText>
-          <ThemedText style={styles.timer}>{formatTime(recordingDuration)}</ThemedText>
+      <ThemedLayout withBorder={false}>
+        <Animated.View 
+          style={[
+            styles.recordingContainer, 
+            { opacity: fadeAnim, paddingTop: insets.top }
+          ]}
+        >
+          {/* Top section - Timer display */}
+          <View style={styles.recordingTopSection}>
+            <ThemedText style={styles.recordingTitle}>Recording in progress</ThemedText>
+            <Text style={styles.timerDisplay}>
+              {formatTime(recordingDuration)}
+            </Text>
+          </View>
           
-          {/* Animated recording wave effect */}
-          <RecordingWaves />
+          {/* Middle section - Recording controls with visualizer */}
+          <View style={styles.recordingMiddleSection}>
+            {/* Audio level visualization above the stop button */}
+            <View style={styles.visualizerContainer}>
+              <View style={styles.outerVisualizer}>
+                {audioLevelBars.map((bar, index) => (
+                  <Animated.View 
+                    key={index}
+                    style={[
+                      styles.visualizerBar,
+                      {
+                        opacity: bar.interpolate({
+                          inputRange: [0.3, 0.7, 1],
+                          outputRange: [0.5, 0.8, 1]
+                        }),
+                        backgroundColor: bar.interpolate({
+                          inputRange: [0.3, 0.6, 0.9],
+                          outputRange: ['#134a21', '#1DB954', '#25e868']
+                        }),
+                        transform: [
+                          { scaleX: Platform.OS === 'ios' ? 1 : 0.9 }, // Slight platform adjustment
+                          { scaleY: bar.interpolate({
+                              inputRange: [0.3, 1],
+                              outputRange: [1, 4] // Scale from 15px to 60px (15 * 4 = 60)
+                            })
+                          }
+                        ]
+                      }
+                    ]} 
+                  />
+                ))}
+              </View>
+            </View>
+            
+            <Animated.View style={[
+              styles.recordButtonRing, 
+              { 
+                transform: [{ scale: pulseAnim }],
+                borderColor: '#1DB954'
+              }
+            ]}>
+              <TouchableOpacity
+                style={styles.stopButton}
+                onPress={stopRecording}
+                activeOpacity={0.8}
+              >
+                <View style={styles.stopIconSquare} />
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
           
-          <Animated.View style={{
-            transform: [{ scale: pulseAnim }]
-          }}>
+          {/* Bottom section - Cancel button */}
+          <View style={styles.recordingBottomSection}>
             <TouchableOpacity
-              style={styles.stopButton}
-              onPress={stopRecording}
+              style={styles.cancelButtonContainer}
+              onPress={cancelRecording}
+              activeOpacity={0.7}
             >
-              <MaterialIcons name="stop" size={40} color="white" />
+              <MaterialIcons name="close" size={24} color="#E91E63" />
+              <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
-          </Animated.View>
-          
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={cancelRecording}
-          >
-            <MaterialIcons name="close" size={24} color="#E91E63" />
-            <ThemedText style={styles.cancelText}>Cancel</ThemedText>
-          </TouchableOpacity>
-        </View>
+          </View>
+        </Animated.View>
       </ThemedLayout>
     );
   }
-  
+
+  // Render initial screen with improved layout
+  if (recordingStep === 'initial') {
+    return (
+      <ThemedLayout withBorder={false}>
+        <Animated.View 
+          style={[
+            styles.initialContainer, 
+            { opacity: fadeAnim, paddingTop: insets.top }
+          ]}
+        >
+          <View style={styles.initialTopSection}>
+            <ThemedText style={styles.formHeading}>Record Audio</ThemedText>
+            <ThemedText style={styles.subheading}>Tap the microphone to start recording</ThemedText>
+          </View>
+          
+          <View style={styles.initialMiddleSection}>
+            <TouchableOpacity
+              style={styles.recordButton}
+              onPress={startRecording}
+              activeOpacity={0.7}
+            >
+              <MaterialIcons name="mic" size={40} color="white" />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.initialBottomSection}>
+            {/* Empty view for balanced layout */}
+          </View>
+        </Animated.View>
+      </ThemedLayout>
+    );
+  }
+
+  // Preview screen with improved design
   if (recordingStep === 'preview') {
     return (
-      <ThemedLayout>
-        <View style={styles.container}>
-          <ThemedText style={styles.heading}>Preview Recording</ThemedText>
+      <ThemedLayout withBorder={false}>
+        <Animated.View 
+          style={[
+            styles.previewScreenContainer, 
+            { opacity: fadeAnim, paddingTop: insets.top }
+          ]}
+        >
+          <View style={styles.previewTopSection}>
+            <Text style={styles.previewTitle}>Preview Recording</Text>
+          </View>
           
-          <View style={styles.previewContainer}>
-            <ThemedText style={styles.durationText}>
-              Duration: {formatTime(recordingDuration)}
-            </ThemedText>
-            
-            <TouchableOpacity
-              style={styles.playButton}
-              onPress={playRecording}
-            >
-              <MaterialIcons
-                name={isPlaying ? "pause" : "play-arrow"}
-                size={36}
-                color="white" 
-              />
-              <Text style={styles.buttonText}>
-                {isPlaying ? "Pause" : "Play"}
-              </Text>
-            </TouchableOpacity>
-          
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: 'rgba(47, 42, 75, 0.8)' }]}
-              onPress={cancelRecording}
-            >
-                <MaterialIcons name="delete" size={24} color="#E91E63" />
-              <Text style={[styles.buttonText, { color: '#E91E63' }]}>Discard</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: '#1DB954' }]}
-              onPress={proceedToSubmit}
-            >
-                <MaterialIcons name="save" size={24} color="white" />
-                <Text style={styles.buttonText}>Save</Text>
-            </TouchableOpacity>
-          </View>
-          </View>
-        </View>
-      </ThemedLayout>
-    );
-  }
-  
-  if (recordingStep === 'submit') {
-    return (
-      <ThemedLayout>
-        <View style={styles.container}>
-          <ThemedText style={styles.heading}>Save Recording</ThemedText>
-          
-          <View style={styles.inputContainer}>
-            <ThemedText>Title</ThemedText>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter a title for your recording"
-              placeholderTextColor="#A0AEC0"
-              value={title}
-              onChangeText={setTitle}
-            />
-          </View>
-            
-          <View style={styles.inputContainer}>
-            <ThemedText>Description (optional)</ThemedText>
-            <TextInput
-              style={[styles.input, styles.descriptionInput]}
-              placeholder="Add a description"
-              placeholderTextColor="#A0AEC0"
-              value={description}
-              onChangeText={setDescription}
-              multiline
-            />
-          </View>
-            
-            <View style={styles.buttonRow}>
+          <View style={styles.previewMiddleSection}>
+            <View style={styles.previewContainer}>
+              <View style={styles.durationContainer}>
+                <MaterialIcons name="timer" size={22} color="#1DB954" />
+                <Text style={styles.durationText}>
+                  {formatTime(recordingDuration)}
+                </Text>
+              </View>
+              
               <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: 'rgba(47, 42, 75, 0.8)' }]}
-              onPress={cancelRecording}
+                style={styles.playButton}
+                onPress={playRecording}
+                activeOpacity={0.7}
               >
-              <MaterialIcons name="close" size={24} color="#E91E63" />
-              <Text style={[styles.buttonText, { color: '#E91E63' }]}>Cancel</Text>
+                <MaterialIcons
+                  name={isPlaying ? "pause" : "play-arrow"}
+                  size={28}
+                  color="white" 
+                />
+                <Text style={styles.buttonText}>
+                  {isPlaying ? "Pause" : "Play"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.previewButtonRow}>
+              <TouchableOpacity
+                style={styles.discardButton}
+                onPress={cancelRecording}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="delete" size={20} color="#E91E63" />
+                <Text style={styles.discardText}>Discard</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: '#1DB954' }]}
-                onPress={submitRecording}
-                disabled={isSubmitting}
+                style={styles.saveButton}
+                onPress={proceedToSubmit}
+                activeOpacity={0.7}
               >
-              <MaterialIcons name="check" size={24} color="white" />
-              <Text style={styles.buttonText}>
-                {isSubmitting ? "Saving..." : "Submit"}
-              </Text>
+                <MaterialIcons name="save" size={20} color="white" />
+                <Text style={styles.saveText}>Continue</Text>
               </TouchableOpacity>
+            </View>
           </View>
           
-          {isSubmitting && (
-            <ActivityIndicator 
-              size="large" 
-              color="#1DB954" 
-              style={{ marginTop: 20 }} 
-            />
-          )}
-        </View>
+          <View style={styles.previewBottomSection}>
+            {/* Empty space for balanced layout */}
+          </View>
+        </Animated.View>
+      </ThemedLayout>
+    );
+  }
+
+  // Submit screen with improved layout and form design
+  if (recordingStep === 'submit') {
+    return (
+      <ThemedLayout withBorder={false}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <Animated.View 
+            style={[
+              styles.submitContainer, 
+              { opacity: fadeAnim, paddingTop: insets.top }
+            ]}
+          >
+            <View style={styles.submitTopSection}>
+              <ThemedText style={styles.formHeading}>Save Recording</ThemedText>
+            </View>
+            
+            <View style={styles.submitMiddleSection}>
+              <View style={styles.formContainer}>
+                {/* Title Input with character counter */}
+                <View style={styles.inputWrapper}>
+                  <View style={styles.labelContainer}>
+                    <MaterialIcons name="title" size={18} color="#1DB954" style={{marginRight: 8}} />
+                    <ThemedText style={styles.labelText}>Title</ThemedText>
+                  </View>
+                  <View style={styles.inputFieldContainer}>
+                    <MaterialIcons name="music-note" size={20} color="#1DB954" style={{marginRight: 8}} />
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="Enter a title for your recording"
+                      placeholderTextColor="#888"
+                      value={title}
+                      onChangeText={setTitle}
+                      maxLength={50}
+                      autoFocus={true}
+                      autoCapitalize="sentences"
+                      autoComplete="off"
+                      autoCorrect={false}
+                      returnKeyType="next"
+                      keyboardType="default"
+                    />
+                  </View>
+                  <Text style={[
+                    styles.characterCount,
+                    title.length >= 40 ? {color: '#E91E63'} : {}
+                  ]}>
+                    {title.length}/50
+                  </Text>
+                </View>
+                
+                {/* Description Input with character counter */}
+                <View style={styles.inputWrapper}>
+                  <View style={styles.labelContainer}>
+                    <MaterialIcons name="notes" size={18} color="#1DB954" style={{marginRight: 8}} />
+                    <ThemedText style={styles.labelText}>Description (optional)</ThemedText>
+                  </View>
+                  <View style={[styles.inputFieldContainer, { height: 120, alignItems: 'flex-start', paddingVertical: 12 }]}>
+                    <MaterialIcons name="description" size={20} color="#1DB954" style={{marginRight: 8, marginTop: 4}} />
+                    <TextInput
+                      style={[styles.textInput, { height: '100%', textAlignVertical: 'top' }]}
+                      placeholder="Add a description for your recording"
+                      placeholderTextColor="#888"
+                      value={description}
+                      onChangeText={setDescription}
+                      multiline
+                      maxLength={200}
+                      autoCapitalize="sentences"
+                      autoComplete="off"
+                      autoCorrect={false}
+                      returnKeyType="done"
+                      keyboardType="default"
+                    />
+                  </View>
+                  <Text style={[
+                    styles.characterCount,
+                    description.length >= 180 ? {color: '#E91E63'} : {}
+                  ]}>
+                    {description.length}/200
+                  </Text>
+                </View>
+              
+                {/* Action Buttons */}
+                <View style={styles.formButtonContainer}>
+                  <TouchableOpacity
+                    style={styles.cancelFormButton}
+                    onPress={cancelRecording}
+                    activeOpacity={0.7}
+                  >
+                    <MaterialIcons name="close" size={22} color="#E91E63" />
+                    <Text style={styles.cancelFormText}>Discard</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[
+                      styles.saveFormButton,
+                      !title.trim() && styles.disabledButton
+                    ]}
+                    onPress={submitRecording}
+                    disabled={isSubmitting || !title.trim()}
+                    activeOpacity={0.7}
+                  >
+                    {isSubmitting ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      <>
+                        <MaterialIcons name="check" size={22} color="white" />
+                        <Text style={styles.saveFormText}>Save</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+            
+            <View style={styles.submitBottomSection}>
+              {/* Empty space for balanced layout */}
+            </View>
+          </Animated.View>
+        </ScrollView>
       </ThemedLayout>
     );
   }
@@ -569,50 +661,190 @@ export default function AudioRecorderComponent() {
 }
 
 const styles = StyleSheet.create({
+  // ======== GENERAL LAYOUT STYLES ========
+  // General container styles
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+    paddingTop: 200,
   },
-  title: {
-    fontSize: 24,
+  
+  // Initial recording screen (improved layout)
+  initialContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  initialTopSection: {
+    flex: 2,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  initialMiddleSection: {
+    flex: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  initialBottomSection: {
+    flex: 1,
+  },
+  
+  // Recording screen layout
+  recordingContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  recordingTopSection: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  recordingMiddleSection: {
+    flex: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  recordingBottomSection: {
+    flex: 3,
+    alignItems: 'center',
+  },
+  
+  // Preview screen layout
+  previewScreenContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  previewTopSection: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  previewMiddleSection: {
+    flex: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewBottomSection: {
+    flex: 1,
+  },
+  
+  // Submit screen layout
+  submitContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  submitTopSection: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  submitMiddleSection: {
+    flex: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
+  submitBottomSection: {
+    flex: 1,
+  },
+  
+  // ======== TEXT STYLES ========
+  heading: {
+    fontSize: 28,
+    fontWeight: '600',
+    marginBottom: 16,
+    color: '#fff',
+    textAlign: 'center',
+  },
+  subheading: {
+    fontSize: 16,
+    color: '#ccc',
     marginBottom: 20,
     textAlign: 'center',
   },
-  subtitle: {
-    marginBottom: 30,
-    textAlign: 'center',
+  recordingTitle: {
+    fontSize: 22,
+    fontWeight: '600',
+    marginBottom: 10,
+    color: '#fff',
   },
+  timerDisplay: {
+    fontSize: 52,
+    fontWeight: '300',
+    color: '#1DB954',
+    fontVariant: ['tabular-nums'],
+    marginVertical: 10,
+  },
+  
+  // ======== BUTTON STYLES ========
   recordButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     backgroundColor: '#1DB954',
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 6,
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  recordButtonRing: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: '#1DB954',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 30,
+  },
+  stopButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#E91E63',
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
   },
-  timerContainer: {
+  stopIconSquare: {
+    width: 26,
+    height: 26,
+    backgroundColor: 'white',
+    borderRadius: 3,
+  },
+  
+  // ======== VISUALIZER STYLES ========
+  visualizerContainer: {
+    marginBottom: 30,
     alignItems: 'center',
-    marginVertical: 30,
+    justifyContent: 'center',
+    height: 100,
   },
-  timerText: {
-    fontSize: 48,
-    fontVariant: ['tabular-nums'],
-    marginBottom: 20,
+  outerVisualizer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 80,
+    width: '90%',
+    maxWidth: 340,
   },
-  recordingIndicator: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+  visualizerBar: {
+    width: 4,
+    height: 15, // Base height for visualization bars
+    borderRadius: 4,
+    marginHorizontal: 3,
     backgroundColor: '#1DB954',
-    opacity: 0.8,
+    transformOrigin: 'bottom', // Make sure scaling happens from bottom
   },
   buttonRow: {
     flexDirection: 'row',
@@ -640,20 +872,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 20,
   },
-  stopButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#E91E63',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
+  // This is an empty replacement to remove the duplicate style
   submitButton: {
     backgroundColor: '#4caf50',
   },
@@ -663,25 +882,50 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 15,
   },
+  previewTitle: {
+    fontSize: 32,
+    fontWeight: '500',
+    color: '#fff',
+    marginBottom: 30,
+    textAlign: 'center',
+  },
   previewContainer: {
     alignItems: 'center',
-    marginVertical: 30,
-    padding: 20,
-    backgroundColor: 'rgba(47, 42, 75, 0.8)',
-    borderRadius: 16,
+    justifyContent: 'center',
+    padding: 30,
+    backgroundColor: 'rgba(25, 25, 35, 0.8)',
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(30, 185, 84, 0.3)',
-    width: '100%',
-    maxWidth: 500,
+    borderColor: 'rgba(30, 185, 84, 0.5)',
+    width: '90%',
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 7,
+  },
+  durationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  durationText: {
+    fontSize: 28,
+    color: '#E0E0E0',
+    fontWeight: '300',
+    textAlign: 'center',
+    marginLeft: 10,
+    fontVariant: ['tabular-nums'],
   },
   playButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
-    borderRadius: 40,
+    borderRadius: 30,
     backgroundColor: '#1DB954',
-    marginBottom: 20,
+    marginBottom: 30,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -689,31 +933,138 @@ const styles = StyleSheet.create({
     elevation: 3,
     minWidth: 150,
   },
-  durationText: {
-    fontSize: 18,
-    marginVertical: 20,
-    color: '#E0E0E0',
+  previewButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 10,
+  },
+  discardButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 7,
+    borderRadius: 25,
+  },
+  saveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 25,
+    backgroundColor: '#1DB954',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+    minWidth: 120,
+  },
+  discardText: {
+    color: '#E91E63',
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  saveText: {
+    color: '#fff',
+    marginLeft: 8,
+    fontSize: 16,
     fontWeight: '500',
   },
   formContainer: {
     width: '100%',
-    maxWidth: 400,
+    maxWidth: 450,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: 'rgba(30, 185, 84, 0.3)',
-    borderRadius: 12,
-    padding: 14,
-    marginTop: 8,
+  inputWrapper: {
+    width: '100%',
+    marginBottom: 24,
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  labelText: {
     fontSize: 16,
-    backgroundColor: 'rgba(30, 30, 50, 0.6)',
+    fontWeight: '600',
     color: '#E0E0E0',
+  },
+  inputFieldContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(30, 185, 84, 0.4)',
+    borderRadius: 12,
+    backgroundColor: 'rgba(30, 30, 50, 0.6)',
+    paddingHorizontal: 12,
+    height: 56,
+    width: '100%',
+  },
+  textInput: {
+    flex: 1,
+    color: '#fff',
+    fontSize: 16,
+    height: '100%',
+  },
+  characterCount: {
+    alignSelf: 'flex-end',
+    color: '#aaa',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  formButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 10,
+    marginTop: 30,
+  },
+  cancelFormButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 25,
+    backgroundColor: 'rgba(233, 30, 99, 0.15)',
+    minWidth: 120,
+  },
+  saveFormButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 25,
+    backgroundColor: '#1DB954',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+    minWidth: 120,
+  },
+  disabledButton: {
+    backgroundColor: '#555',
+    opacity: 0.7,
+  },
+  cancelFormText: {
+    color: '#E91E63',
+    marginLeft: 8,
+    fontSize: 16,
     fontWeight: '500',
   },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
-    paddingTop: 12,
+  saveFormText: {
+    color: '#fff',
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  formHeading: {
+    fontSize: 28,
+    fontWeight: '600',
+    marginBottom: 16,
+    color: '#fff',
+    textAlign: 'center',
   },
   waveContainer: {
     position: 'absolute',
@@ -731,32 +1082,93 @@ const styles = StyleSheet.create({
     backgroundColor: '#1DB954',
     opacity: 0.2,
   },
-  heading: {
+  audioLevelContainer: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    width: 150,
+    height: 50,
+    bottom: -60,
+  },
+  audioLevelBar: {
+    width: 10,
+    height: 20, // Base height that will be scaled with transform
+    backgroundColor: '#1DB954',
+    borderRadius: 5,
+    marginHorizontal: 2,
+    transformOrigin: 'bottom',
+  },
+  recordingText: {
     fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 24,
+    fontWeight: '500',
+    color: '#fff',
+    marginBottom: 20,
     textAlign: 'center',
-    color: '#E0E0E0',
+    paddingTop: 100,
   },
-  subheading: {
+  oldTimerDisplay: { /* Renamed to avoid duplicate */
+    fontSize: 70,
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'normal',
+    fontWeight: '300',
+    color: '#fff',
+    letterSpacing: 2,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  recordButtonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 40,
+  },
+  oldButtonRing: { /* Renamed to avoid duplicate */
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#1DB954',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stopIcon: {
+    width: 24,
+    height: 24,
+    backgroundColor: '#fff',
+    borderRadius: 2,
+  },
+  cancelButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
     marginBottom: 30,
-    textAlign: 'center',
-    opacity: 0.7,
-    fontSize: 16,
-    color: '#A0AEC0',
-    lineHeight: 22,
   },
+  cancelText: {
+    color: '#E91E63',
+    marginLeft: 8,
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  audioLevelVisualization: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 40,
+    width: '100%',
+  },
+  audioLevelDot: {
+    width: 15,
+    height: 15,
+    borderRadius: 4,
+    marginHorizontal: 6,
+    backgroundColor: '#1DB954',
+  },
+  /* Removed duplicate heading/subheading styles */
   timer: {
     fontSize: 48,
     fontVariant: ['tabular-nums'],
     marginBottom: 20,
     fontWeight: 'bold',
     color: '#E0E0E0',
-  },
-  cancelText: {
-    color: '#E91E63',
-    marginLeft: 8,
-    fontSize: 16,
   },
   inputContainer: {
     width: '100%',
