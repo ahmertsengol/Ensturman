@@ -137,10 +137,6 @@ class PitchDetector {
   isRecording = false;
   mockInterval: ReturnType<typeof setTimeout> | null = null;
   
-  constructor() {
-    // Initialize
-  }
-  
   async start(callback: (noteData: NoteData) => void) {
     this.callback = callback;
     
@@ -1048,6 +1044,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1DB954',
     marginBottom: 4,
+    paddingTop: 50,
   },
   headerSubtitle: {
     fontSize: 16,
@@ -1538,6 +1535,9 @@ const styles = StyleSheet.create({
     color: '#1DB954',
     marginBottom: 20,
     textAlign: 'center',
+    paddingTop: 100,
+    paddingBottom: 100,
+
   },
   accuracyCircle: {
     width: 150,

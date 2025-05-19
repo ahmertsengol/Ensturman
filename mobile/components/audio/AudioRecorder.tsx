@@ -1065,6 +1065,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     color: '#fff',
     textAlign: 'center',
+    paddingTop: 100,
   },
   waveContainer: {
     position: 'absolute',

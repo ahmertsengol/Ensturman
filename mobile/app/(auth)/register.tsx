@@ -99,7 +99,7 @@ export default function RegisterScreen() {
         <View style={styles.headerSection}>
           <Animatable.View animation="fadeIn" duration={1200}>
             <Animatable.Image 
-              source={require('@/assets/images/react-logo.png')} 
+              source={require('@/assets/images/Logo.png')} 
               style={styles.logo}
               animation="pulse"
               iterationCount="infinite"
