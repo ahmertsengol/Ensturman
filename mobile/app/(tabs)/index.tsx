@@ -16,11 +16,11 @@ export default function HomeScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Animatable.View animation="fadeInUp" delay={300}>
             <Text style={styles.welcomeText}>
-              Welcome to <Text style={styles.brandText}>Audio Recorder</Text>
+              Welcome to <Text style={styles.brandText}>EnsAI</Text>
             </Text>
             
             <Text style={styles.subtitle}>
-              Record, analyze, and improve your music
+              Smart musical training assistant
             </Text>
           </Animatable.View>
           
