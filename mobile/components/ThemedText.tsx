@@ -1,11 +1,11 @@
-import { StyleSheet, Text, type TextProps } from 'react-native';
-
-import { useThemeColor } from '@/hooks/useThemeColor';
+import React from 'react';
+import { StyleSheet, Text as RNText, TextProps } from 'react-native';
+import { useTheme } from 'react-native-paper';
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?: 'default' | 'title' | 'subtitle' | 'label' | 'error';
 };
 
 export function ThemedText({
@@ -13,48 +13,69 @@ export function ThemedText({
   lightColor,
   darkColor,
   type = 'default',
-  ...rest
+  ...otherProps
 }: ThemedTextProps) {
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const theme = useTheme();
+  
+  // Get correct text color based on theme
+  let color = lightColor || darkColor
+    ? theme.dark ? darkColor : lightColor
+    : theme.colors.onBackground;
+    
+  // If error type, use error color
+  if (type === 'error') {
+    color = theme.colors.error;
+  }
 
   return (
-    <Text
+    <RNText
       style={[
-        { color },
-        type === 'default' ? styles.default : undefined,
-        type === 'title' ? styles.title : undefined,
-        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
-        type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
+        styles.text,
+        type === 'title' && styles.title,
+        type === 'subtitle' && styles.subtitle,
+        type === 'label' && styles.label,
+        { color, 
+          fontFamily: getFontFamily(type, theme.dark) 
+        },
         style,
       ]}
-      {...rest}
+      {...otherProps}
     />
   );
 }
 
+// Helper function to get the appropriate font family based on text type
+function getFontFamily(type: string, isDark: boolean) {
+  switch (type) {
+    case 'title':
+      return 'Poppins_700Bold';
+    case 'subtitle':
+      return 'Poppins_600SemiBold';
+    case 'label':
+      return 'Inter_500Medium';
+    default:
+      return 'Inter_400Regular';
+  }
+}
+
 const styles = StyleSheet.create({
-  default: {
+  text: {
     fontSize: 16,
     lineHeight: 24,
-  },
-  defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
+    lineHeight: 34,
     fontWeight: 'bold',
-    lineHeight: 32,
   },
   subtitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    lineHeight: 28,
+    fontWeight: '600',
   },
-  link: {
-    lineHeight: 30,
-    fontSize: 16,
-    color: '#0a7ea4',
+  label: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500',
   },
 });
