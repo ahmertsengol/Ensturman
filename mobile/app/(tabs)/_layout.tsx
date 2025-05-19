@@ -31,7 +31,8 @@ export default function TabsLayout() {
         headerTintColor: '#E0E0E0', // Light text for dark background
         headerTitleStyle: {
           fontWeight: 'bold',
-        }
+        },
+        headerTitle: 'EnsAI',
       }}
     >
       <Tabs.Screen
