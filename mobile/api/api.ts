@@ -4,22 +4,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // API URL configuration
 // Your development machine's local IP address
-const LOCAL_IP = '192.168.1.6';
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!! ÖNEMLİ: Mobil cihazınızdan backend'e bağlanmak için               !!!
+// !!! aşağıdaki `LOCAL_IP` değerini KENDİ BİLGİSAYARINIZIN YEREL AĞ     !!!
+// !!! IP ADRESİ ile değiştirin (örneğin: '192.168.1.10').              !!!
+// !!! macOS: ifconfig | grep "inet " | grep -v 127.0.0.1             !!!
+// !!! Windows: ipconfig (IPv4 Address)                                 !!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+const LOCAL_IP = '192.168.1.5'; // Kullanıcının sağladığı IP adresi ile güncellendi
 
-// Backend host configuration based on platform and device type
-export const BACKEND_HOST = (() => {
-  if (Platform.OS === 'ios') {
-    // iOS simulator can use localhost, but physical devices need the IP
-    return __DEV__ 
-      ? 'http://localhost:3001'      // iOS simulator
-      : `http://${LOCAL_IP}:3001`;   // iOS physical device
-  } else {
-    // Android emulator special IP, physical devices need the actual IP
-    return __DEV__
-      ? 'http://10.0.2.2:3001'       // Android emulator
-      : `http://${LOCAL_IP}:3001`;   // Android physical device
-  }
-})();
+// Backend host configuration - EXPO GO ile test edilen fiziksel cihazlar için basitleştirilmiş
+// Her durumda LOCAL_IP kullanılacak şekilde ayarlandı - Expo Go için kesin çözüm
+export const BACKEND_HOST = `http://${LOCAL_IP}:3001`;
 
 const API_URL = `${BACKEND_HOST}/api`;
 
