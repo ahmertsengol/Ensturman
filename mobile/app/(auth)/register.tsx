@@ -109,9 +109,9 @@ export default function RegisterScreen() {
           
           <Animatable.View animation="fadeInUp" delay={300}>
             <Text style={styles.headingGreen}>
-              Audio <Text style={styles.headingWhite}>Recorder</Text>
+              Ens<Text style={styles.headingWhite}>AI</Text>
             </Text>
-            <Text style={styles.subheading}>Record, Store, and Share Your Audio</Text>
+            <Text style={styles.subheading}>Smart musical training assistant</Text>
           </Animatable.View>
         </View>
         
