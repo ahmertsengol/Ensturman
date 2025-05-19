@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { StyleSheet, FlatList, View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, FlatList, View, TouchableOpacity, Alert, ActivityIndicator, Text } from 'react-native';
 import { Audio } from 'expo-av';
 import { MaterialIcons } from '@expo/vector-icons';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedLayout } from '@/components/ThemedLayout';
 import { getUserRecordings, deleteRecording, getAudioStreamUrl } from '@/api/api';
 import { useAuth } from '@/context/AuthContext';
 import { useIsFocused } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
+import AppBackground from '@/components/AppBackground';
 
 // Define PlaybackStatus interface with error property
 interface PlaybackStatus {
@@ -36,6 +39,7 @@ export default function RecordingsScreen() {
   const { isAuthenticated } = useAuth();
   const isFocused = useIsFocused();
   const soundRef = useRef<Audio.Sound | null>(null);
+  const router = useRouter();
   
   // Format date
   const formatDate = (dateString: string) => {
@@ -251,7 +255,7 @@ export default function RecordingsScreen() {
     return (
       <View style={styles.recordingItem}>
         <View style={styles.recordingInfo}>
-          <ThemedText type="defaultSemiBold" style={styles.recordingTitle}>
+          <ThemedText type="default" style={styles.recordingTitle}>
             {item.title}
           </ThemedText>
           
@@ -274,7 +278,7 @@ export default function RecordingsScreen() {
             <MaterialIcons
               name={isCurrent && isPlaying ? 'pause' : 'play-arrow'}
               size={24}
-              color={isCurrent && isPlaying ? '#fff' : '#2196f3'}
+              color={isCurrent && isPlaying ? '#fff' : '#1DB954'}
             />
           </TouchableOpacity>
           
@@ -282,7 +286,7 @@ export default function RecordingsScreen() {
             style={styles.actionButton}
             onPress={() => handleDelete(item.id)}
           >
-            <MaterialIcons name="delete" size={24} color="#f44336" />
+            <MaterialIcons name="delete" size={24} color="#E91E63" />
           </TouchableOpacity>
         </View>
       </View>
@@ -291,50 +295,73 @@ export default function RecordingsScreen() {
   
   if (loading) {
     return (
-      <ThemedView style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2196f3" />
-      </ThemedView>
+      <AppBackground>
+        <ThemedLayout>
+          <View style={styles.centerContainer}>
+            <ActivityIndicator size="large" color="#1DB954" />
+          </View>
+        </ThemedLayout>
+      </AppBackground>
     );
   }
   
   if (error) {
     return (
-      <ThemedView style={styles.centerContainer}>
-        <ThemedText style={styles.errorText}>{error}</ThemedText>
-        <TouchableOpacity 
-          style={styles.retryButton} 
-          onPress={() => loadRecordings(true)}
-        >
-          <ThemedText style={styles.retryText}>Retry</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
+      <AppBackground>
+        <ThemedLayout>
+          <View style={styles.centerContainer}>
+            <ThemedText style={styles.errorText}>{error}</ThemedText>
+            <TouchableOpacity 
+              style={styles.retryButton} 
+              onPress={() => loadRecordings(true)}
+            >
+              <ThemedText style={styles.retryText}>Retry</ThemedText>
+            </TouchableOpacity>
+          </View>
+        </ThemedLayout>
+      </AppBackground>
     );
   }
   
   if (recordings.length === 0) {
     return (
-      <ThemedView style={styles.centerContainer}>
-        <MaterialIcons name="audiotrack" size={48} color="#aaa" />
-        <ThemedText style={styles.emptyText}>No recordings yet</ThemedText>
-        <ThemedText style={styles.emptySubtext}>
-          Create a new recording by going to the Record tab
-        </ThemedText>
-      </ThemedView>
+      <AppBackground>
+        <ThemedLayout>
+          <View style={styles.centerContainer}>
+            <MaterialIcons name="audiotrack" size={56} color="#1DB954" style={{opacity: 0.6, marginBottom: 16}} />
+            <ThemedText style={styles.emptyText}>No recordings yet</ThemedText>
+            <ThemedText style={styles.emptySubtext}>
+              Create a new recording by going to the Record tab
+            </ThemedText>
+            <TouchableOpacity
+              style={styles.createButton}
+              onPress={() => router.push('/record')}
+            >
+              <MaterialIcons name="mic" size={20} color="#fff" />
+              <Text style={styles.createButtonText}>Record Now</Text>
+            </TouchableOpacity>
+          </View>
+        </ThemedLayout>
+      </AppBackground>
     );
   }
   
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>Your Recordings</ThemedText>
-      
-      <FlatList
-        data={recordings}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
-    </ThemedView>
+    <AppBackground>
+      <ThemedLayout>
+        <View style={styles.container}>
+          <ThemedText type="title" style={styles.title}>Your Recordings</ThemedText>
+          
+          <FlatList
+            data={recordings}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.list}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      </ThemedLayout>
+    </AppBackground>
   );
 }
 
@@ -360,38 +387,50 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    borderColor: 'rgba(30, 185, 84, 0.3)',
+    borderRadius: 16,
     marginBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(47, 42, 75, 0.8)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 2,
   },
   recordingInfo: {
     flex: 1,
+    paddingRight: 8,
   },
   recordingTitle: {
     fontSize: 16,
-    marginBottom: 4,
+    fontWeight: '600',
+    marginBottom: 6,
+    color: '#E0E0E0',
   },
   recordingDescription: {
     fontSize: 14,
     marginBottom: 8,
-    color: '#666',
+    color: '#A0AEC0',
+    lineHeight: 20,
   },
   recordingMeta: {
     fontSize: 12,
-    color: '#888',
+    color: '#A0AEC0',
   },
   recordingActions: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   actionButton: {
-    padding: 8,
-    marginLeft: 8,
-    borderRadius: 20,
+    padding: 12,
+    marginLeft: 10,
+    borderRadius: 30,
+    backgroundColor: 'rgba(30, 30, 50, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   activeButton: {
-    backgroundColor: '#2196f3',
+    backgroundColor: '#1DB954',
   },
   errorText: {
     marginBottom: 16,
@@ -401,20 +440,40 @@ const styles = StyleSheet.create({
   retryButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: '#2196f3',
-    borderRadius: 4,
+    backgroundColor: '#1DB954',
+    borderRadius: 8,
+    marginTop: 12,
   },
   retryText: {
     color: '#fff',
+    fontWeight: '600',
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: 22,
+    fontWeight: 'bold',
     marginTop: 16,
     marginBottom: 8,
+    color: '#E0E0E0',
   },
   emptySubtext: {
     textAlign: 'center',
-    color: '#888',
-    maxWidth: 240,
+    color: '#A0AEC0',
+    marginBottom: 24,
+    maxWidth: 260,
+    lineHeight: 20,
+  },
+  createButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1DB954',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    marginTop: 8,
+  },
+  createButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    marginLeft: 8,
   },
 }); 

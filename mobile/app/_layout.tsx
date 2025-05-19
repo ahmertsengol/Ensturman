@@ -87,12 +87,18 @@ export default function RootLayout() {
       <SafeAreaProvider onLayout={onLayoutRootView}>
         <PaperProvider theme={theme}>
           <NavigationThemeProvider value={navigationTheme}>
-            <Stack screenOptions={{ headerShown: false }}>
+            <Stack 
+              screenOptions={{ 
+                headerShown: false,
+                contentStyle: { backgroundColor: '#191729' },
+                animation: 'fade',
+              }}
+            >
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
             </Stack>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
+            <StatusBar style="light" />
           </NavigationThemeProvider>
         </PaperProvider>
       </SafeAreaProvider>

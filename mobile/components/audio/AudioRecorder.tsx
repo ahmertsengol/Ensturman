@@ -6,6 +6,7 @@ import * as FileSystem from 'expo-file-system';
 import { useRouter } from 'expo-router';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedLayout } from '@/components/ThemedLayout';
 import AudioRecorder from '@/utils/AudioRecorder';
 import { uploadAudio } from '@/api/api';
 
@@ -405,152 +406,162 @@ export default function AudioRecorderComponent() {
   // Render based on current step
   if (recordingStep === 'initial') {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText style={styles.heading}>Record Audio</ThemedText>
-        <ThemedText style={styles.subheading}>Tap the microphone to start recording</ThemedText>
-        
-        <TouchableOpacity
-          style={styles.recordButton}
-          onPress={startRecording}
-        >
-          <MaterialIcons name="mic" size={40} color="white" />
-        </TouchableOpacity>
-      </ThemedView>
+      <ThemedLayout>
+        <View style={styles.container}>
+          <ThemedText style={styles.heading}>Record Audio</ThemedText>
+          <ThemedText style={styles.subheading}>Tap the microphone to start recording</ThemedText>
+          
+          <TouchableOpacity
+            style={styles.recordButton}
+            onPress={startRecording}
+          >
+            <MaterialIcons name="mic" size={40} color="white" />
+          </TouchableOpacity>
+        </View>
+      </ThemedLayout>
     );
   }
   
   if (recordingStep === 'recording') {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText style={styles.heading}>Recording...</ThemedText>
-        <ThemedText style={styles.timer}>{formatTime(recordingDuration)}</ThemedText>
-        
-        {/* Animated recording wave effect */}
-        <RecordingWaves />
-        
-        <Animated.View style={{
-          transform: [{ scale: pulseAnim }]
-        }}>
+      <ThemedLayout>
+        <View style={styles.container}>
+          <ThemedText style={styles.heading}>Recording...</ThemedText>
+          <ThemedText style={styles.timer}>{formatTime(recordingDuration)}</ThemedText>
+          
+          {/* Animated recording wave effect */}
+          <RecordingWaves />
+          
+          <Animated.View style={{
+            transform: [{ scale: pulseAnim }]
+          }}>
+            <TouchableOpacity
+              style={styles.stopButton}
+              onPress={stopRecording}
+            >
+              <MaterialIcons name="stop" size={40} color="white" />
+            </TouchableOpacity>
+          </Animated.View>
+          
           <TouchableOpacity
-            style={styles.stopButton}
-            onPress={stopRecording}
+            style={styles.cancelButton}
+            onPress={cancelRecording}
           >
-            <MaterialIcons name="stop" size={40} color="white" />
+            <MaterialIcons name="close" size={24} color="#E91E63" />
+            <ThemedText style={styles.cancelText}>Cancel</ThemedText>
           </TouchableOpacity>
-        </Animated.View>
-        
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={cancelRecording}
-        >
-          <MaterialIcons name="close" size={24} color="#FF3B30" />
-          <ThemedText style={styles.cancelText}>Cancel</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
+        </View>
+      </ThemedLayout>
     );
   }
   
   if (recordingStep === 'preview') {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText style={styles.heading}>Preview Recording</ThemedText>
-        
-        <ThemedView style={styles.previewContainer}>
-          <ThemedText style={styles.durationText}>
-            Duration: {formatTime(recordingDuration)}
-          </ThemedText>
+      <ThemedLayout>
+        <View style={styles.container}>
+          <ThemedText style={styles.heading}>Preview Recording</ThemedText>
           
-          <TouchableOpacity
-            style={styles.playButton}
-            onPress={playRecording}
-          >
-            <MaterialIcons
-              name={isPlaying ? "pause" : "play-arrow"}
-              size={36}
-              color="white" 
-            />
-            <Text style={styles.buttonText}>
-              {isPlaying ? "Pause" : "Play"}
-            </Text>
-          </TouchableOpacity>
-        
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: '#777' }]}
-            onPress={cancelRecording}
-          >
-              <MaterialIcons name="delete" size={24} color="white" />
-            <Text style={styles.buttonText}>Discard</Text>
-          </TouchableOpacity>
+          <View style={styles.previewContainer}>
+            <ThemedText style={styles.durationText}>
+              Duration: {formatTime(recordingDuration)}
+            </ThemedText>
+            
+            <TouchableOpacity
+              style={styles.playButton}
+              onPress={playRecording}
+            >
+              <MaterialIcons
+                name={isPlaying ? "pause" : "play-arrow"}
+                size={36}
+                color="white" 
+              />
+              <Text style={styles.buttonText}>
+                {isPlaying ? "Pause" : "Play"}
+              </Text>
+            </TouchableOpacity>
           
-          <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: '#4caf50' }]}
-            onPress={proceedToSubmit}
-          >
-              <MaterialIcons name="save" size={24} color="white" />
-              <Text style={styles.buttonText}>Save</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: 'rgba(47, 42, 75, 0.8)' }]}
+              onPress={cancelRecording}
+            >
+                <MaterialIcons name="delete" size={24} color="#E91E63" />
+              <Text style={[styles.buttonText, { color: '#E91E63' }]}>Discard</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: '#1DB954' }]}
+              onPress={proceedToSubmit}
+            >
+                <MaterialIcons name="save" size={24} color="white" />
+                <Text style={styles.buttonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+          </View>
         </View>
-        </ThemedView>
-      </ThemedView>
+      </ThemedLayout>
     );
   }
   
   if (recordingStep === 'submit') {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText style={styles.heading}>Save Recording</ThemedText>
-        
-        <ThemedView style={styles.inputContainer}>
-          <ThemedText>Title</ThemedText>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter a title for your recording"
-            value={title}
-            onChangeText={setTitle}
-          />
-        </ThemedView>
+      <ThemedLayout>
+        <View style={styles.container}>
+          <ThemedText style={styles.heading}>Save Recording</ThemedText>
           
-        <ThemedView style={styles.inputContainer}>
-          <ThemedText>Description (optional)</ThemedText>
-          <TextInput
-            style={[styles.input, styles.descriptionInput]}
-            placeholder="Add a description"
-            value={description}
-            onChangeText={setDescription}
-            multiline
-          />
-        </ThemedView>
-          
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: '#777' }]}
-            onPress={cancelRecording}
-            >
-            <MaterialIcons name="close" size={24} color="white" />
-            <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
+          <View style={styles.inputContainer}>
+            <ThemedText>Title</ThemedText>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter a title for your recording"
+              placeholderTextColor="#A0AEC0"
+              value={title}
+              onChangeText={setTitle}
+            />
+          </View>
             
-            <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: '#4caf50' }]}
-              onPress={submitRecording}
-              disabled={isSubmitting}
-            >
-            <MaterialIcons name="check" size={24} color="white" />
-            <Text style={styles.buttonText}>
-              {isSubmitting ? "Saving..." : "Submit"}
-            </Text>
-            </TouchableOpacity>
+          <View style={styles.inputContainer}>
+            <ThemedText>Description (optional)</ThemedText>
+            <TextInput
+              style={[styles.input, styles.descriptionInput]}
+              placeholder="Add a description"
+              placeholderTextColor="#A0AEC0"
+              value={description}
+              onChangeText={setDescription}
+              multiline
+            />
+          </View>
+            
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: 'rgba(47, 42, 75, 0.8)' }]}
+              onPress={cancelRecording}
+              >
+              <MaterialIcons name="close" size={24} color="#E91E63" />
+              <Text style={[styles.buttonText, { color: '#E91E63' }]}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: '#1DB954' }]}
+                onPress={submitRecording}
+                disabled={isSubmitting}
+              >
+              <MaterialIcons name="check" size={24} color="white" />
+              <Text style={styles.buttonText}>
+                {isSubmitting ? "Saving..." : "Submit"}
+              </Text>
+              </TouchableOpacity>
+          </View>
+          
+          {isSubmitting && (
+            <ActivityIndicator 
+              size="large" 
+              color="#1DB954" 
+              style={{ marginTop: 20 }} 
+            />
+          )}
         </View>
-        
-        {isSubmitting && (
-          <ActivityIndicator 
-            size="large" 
-            color="#4caf50" 
-            style={{ marginTop: 20 }} 
-          />
-        )}
-      </ThemedView>
+      </ThemedLayout>
     );
   }
   
@@ -577,7 +588,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#1DB954',
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 20,
@@ -600,7 +611,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#f44336',
+    backgroundColor: '#1DB954',
     opacity: 0.8,
   },
   buttonRow: {
@@ -621,6 +632,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
+    minWidth: 120,
   },
   cancelButton: {
     flexDirection: 'row',
@@ -632,7 +644,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#E91E63',
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 20,
@@ -649,10 +661,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     marginLeft: 8,
+    fontSize: 15,
   },
   previewContainer: {
     alignItems: 'center',
     marginVertical: 30,
+    padding: 20,
+    backgroundColor: 'rgba(47, 42, 75, 0.8)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(30, 185, 84, 0.3)',
+    width: '100%',
+    maxWidth: 500,
   },
   playButton: {
     flexDirection: 'row',
@@ -660,17 +680,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 15,
     borderRadius: 40,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#1DB954',
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
+    minWidth: 150,
   },
   durationText: {
     fontSize: 18,
     marginVertical: 20,
+    color: '#E0E0E0',
+    fontWeight: '500',
   },
   formContainer: {
     width: '100%',
@@ -678,11 +701,14 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
+    borderColor: 'rgba(30, 185, 84, 0.3)',
+    borderRadius: 12,
+    padding: 14,
     marginTop: 8,
     fontSize: 16,
+    backgroundColor: 'rgba(30, 30, 50, 0.6)',
+    color: '#E0E0E0',
+    fontWeight: '500',
   },
   textArea: {
     height: 100,
@@ -702,28 +728,33 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#1DB954',
     opacity: 0.2,
   },
   heading: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: 'center',
+    color: '#E0E0E0',
   },
   subheading: {
     marginBottom: 30,
     textAlign: 'center',
     opacity: 0.7,
+    fontSize: 16,
+    color: '#A0AEC0',
+    lineHeight: 22,
   },
   timer: {
     fontSize: 48,
     fontVariant: ['tabular-nums'],
     marginBottom: 20,
     fontWeight: 'bold',
+    color: '#E0E0E0',
   },
   cancelText: {
-    color: '#FF3B30',
+    color: '#E91E63',
     marginLeft: 8,
     fontSize: 16,
   },
@@ -731,6 +762,11 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     marginBottom: 20,
+    padding: 16,
+    backgroundColor: 'rgba(47, 42, 75, 0.8)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(30, 185, 84, 0.3)',
   },
   descriptionInput: {
     height: 100,

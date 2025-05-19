@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedView } from '@/components/ThemedView';
+import { ThemedLayout } from '@/components/ThemedLayout';
 import AudioRecorderComponent from '@/components/audio/AudioRecorder';
 import { useAuth } from '@/context/AuthContext';
+import AppBackground from '@/components/AppBackground';
 
 export default function RecordScreen() {
   const { isAuthenticated, loading } = useAuth();
@@ -17,13 +19,23 @@ export default function RecordScreen() {
   }, [loading, isAuthenticated]);
   
   if (loading) {
-    return <ThemedView style={styles.container} />;
+    return (
+      <AppBackground>
+        <ThemedLayout>
+          <View style={styles.container} />
+        </ThemedLayout>
+      </AppBackground>
+    );
   }
   
   return (
-    <ThemedView style={styles.container}>
-      <AudioRecorderComponent />
-    </ThemedView>
+    <AppBackground>
+      <ThemedLayout>
+        <View style={styles.container}>
+          <AudioRecorderComponent />
+        </View>
+      </ThemedLayout>
+    </AppBackground>
   );
 }
 

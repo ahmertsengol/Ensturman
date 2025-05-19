@@ -1,110 +1,147 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+// mobile/app/(tabs)/explore.tsx
+import React from 'react';
+import { StyleSheet, View, ScrollView } from 'react-native';
+import { Text, Card, Chip, Button, useTheme } from 'react-native-paper';
+import * as Animatable from 'react-native-animatable';
+import { ThemedLayout } from '@/components/ThemedLayout';
+import AppBackground from '@/components/AppBackground';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
+  const theme = useTheme();
+  const brandColor = '#1DB954'; // Spotify green
+  const accentColor = '#E91E63'; // Pink
+  
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="default" style={{fontWeight: '600'}}>app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="default" style={{fontWeight: '600'}}>app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="default" style={{fontWeight: '600'}}>app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="default">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="default" style={{fontWeight: '600'}}>w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="default" style={{fontWeight: '600'}}>@2x</ThemedText> and{' '}
-          <ThemedText type="default" style={{fontWeight: '600'}}>@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="default">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="default" style={{fontWeight: '600'}}>app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="default">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="default" style={{fontWeight: '600'}}>useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="default">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="default" style={{fontWeight: '600'}}>components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="default" style={{fontWeight: '600'}}>react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="default" style={{fontWeight: '600'}}>components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <AppBackground>
+      <ThemedLayout>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Animatable.View animation="fadeInUp" delay={300}>
+            <Text style={styles.sectionTitle}>Training Modules</Text>
+            
+            <Card style={styles.moduleCard} mode="elevated">
+              <Card.Content>
+                <Text style={styles.cardTitle}>Beginner Pitch Training</Text>
+                <Text style={styles.cardDescription}>
+                  Learn to recognize and reproduce basic musical pitches
+                </Text>
+                <View style={styles.chipContainer}>
+                  <Chip style={[styles.chip, {backgroundColor: 'rgba(30, 185, 84, 0.2)'}]} textStyle={{color: brandColor}}>
+                    Beginner
+                  </Chip>
+                  <Chip style={[styles.chip, {backgroundColor: 'rgba(233, 30, 99, 0.2)'}]} textStyle={{color: accentColor}}>
+                    15 minutes
+                  </Chip>
+                </View>
+              </Card.Content>
+              <Card.Actions>
+                <Button
+                  buttonColor={brandColor}
+                  textColor="#fff"
+                  mode="contained"
+                >
+                  Start
+                </Button>
+              </Card.Actions>
+            </Card>
+            
+            <Card style={styles.moduleCard} mode="elevated">
+              <Card.Content>
+                <Text style={styles.cardTitle}>Intermediate Scale Training</Text>
+                <Text style={styles.cardDescription}>
+                  Practice major and minor scales with real-time feedback
+                </Text>
+                <View style={styles.chipContainer}>
+                  <Chip style={[styles.chip, {backgroundColor: 'rgba(233, 30, 99, 0.2)'}]} textStyle={{color: accentColor}}>
+                    Intermediate
+                  </Chip>
+                  <Chip style={[styles.chip, {backgroundColor: 'rgba(30, 185, 84, 0.2)'}]} textStyle={{color: brandColor}}>
+                    20 minutes
+                  </Chip>
+                </View>
+              </Card.Content>
+              <Card.Actions>
+                <Button
+                  buttonColor={brandColor}
+                  textColor="#fff"
+                  mode="contained"
+                >
+                  Start
+                </Button>
+              </Card.Actions>
+            </Card>
+            
+            <Text style={styles.sectionTitle}>Community</Text>
+            
+            <Card style={styles.communityCard} mode="elevated">
+              <Card.Content>
+                <Text style={styles.cardDescription}>
+                  Join our community to share recordings and get feedback from other musicians.
+                </Text>
+              </Card.Content>
+              <Card.Actions>
+                <Button
+                  buttonColor="transparent"
+                  textColor={brandColor}
+                  mode="outlined"
+                  style={styles.outlinedButton}
+                >
+                  Learn More
+                </Button>
+              </Card.Actions>
+            </Card>
+          </Animatable.View>
+        </ScrollView>
+      </ThemedLayout>
+    </AppBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 16,
   },
-  titleContainer: {
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#E0E0E0',
+    marginVertical: 16,
+  },
+  moduleCard: {
+    backgroundColor: 'rgba(47, 42, 75, 0.8)',
+    marginBottom: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#1DB954',
+  },
+  communityCard: {
+    backgroundColor: 'rgba(47, 42, 75, 0.8)',
+    marginBottom: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#E91E63',
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#E0E0E0',
+    marginBottom: 8,
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: '#A0AEC0',
+    marginBottom: 12,
+  },
+  chipContainer: {
     flexDirection: 'row',
-    gap: 8,
+    marginVertical: 8,
+  },
+  chip: {
+    marginRight: 8,
+    borderWidth: 0,
+  },
+  outlinedButton: {
+    borderColor: '#1DB954',
+    borderWidth: 1,
   },
 });

@@ -1,75 +1,135 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+// mobile/app/(tabs)/index.tsx
+import React from 'react';
+import { StyleSheet, View, ScrollView } from 'react-native';
+import { Text, Card, Button, Surface, useTheme } from 'react-native-paper';
+import * as Animatable from 'react-native-animatable';
+import { ThemedLayout } from '@/components/ThemedLayout';
+import AppBackground from '@/components/AppBackground';
 
 export default function HomeScreen() {
+  const theme = useTheme();
+  const brandColor = '#1DB954'; // Spotify green
+  
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="default" style={{fontWeight: '600'}}>app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="default" style={{fontWeight: '600'}}>
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="default" style={{fontWeight: '600'}}>npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="default" style={{fontWeight: '600'}}>app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="default" style={{fontWeight: '600'}}>app</ThemedText> to{' '}
-          <ThemedText type="default" style={{fontWeight: '600'}}>app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <AppBackground>
+      <ThemedLayout>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Animatable.View animation="fadeInUp" delay={300}>
+            <Text style={styles.welcomeText}>
+              Welcome to <Text style={styles.brandText}>Audio Recorder</Text>
+            </Text>
+            
+            <Text style={styles.subtitle}>
+              Record, analyze, and improve your music
+            </Text>
+          </Animatable.View>
+          
+          <Animatable.View animation="fadeInUp" delay={600}>
+            <Surface style={styles.cardContainer}>
+              <Text style={styles.sectionTitle}>Quick Actions</Text>
+              
+              <View style={styles.cardsRow}>
+                <Card style={styles.actionCard} mode="elevated">
+                  <Card.Content>
+                    <Text style={styles.cardTitle}>New Recording</Text>
+                  </Card.Content>
+                  <Card.Actions>
+                    <Button
+                      buttonColor={brandColor}
+                      textColor="#fff"
+                      mode="contained"
+                    >
+                      Record
+                    </Button>
+                  </Card.Actions>
+                </Card>
+                
+                <Card style={styles.actionCard} mode="elevated">
+                  <Card.Content>
+                    <Text style={styles.cardTitle}>Training</Text>
+                  </Card.Content>
+                  <Card.Actions>
+                    <Button
+                      buttonColor={brandColor}
+                      textColor="#fff"
+                      mode="contained"
+                    >
+                      Start
+                    </Button>
+                  </Card.Actions>
+                </Card>
+              </View>
+              
+              <Text style={styles.sectionTitle}>Recent Recordings</Text>
+              
+              <Card style={styles.listCard} mode="elevated">
+                <Card.Content>
+                  <Text style={styles.emptyText}>No recent recordings found</Text>
+                </Card.Content>
+              </Card>
+            </Surface>
+          </Animatable.View>
+        </ScrollView>
+      </ThemedLayout>
+    </AppBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 16,
   },
-  stepContainer: {
-    gap: 8,
+  welcomeText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#E0E0E0',
+    textAlign: 'center',
+    marginVertical: 16,
+  },
+  brandText: {
+    color: '#1DB954', // Spotify green
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#A0AEC0',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  cardContainer: {
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: 'rgba(47, 42, 75, 0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(30, 185, 84, 0.3)',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#E0E0E0',
+    marginVertical: 12,
+  },
+  cardsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  actionCard: {
+    width: '47%',
+    backgroundColor: 'rgba(25, 23, 41, 0.8)',
+  },
+  cardTitle: {
+    fontSize: 16,
+    color: '#E0E0E0',
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  listCard: {
+    backgroundColor: 'rgba(25, 23, 41, 0.8)',
+    marginBottom: 16,
+  },
+  emptyText: {
+    color: '#A0AEC0',
+    textAlign: 'center',
+    padding: 16,
   },
 });
