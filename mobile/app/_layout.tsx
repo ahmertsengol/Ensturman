@@ -1,14 +1,15 @@
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
-import { useCallback, useEffect } from 'react';
-import { Platform, useColorScheme as useRNColorScheme } from 'react-native';
-import 'react-native-gesture-handler';
-import { PaperProvider } from 'react-native-paper';
+import { useEffect, useCallback } from 'react';
+import { Platform, useColorScheme } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
+import { PaperProvider } from 'react-native-paper';
+import { AuthProvider } from '../context/AuthContext';
+import { ChatbotProvider } from '../context/ChatbotContext';
 import { 
   useFonts as useGoogleFonts,
   Inter_400Regular,
@@ -16,16 +17,12 @@ import {
   Inter_600SemiBold,
   Inter_700Bold
 } from '@expo-google-fonts/inter';
-
 import {
   Poppins_400Regular,
   Poppins_500Medium,
   Poppins_600SemiBold,
   Poppins_700Bold
 } from '@expo-google-fonts/poppins';
-
-import { AuthProvider } from '@/context/AuthContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { 
   CustomDarkTheme, 
   CustomLightTheme, 
@@ -38,11 +35,11 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const systemColorScheme = useRNColorScheme();
   
   // Load custom fonts and space mono
   const [fontsLoaded, fontError] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    ...FontAwesome.font,
   });
   
   // Load Google fonts
@@ -84,24 +81,26 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <SafeAreaProvider onLayout={onLayoutRootView}>
-        <PaperProvider theme={theme}>
-          <NavigationThemeProvider value={navigationTheme}>
-            <Stack 
-              screenOptions={{ 
-                headerShown: false,
-                contentStyle: { backgroundColor: '#191729' },
-                animation: 'fade',
-              }}
-            >
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-            <StatusBar style="light" />
-          </NavigationThemeProvider>
-        </PaperProvider>
-      </SafeAreaProvider>
+      <ChatbotProvider>
+        <SafeAreaProvider onLayout={onLayoutRootView}>
+          <PaperProvider theme={theme}>
+            <NavigationThemeProvider value={navigationTheme}>
+              <Stack 
+                screenOptions={{ 
+                  headerShown: false,
+                  contentStyle: { backgroundColor: '#191729' },
+                  animation: 'fade',
+                }}
+              >
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="+not-found" />
+              </Stack>
+              <StatusBar style="light" />
+            </NavigationThemeProvider>
+          </PaperProvider>
+        </SafeAreaProvider>
+      </ChatbotProvider>
     </AuthProvider>
   );
 }

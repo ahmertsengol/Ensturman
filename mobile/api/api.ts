@@ -11,7 +11,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // !!! macOS: ifconfig | grep "inet " | grep -v 127.0.0.1             !!!
 // !!! Windows: ipconfig (IPv4 Address)                                 !!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-const LOCAL_IP = '192.168.1.5'; // Kullanıcının sağladığı IP adresi ile güncellendi
+//const LOCAL_IP = '192.168.1.5'; // Kullanıcının sağladığı IP adresi ile güncellendi
+const LOCAL_IP = '172.20.10.2'; // Güncel IP adresi ile güncellendi
 
 // Backend host configuration - EXPO GO ile test edilen fiziksel cihazlar için basitleştirilmiş
 // Her durumda LOCAL_IP kullanılacak şekilde ayarlandı - Expo Go için kesin çözüm
