@@ -1,14 +1,28 @@
-import { GoogleGenerativeAI, type ChatSession } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize the Gemini API with your API key
-const API_KEY = "AIzaSyD1JChEFUKKLOrSnP7AESKgJaQKJ2muPKI";
-const genAI = new GoogleGenerativeAI(API_KEY);
+// API key - Web projesindeki ile aynı
+const API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(API_KEY as string);
+
+// Chat session interface
+export interface ChatSession {
+  sendMessage: (message: string) => Promise<any>;
+}
+
+// Network error checker
+const isNetworkError = (error: any): boolean => {
+  const errorMessage = error?.message?.toLowerCase() || '';
+  return errorMessage.includes('network') || 
+         errorMessage.includes('fetch') || 
+         errorMessage.includes('connection') ||
+         errorMessage.includes('timeout');
+};
 
 // Create a chat session with history
 export const createChatSession = async (): Promise<ChatSession> => {
   try {
-    // Change to gemini-2.0-flash model which has higher quota limits
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    // Use gemini-pro model which is more stable for mobile
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     
     // Create a chat without system instruction (will be added in the first message)
     const chat = model.startChat({
@@ -24,6 +38,9 @@ export const createChatSession = async (): Promise<ChatSession> => {
     return chat;
   } catch (error) {
     console.error("Error creating chat session:", error);
+    if (isNetworkError(error)) {
+      throw new Error("İnternet bağlantısı sorunu. Lütfen internet bağlantınızı kontrol edin.");
+    }
     throw error;
   }
 };
@@ -36,6 +53,9 @@ export const sendMessage = async (chat: ChatSession, message: string): Promise<s
     return response.text();
   } catch (error) {
     console.error("Error sending message to Gemini API:", error);
+    if (isNetworkError(error)) {
+      throw new Error("İnternet bağlantısı sorunu. Lütfen internet bağlantınızı kontrol edin.");
+    }
     throw error;
   }
 };
@@ -47,20 +67,23 @@ export const initializeChatWithGreeting = async (): Promise<{ chat: ChatSession;
     
     // Use a system instruction as the first message from the "user"
     const initialPrompt = `
-You are a helpful assistant for a music learning mobile application.
-Please help users with finding training modules, understanding audio recording features, 
-explaining pitch detection, providing music tips, navigating the app, and troubleshooting issues.
+Sen bir müzik öğrenme mobil uygulaması için yardımcı bir asistansın.
+Kullanıcılara eğitim modülleri bulma, ses kaydetme özelliklerini anlama, 
+perde tespit etme, müzik ipuçları sağlama, uygulamada gezinme ve sorun giderme konularında yardımcı ol.
 
-The application includes audio recording, real-time pitch detection, training modules, 
-user profiles, and a performance dashboard.
+Uygulama ses kaydetme, gerçek zamanlı perde tespit, eğitim modülleri, 
+kullanıcı profilleri ve performans paneli içeriyor.
 
-Please introduce yourself as a music learning assistant.
+Lütfen kendini bir müzik öğrenme asistanı olarak tanıt. Türkçe konuş.
 `;
     
     const greeting = await sendMessage(chat, initialPrompt);
     return { chat, greeting };
   } catch (error) {
     console.error("Error initializing chat with greeting:", error);
+    if (isNetworkError(error)) {
+      throw new Error("İnternet bağlantısı sorunu. Lütfen internet bağlantınızı kontrol edin.");
+    }
     throw error;
   }
 }; 

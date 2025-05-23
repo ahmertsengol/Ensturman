@@ -2,12 +2,15 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useColorScheme } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import Chatbot from '../../components/Chatbot';
+import { Colors } from '../../constants/Colors';
+import MusicChatbot from '../../components/ui/MusicChatbot';
 
 export default function TabsLayout() {
+  const colorScheme = useColorScheme();
   const theme = useTheme();
-  const brandColor = '#1DB954'; // Spotify green
+  const brandColor = '#9C27B0';
 
   return (
     <>
@@ -35,6 +38,7 @@ export default function TabsLayout() {
             fontWeight: 'bold',
           },
           headerTitle: 'EnsAI',
+          headerShown: false,
         }}
       >
         <Tabs.Screen
@@ -83,9 +87,7 @@ export default function TabsLayout() {
           }}
         />
       </Tabs>
-      
-      {/* Global Chatbot Component */}
-      <Chatbot />
+      <MusicChatbot />
     </>
   );
 }

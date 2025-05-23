@@ -12,7 +12,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // !!! Windows: ipconfig (IPv4 Address)                                 !!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //const LOCAL_IP = '192.168.1.5'; // Kullanıcının sağladığı IP adresi ile güncellendi
-const LOCAL_IP = '172.20.10.2'; // Güncel IP adresi ile güncellendi
+//const LOCAL_IP = '172.20.10.2'; // Güncel IP adresi ile güncellendi
+const LOCAL_IP = '192.168.1.2'; // Lokal ağdaki IP adresi - ifconfig çıktısına göre güncellendi
 
 // Backend host configuration - EXPO GO ile test edilen fiziksel cihazlar için basitleştirilmiş
 // Her durumda LOCAL_IP kullanılacak şekilde ayarlandı - Expo Go için kesin çözüm
@@ -29,7 +30,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   },
-  timeout: 30000, // 30 second timeout
+  timeout: 10000, // Reducing timeout from 30 seconds to 10 seconds for faster error feedback
   // Retry logic
   validateStatus: (status) => status < 500 // Don't reject if status is less than 500
 });

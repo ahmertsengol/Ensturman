@@ -21,7 +21,6 @@ import Animated, {
   withRepeat,
   Easing
 } from 'react-native-reanimated';
-import { FlashList } from '@shopify/flash-list';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';

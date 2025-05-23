@@ -29,6 +29,7 @@ import {
   NavigationDarkTheme, 
   NavigationLightTheme 
 } from '@/constants/Theme';
+import 'react-native-reanimated';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
