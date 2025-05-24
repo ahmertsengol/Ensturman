@@ -142,8 +142,8 @@ const ProfilePage = () => {
     // For now, we'll just show a success toast
     
     toast({
-      title: 'Profil güncellendi',
-      description: 'Profil bilgileriniz başarıyla güncellendi.',
+      title: 'Profile Updated',
+      description: 'Your profile information has been updated successfully.',
       status: 'success',
       duration: 3000,
       isClosable: true,
@@ -196,7 +196,7 @@ const ProfilePage = () => {
             >
               <FaHeadphones size="24px" />
             </Box>
-            <Heading as="h1" size="xl" color={textColor}>Müzik Profili</Heading>
+            <Heading as="h1" size="xl" color={textColor}>Music Profile</Heading>
           </HStack>
           
           {/* Audio Equalizer - Only shows when playing */}
@@ -278,15 +278,15 @@ const ProfilePage = () => {
             <VStack spacing={6} align="stretch">
               <Box>
                 <Heading size="sm" mb={4} color={textColor} display="flex" alignItems="center">
-                  <FaUserAlt style={{ marginRight: '8px' }} /> Hesap Bilgileri
+                  <FaUserAlt style={{ marginRight: '8px' }} /> Account Information
                 </Heading>
                 <SimpleGrid columns={2} spacing={4} bg="dark.400" p={4} borderRadius="md">
                   <Stat>
-                    <StatLabel color={mutedTextColor}>Kullanıcı ID</StatLabel>
+                    <StatLabel color={mutedTextColor}>User ID</StatLabel>
                     <StatNumber fontSize="sm" color={textColor}>{currentUser.id}</StatNumber>
                   </Stat>
                   <Stat>
-                    <StatLabel color={mutedTextColor}>Kayıt Tarihi</StatLabel>
+                    <StatLabel color={mutedTextColor}>Registration Date</StatLabel>
                     <StatNumber fontSize="sm" color={textColor}>{formatDate(currentUser.created_at)}</StatNumber>
                   </Stat>
                 </SimpleGrid>
@@ -302,7 +302,7 @@ const ProfilePage = () => {
                 _hover={{ bg: accentColor, transform: "scale(1.02)" }}
                 transition="all 0.2s ease"
               >
-                Profili Düzenle
+                Edit Profile
               </Button>
             </VStack>
           </CardBody>
@@ -322,7 +322,7 @@ const ProfilePage = () => {
           <CardHeader>
             <Heading size="md" color={textColor} display="flex" alignItems="center">
               <FaMusic style={{ marginRight: '8px' }} />
-              Ses Kayıtları İstatistikleri
+              Recording Statistics
             </Heading>
           </CardHeader>
           
@@ -350,15 +350,15 @@ const ProfilePage = () => {
             
             <SimpleGrid columns={2} spacing={6} my={4}>
               <Stat bg="dark.400" p={4} borderRadius="md" textAlign="center">
-                <StatLabel color={mutedTextColor}>Toplam Kayıt</StatLabel>
+                <StatLabel color={mutedTextColor}>Total Recordings</StatLabel>
                 <StatNumber fontSize="2xl" color={accentColor} fontWeight="bold">
                   {currentUser.recordingCount || 0}
                 </StatNumber>
               </Stat>
               <Stat bg="dark.400" p={4} borderRadius="md" textAlign="center">
-                <StatLabel color={mutedTextColor}>Toplam Süre</StatLabel>
+                <StatLabel color={mutedTextColor}>Total Duration</StatLabel>
                 <StatNumber fontSize="2xl" color={accentColor2} fontWeight="bold">
-                  {currentUser.totalRecordingTime || '0 dk'}
+                  {currentUser.totalRecordingTime || '0 min'}
                 </StatNumber>
               </Stat>
             </SimpleGrid>
@@ -367,15 +367,15 @@ const ProfilePage = () => {
             
             <VStack spacing={4} align="stretch" bg="dark.400" p={4} borderRadius="md">
               <Text fontWeight="medium" color={textColor} display="flex" alignItems="center">
-                <FaMicrophone style={{ marginRight: '8px' }} /> Son Aktiviteler
+                <FaMicrophone style={{ marginRight: '8px' }} /> Recent Activities
               </Text>
               {/* Here you could map through recent activities */}
               <HStack>
                 <FaWaveSquare color={accentColor} />
                 <Text color={mutedTextColor}>
                   {currentUser.lastActivity 
-                    ? `Son aktivite: ${formatDate(currentUser.lastActivity)}`
-                    : 'Henüz bir aktivite yok'
+                    ? `Last activity: ${formatDate(currentUser.lastActivity)}`
+                    : 'No activities yet'
                   }
                 </Text>
               </HStack>
@@ -398,7 +398,7 @@ const ProfilePage = () => {
           <DrawerHeader borderBottomWidth="1px" borderColor={borderColor}>
             <HStack>
               <FaEdit style={{ marginRight: '8px' }} />
-              <Text>Profil Bilgilerini Düzenle</Text>
+              <Text>Edit Profile Information</Text>
             </HStack>
           </DrawerHeader>
 
@@ -406,7 +406,7 @@ const ProfilePage = () => {
             <form id="edit-profile-form" onSubmit={handleSubmit}>
               <VStack spacing={6} mt={4}>
                 <FormControl id="username">
-                  <FormLabel color={mutedTextColor}>Kullanıcı Adı</FormLabel>
+                  <FormLabel color={mutedTextColor}>Username</FormLabel>
                   <Input 
                     name="username"
                     value={formData.username}
@@ -422,7 +422,7 @@ const ProfilePage = () => {
                 </FormControl>
                 
                 <FormControl id="email">
-                  <FormLabel color={mutedTextColor}>E-posta</FormLabel>
+                  <FormLabel color={mutedTextColor}>Email</FormLabel>
                   <Input 
                     name="email"
                     type="email"
@@ -450,7 +450,7 @@ const ProfilePage = () => {
               color={textColor}
               _hover={{ bg: 'rgba(255,255,255,0.1)' }}
             >
-              İptal
+              Cancel
             </Button>
             <Button 
               type="submit"
@@ -459,7 +459,7 @@ const ProfilePage = () => {
               bg={accentColor}
               _hover={{ bg: `${accentColor}` }}
             >
-              Kaydet
+              Save
             </Button>
           </DrawerFooter>
         </DrawerContent>
