@@ -57,10 +57,10 @@ const Footer = () => {
               <FaHeadphones size="16px" />
             </Box>
             <Text fontWeight="bold">
-              Audio Recorder
+              EnsAI
             </Text>
             <Text fontSize="sm">
-              &copy; {currentYear} Tüm hakları saklıdır
+              &copy; {currentYear} All rights reserved
             </Text>
           </Stack>
           

@@ -67,7 +67,7 @@ const Header = () => {
                   transition: "transform 0.3s ease"
                 }}
             >
-                Audio Recorder
+                EnsAI
             </Text>
             </Flex>
           </Flex>
@@ -85,7 +85,7 @@ const Header = () => {
                     color={textColor}
                     _hover={{ bg: hoverBg }}
                   >
-                    Ana Sayfa
+                    Home
                   </Button>
                   <Button 
                     as={RouterLink} 
@@ -96,7 +96,7 @@ const Header = () => {
                     color={textColor}
                     _hover={{ bg: hoverBg }}
                   >
-                    Kayıtlarım
+                    My Recordings
                   </Button>
                   <Button 
                     as={RouterLink} 
@@ -107,7 +107,7 @@ const Header = () => {
                     color={textColor}
                     _hover={{ bg: hoverBg }}
                   >
-                    Kayıt Yap
+                    Record
                   </Button>
                   <Button 
                     as={RouterLink} 
@@ -118,7 +118,7 @@ const Header = () => {
                     color={textColor}
                     _hover={{ bg: hoverBg }}
                   >
-                    Nota Eğitimi
+                    AI Training
                   </Button>
                   <Button 
                     as={RouterLink} 
@@ -129,7 +129,7 @@ const Header = () => {
                     color={textColor}
                     _hover={{ bg: hoverBg }}
                   >
-                    Profil
+                    Profile
                   </Button>
                   <Button 
                     onClick={handleLogout} 
@@ -139,7 +139,7 @@ const Header = () => {
                     color={textColor}
                     _hover={{ bg: hoverBg }}
                   >
-                    Çıkış
+                    Logout
                   </Button>
                 </>
               ) : (
@@ -154,7 +154,7 @@ const Header = () => {
                     bgGradient: "linear(to-r, brand.600, brand.700)",
                   }}
                 >
-                  Giriş / Kayıt
+                  Login / Register
                 </Button>
               )}
             </Stack>
@@ -190,7 +190,7 @@ const Header = () => {
                     leftIcon={<FaHome />}
                     color={textColor}
                   >
-                    Ana Sayfa
+                    Home
                   </Button>
                   <Button
                     as={RouterLink}
@@ -202,7 +202,7 @@ const Header = () => {
                     leftIcon={<FaMusic />}
                     color={textColor}
                   >
-                    Kayıtlarım
+                    My Recordings
                   </Button>
                   <Button
                     as={RouterLink}
@@ -214,7 +214,7 @@ const Header = () => {
                     leftIcon={<FaMicrophone />}
                     color={textColor}
                   >
-                    Kayıt Yap
+                    Record
                   </Button>
                   <Button
                     as={RouterLink}
@@ -226,7 +226,7 @@ const Header = () => {
                     leftIcon={<FaBrain />}
                     color={textColor}
                   >
-                    Nota Eğitimi
+                    AI Training
                   </Button>
                   <Button
                     as={RouterLink}
@@ -238,7 +238,7 @@ const Header = () => {
                     leftIcon={<FaUser />}
                     color={textColor}
                   >
-                    Profil
+                    Profile
                   </Button>
                   <Button
                     w="full"
@@ -251,7 +251,7 @@ const Header = () => {
                       onToggle();
                     }}
                   >
-                    Çıkış
+                    Logout
                   </Button>
                 </>
               ) : (
@@ -266,7 +266,7 @@ const Header = () => {
                   }}
                   onClick={onToggle}
                 >
-                  Giriş / Kayıt
+                  Login / Register
                 </Button>
               )}
             </Stack>
