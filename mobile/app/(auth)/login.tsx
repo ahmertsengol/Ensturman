@@ -42,20 +42,32 @@ export default function LoginScreen() {
 
     try {
       const response = await loginUser({ email, password });
+
       const { user, token } = response.data;
+      
+      if (!token) {
+        console.error('Login error: Token is undefined');
+        setErrorMessage('Login failed: Could not retrieve authentication token.');
+        setIsLoading(false);
+        return;
+      }
       
       await login(user, token);
       router.replace('/');
     } catch (error: any) {
-      console.error('Login error:', error);
+      // console.error('Login error:', error); // Bu satırı geçici olarak yorum satırı yapalım
       
       if (error.code === 'ERR_NETWORK') {
         setErrorMessage('Network error. Please check if the server is running.');
       } else if (error.code === 'ECONNABORTED') {
         setErrorMessage('Connection timeout. Server might be overloaded.');
       } else if (error.response) {
-        const serverMessage = error.response.data?.error || error.response.data?.message;
-        setErrorMessage(serverMessage || `Login failed (${error.response.status})`);
+        if (error.response.status === 401) {
+          setErrorMessage('E-posta adresiniz veya şifreniz yanlış. Lütfen tekrar deneyin.');
+        } else {
+          const serverMessage = error.response.data?.error || error.response.data?.message;
+          setErrorMessage(serverMessage || `Bir şeyler ters gitti (${error.response.status}). Lütfen daha sonra tekrar deneyin.`);
+        }
       } else {
         setErrorMessage('Login failed. Please try again.');
       }

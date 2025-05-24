@@ -33,7 +33,6 @@ const createApiInstance = async () => {
       'Accept': 'application/json'
     },
     timeout: 10000,
-    validateStatus: (status) => status < 500
   });
 };
 
@@ -50,7 +49,7 @@ const getApiInstance = async () => {
         return response;
       },
       async (error: any) => {
-        console.error('❌ API Error:', error.message, error.config ? error.config.url : 'No URL');
+        // console.error('❌ API Error:', error.message, error.config ? error.config.url : 'No URL'); // Bu sonuncusunu da yorum satırı yapalım
         
         if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
           console.error('🔄 Network Error detected, attempting to refresh backend configuration...');
@@ -73,8 +72,8 @@ const getApiInstance = async () => {
         }
         
         if (error.response) {
-          console.error('Response status:', error.response.status);
-          console.error('Response data:', error.response.data);
+          // console.error('Response status:', error.response.status); // Bu satırı da yorum satırı yapalım
+          // console.error('Response data:', error.response.data); // Bu zaten yorum satırıydı
         }
         
         return Promise.reject(error);

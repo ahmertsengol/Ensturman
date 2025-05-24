@@ -101,6 +101,13 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // Add this log to check user details before token creation
+    logger.debug('User details before token creation', { 
+      id: user.id, 
+      username: user.username, 
+      email: user.email 
+    });
+
     // Create token
     const token = jwt.sign(
       { id: user.id, username: user.username, email: user.email },
