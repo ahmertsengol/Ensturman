@@ -1,147 +1,9 @@
-import { Box, Button, Container, Heading, Text, VStack, Flex, Image, Stack, Icon, HStack, SimpleGrid } from '@chakra-ui/react';
+import { Box, Button, Container, Heading, Text, VStack, Flex, Image, Stack, Icon, HStack } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import { FaMicrophone, FaHeadphones, FaCloudUploadAlt, FaMusic, FaPlayCircle, FaBrain, FaUser, FaDashboard } from 'react-icons/fa';
+import { FaMicrophone, FaHeadphones, FaCloudUploadAlt, FaMusic, FaPlayCircle } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { AnimatedElement, GlassmorphicCard, AudioDecorations } from '../components/ui';
 import { useState } from 'react';
-
-// Etkileşimli Kart Component'ı
-const InteractiveCard = ({ icon, title, description, to, colorScheme = "brand", delay = 0 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  
-  return (
-    <AnimatedElement animationType="slideUp" delay={delay}>
-      <Box
-        as={RouterLink}
-        to={to}
-        position="relative"
-        p={8}
-        borderRadius="xl"
-        bg="rgba(255, 255, 255, 0.05)"
-        backdropFilter="blur(10px)"
-        border="1px solid rgba(255, 255, 255, 0.1)"
-        textAlign="center"
-        height="300px"
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        cursor="pointer"
-        transition="all 0.4s ease"
-        overflow="hidden"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        _hover={{
-          transform: "translateY(-10px) scale(1.02)",
-          boxShadow: `0 20px 40px rgba(29, 185, 84, 0.3), 0 0 30px rgba(233, 30, 99, 0.2)`,
-          bg: "rgba(255, 255, 255, 0.1)",
-          borderColor: colorScheme === "brand" ? "brand.400" : "accent.400"
-        }}
-        _before={{
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          bgGradient: `linear(45deg, ${colorScheme === "brand" ? "brand.500" : "accent.500"}, transparent, ${colorScheme === "brand" ? "accent.500" : "brand.500"})`,
-          opacity: isHovered ? 0.1 : 0,
-          transition: "opacity 0.4s ease",
-          borderRadius: "xl"
-        }}
-      >
-        {/* Animated Background Pattern */}
-        <Box
-          position="absolute"
-          top="-50%"
-          left="-50%"
-          width="200%"
-          height="200%"
-          bgGradient={`radial(circle, ${colorScheme === "brand" ? "brand.500" : "accent.500"}, transparent)`}
-          opacity={isHovered ? 0.1 : 0}
-          transform={isHovered ? "rotate(180deg)" : "rotate(0deg)"}
-          transition="all 1s ease"
-        />
-        
-        {/* Icon */}
-        <Box position="relative" zIndex={2}>
-          <Icon 
-            as={icon} 
-            boxSize={16} 
-            color={colorScheme === "brand" ? "brand.400" : "accent.400"}
-            mb={6}
-            transform={isHovered ? "scale(1.1) rotate(5deg)" : "scale(1)"}
-            transition="all 0.3s ease"
-          />
-        </Box>
-        
-        {/* Title */}
-        <Heading 
-          as="h3" 
-          size="lg" 
-          mb={4} 
-          color="white"
-          position="relative" 
-          zIndex={2}
-          transform={isHovered ? "translateY(-5px)" : "translateY(0)"}
-          transition="all 0.3s ease"
-        >
-          {title}
-        </Heading>
-        
-        {/* Description */}
-        <Text 
-          color="gray.300" 
-          fontSize="md"
-          position="relative" 
-          zIndex={2}
-          maxW="250px"
-          opacity={isHovered ? 1 : 0.8}
-          transform={isHovered ? "translateY(-5px)" : "translateY(0)"}
-          transition="all 0.3s ease"
-        >
-          {description}
-        </Text>
-        
-        {/* Hover Effect Particles */}
-        {isHovered && (
-          <>
-            <Box
-              position="absolute"
-              top="20%"
-              right="20%"
-              width="4px"
-              height="4px"
-              bg={colorScheme === "brand" ? "brand.400" : "accent.400"}
-              borderRadius="full"
-              animation="float 2s ease-in-out infinite"
-            />
-            <Box
-              position="absolute"
-              bottom="30%"
-              left="15%"
-              width="6px"
-              height="6px"
-              bg={colorScheme === "brand" ? "accent.400" : "brand.400"}
-              borderRadius="full"
-              animation="float 2.5s ease-in-out infinite reverse"
-            />
-            <Box
-              position="absolute"
-              top="60%"
-              right="10%"
-              width="3px"
-              height="3px"
-              bg={colorScheme === "brand" ? "brand.300" : "accent.300"}
-              borderRadius="full"
-              animation="float 3s ease-in-out infinite"
-            />
-          </>
-        )}
-      </Box>
-    </AnimatedElement>
-  );
-};
 
 const FeatureCard = ({ icon, title, description }) => {
   return (
@@ -174,12 +36,10 @@ const HomePage = () => {
   
   const togglePlayback = () => {
     setIsPlaying(!isPlaying);
-    // Simulate audio playback effect
-    setTimeout(() => setIsPlaying(false), 3000);
   };
   
   return (
-    <Box minHeight="100vh">
+    <Box>
       {/* Hero Section */}
       <Box
         bgGradient={bgGradient}
@@ -248,70 +108,6 @@ const HomePage = () => {
                 />
               </HStack>
               
-              {/* Interactive Navigation Cards */}
-              <VStack spacing={6} w="full" mt={8}>
-                <Text fontSize="lg" color="brand.300" fontWeight="semibold">
-                  Explore EnsAI Features
-                </Text>
-                
-                <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} spacing={6} w="full">
-                  {isAuthenticated() ? (
-                    <>
-                      <InteractiveCard
-                        icon={FaMicrophone}
-                        title="Start Recording"
-                        description="Begin your AI-powered recording session"
-                        to="/record"
-                        colorScheme="brand"
-                        delay={0.1}
-                      />
-                      <InteractiveCard
-                        icon={FaDashboard}
-                        title="My Dashboard"
-                        description="View your recordings and progress"
-                        to="/dashboard"
-                        colorScheme="accent"
-                        delay={0.3}
-                      />
-                      <InteractiveCard
-                        icon={FaBrain}
-                        title="AI Training"
-                        description="Personalized instrument training"
-                        to="/training"
-                        colorScheme="brand"
-                        delay={0.5}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <InteractiveCard
-                        icon={FaMusic}
-                        title="Start with AI"
-                        description="Join EnsAI and begin your musical journey"
-                        to="/auth"
-                        colorScheme="brand"
-                        delay={0.1}
-                      />
-                      <InteractiveCard
-                        icon={FaHeadphones}
-                        title="Learn More"
-                        description="Discover AI-powered features"
-                        to="#features"
-                        colorScheme="accent"
-                        delay={0.3}
-                      />
-                      <InteractiveCard
-                        icon={FaBrain}
-                        title="AI Training"
-                        description="See training capabilities"
-                        to="/auth"
-                        colorScheme="brand"
-                        delay={0.5}
-                      />
-                    </>
-                  )}
-                </SimpleGrid>
-              </VStack>
             </AnimatedElement>
             
             <AnimatedElement
@@ -359,7 +155,7 @@ const HomePage = () => {
       </Box>
       
       {/* Features Section */}
-      <Container maxW="container.xl" py={{ base: 12, md: 20 }} id="features">
+      <Container maxW="container.xl" py={{ base: 12, md: 20 }}>
         <VStack spacing={12}>
           <AnimatedElement animationType="fadeIn">
           <VStack spacing={4} textAlign="center" maxW="3xl" mx="auto">
