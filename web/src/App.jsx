@@ -71,6 +71,17 @@ const theme = extendTheme({
   },
   styles: {
     global: {
+      // Keyframe animations
+      '@keyframes float': {
+        '0%': { transform: 'translateY(0px)' },
+        '50%': { transform: 'translateY(-15px)' },
+        '100%': { transform: 'translateY(0px)' }
+      },
+      '@keyframes glow': {
+        '0%': { boxShadow: '0 0 5px rgba(29, 185, 84, 0.2)' },
+        '50%': { boxShadow: '0 0 20px rgba(29, 185, 84, 0.4), 0 0 30px rgba(233, 30, 99, 0.3)' },
+        '100%': { boxShadow: '0 0 5px rgba(29, 185, 84, 0.2)' }
+      },
       body: {
         bg: 'dark.500',
         color: '#E0E0E0',
