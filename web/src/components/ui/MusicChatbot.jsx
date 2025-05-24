@@ -159,8 +159,8 @@ const MusicChatbot = () => {
         {isQuotaError && (
           <Box>
             <Text fontSize="sm" textAlign="center" mb={3}>
-              Gemini API'sinin ücretsiz katman kotasına ulaşılmış olabilir. 
-              Başka bir model kullanmayı deneyebilir veya daha sonra tekrar deneyebilirsiniz.
+              You can try another model or try again later.
+              Gemini API's free tier quota has been reached.
             </Text>
             
             <Button 
@@ -264,7 +264,7 @@ const MusicChatbot = () => {
             borderTopRadius="24px"
           >
             <Avatar size="sm" bg="brand.500" icon={<FaRobot color="white" />} />
-            <Text ml={2} fontWeight="medium">Müzik Asistanı</Text>
+            <Text ml={2} fontWeight="medium"> EnsAI Assistant</Text>
             
             <Flex ml="auto" gap={2}>
               <IconButton
@@ -330,7 +330,7 @@ const MusicChatbot = () => {
                   icon={<FaRobot color="white" size={32} />}
                   mb={4}
                 />
-                <Text fontSize="lg" fontWeight="medium" mb={2} color="white">Müzik Asistanı Yükleniyor</Text>
+                <Text fontSize="lg" fontWeight="medium" mb={2} color="white">EnsAI is loading...</Text>
                 <Spinner color="brand.500" size="md" />
               </Flex>
             )}
@@ -369,7 +369,7 @@ const MusicChatbot = () => {
               <InputGroup size="md">
                 <Input
                   pr="4.5rem"
-                  placeholder="Bir soru sorun..."
+                  placeholder="Ask me anything..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   bg="dark.400"
