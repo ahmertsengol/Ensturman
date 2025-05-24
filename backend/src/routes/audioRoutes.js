@@ -45,16 +45,22 @@ const storage = multer.diskStorage({
     cb(null, UPLOAD_DIR);
   },
   filename: (req, file, cb) => {
-    // Create unique filename with timestamp and original extension
+    // Create unique filename with timestamp
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    const filename = `audio-${uniqueSuffix}${ext}`;
+    
+    // FORCE M4A EXTENSION for consistency across platforms
+    // Always use .m4a regardless of original file format
+    const originalExt = path.extname(file.originalname);
+    const forcedExt = '.m4a'; // Force M4A for better compatibility
+    const filename = `audio-${uniqueSuffix}${forcedExt}`;
     
     logger.debug('Creating file name for upload', { 
       originalName: file.originalname,
+      originalExtension: originalExt,
+      forcedExtension: forcedExt,
       newFilename: filename,
-      extension: ext,
-      mimeType: file.mimetype 
+      mimeType: file.mimetype,
+      note: 'Extension forced to .m4a for cross-platform compatibility'
     });
     
     cb(null, filename);

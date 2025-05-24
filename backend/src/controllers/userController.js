@@ -198,9 +198,131 @@ const logout = async (req, res) => {
   }
 };
 
+// Change user password with 2FA verification
+const changePassword = async (req, res) => {
+  const { currentPassword, newPassword, verificationCode } = req.body;
+
+  try {
+    logger.info(`Password change attempt with 2FA`, { userId: req.user.id });
+
+    // Validate input
+    if (!currentPassword || !newPassword || !verificationCode) {
+      logger.warn(`Password change failed - missing fields`, { userId: req.user.id });
+      return res.status(400).json({ 
+        error: 'Current password, new password, and verification code are required' 
+      });
+    }
+
+    if (newPassword.length < 8) {
+      logger.warn(`Password change failed - password too short`, { userId: req.user.id });
+      return res.status(400).json({ error: 'New password must be at least 8 characters long' });
+    }
+
+    if (verificationCode.length !== 6) {
+      logger.warn(`Password change failed - invalid verification code format`, { userId: req.user.id });
+      return res.status(400).json({ error: 'Invalid verification code format' });
+    }
+
+    // Check if user has a valid, unused verification code
+    const verificationResult = await db.query(
+      `SELECT id, expires_at FROM verification_codes 
+       WHERE user_id = $1 AND verification_code = $2 
+       AND verification_type = 'password_change' AND is_used = TRUE
+       AND used_at > NOW() - INTERVAL '5 minutes'
+       ORDER BY used_at DESC LIMIT 1`,
+      [req.user.id, verificationCode]
+    );
+
+    if (verificationResult.rows.length === 0) {
+      logger.warn(`Password change failed - no valid 2FA verification found`, { 
+        userId: req.user.id 
+      });
+      return res.status(401).json({ 
+        error: 'Invalid or expired 2FA verification. Please verify your email first.' 
+      });
+    }
+
+    // Get current user data
+    const userResult = await db.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+    
+    if (userResult.rows.length === 0) {
+      logger.warn(`Password change failed - user not found`, { userId: req.user.id });
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = userResult.rows[0];
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    
+    if (!isCurrentPasswordValid) {
+      logger.warn(`Password change failed - invalid current password`, { 
+        userId: req.user.id,
+        email: user.email 
+      });
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    // Check if new password is different from current
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      logger.warn(`Password change failed - same password`, { userId: req.user.id });
+      return res.status(400).json({ error: 'New password must be different from current password' });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update password in database
+    await db.query(
+      'UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      [hashedNewPassword, req.user.id]
+    );
+
+    // Invalidate all verification codes for this user (cleanup)
+    await db.query(
+      `UPDATE verification_codes 
+       SET is_used = TRUE, used_at = NOW() 
+       WHERE user_id = $1 AND verification_type = 'password_change' AND is_used = FALSE`,
+      [req.user.id]
+    );
+
+    // Log password change activity
+    logger.userActivity('password_change_completed', {
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email
+    }, {
+      ip: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('user-agent'),
+      timestamp: new Date().toISOString(),
+      verificationUsed: true
+    });
+
+    logger.info(`Password changed successfully with 2FA`, { 
+      userId: req.user.id, 
+      username: req.user.username 
+    });
+
+    res.json({ 
+      message: 'Password updated successfully with 2FA verification',
+      success: true 
+    });
+  } catch (error) {
+    logger.error(`Password change error`, { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user?.id 
+    });
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
-  logout
+  logout,
+  changePassword
 }; 

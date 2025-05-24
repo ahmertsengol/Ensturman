@@ -1,7 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize the Gemini API with your API key
-const API_KEY = "AIzaSyD1JChEFUKKLOrSnP7AESKgJaQKJ2muPKI";
+// Initialize the Gemini API with API key from environment variables
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
+if (!API_KEY) {
+  console.error("VITE_GEMINI_API_KEY is not defined in environment variables");
+}
+
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 // Create a chat session with history

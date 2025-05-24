@@ -1,174 +1,141 @@
 # EnsAI - AI-Powered Instrument Learning Platform
 
-EnsAI is an innovative AI-powered interactive instrument learning platform. Master musical instruments with your Gemini AI-enhanced personal music instructor.
+EnsAI is an innovative web application that uses artificial intelligence to help users learn musical instruments through real-time pitch detection, intelligent training modules, and personalized feedback.
 
-## 🎵 Features
+## 🚀 Features
 
-### 🤖 AI-Powered Features
-- **Gemini AI Music Instructor**: 24/7 personal instrument learning support
-- **Intelligent Audio Analysis**: Real-time pitch detection and performance analysis
-- **Personalized Training**: AI-optimized learning modules for instrument mastery
-- **Natural Language Interaction**: Conversational AI for seamless learning experience
+- **AI-Powered Learning**: Gemini AI integration for personalized music instruction
+- **Real-time Pitch Detection**: Advanced audio analysis for immediate feedback
+- **Interactive Training Modules**: Structured lessons for different skill levels
+- **Audio Recording & Analysis**: Record your practice sessions and track progress
+- **Multi-instrument Support**: Piano, guitar, violin, and more
+- **Progress Tracking**: Monitor your improvement over time
+- **AI Music Assistant**: Get help and tips from our intelligent chatbot
 
-### 🎼 Instrument Learning Features
-- **Multi-Format Support**: MP3, WAV, OGG, M4A and more
-- **Real-Time Visualization**: Waveform display with WaveSurfer.js
-- **3D Audio Visualizer**: Interactive music visualization with React Three Fiber
-- **Audio Recording**: High-quality browser-based instrument recording
+## 🛠️ Technology Stack
 
-### 🔧 Technical Features
-- **Modern UI/UX**: Dark theme design with Chakra UI
-- **Responsive Design**: Compatible interface across all devices
-- **Real-time Audio**: WebAudio API integration
-- **Secure Storage**: JWT-based secure data management
+- **Frontend**: React 19, Vite, Chakra UI
+- **AI Integration**: Google Gemini AI (gemini-2.0-flash)
+- **Audio Processing**: Web Audio API, WaveSurfer.js
+- **Animations**: Framer Motion
+- **State Management**: React Context API
+- **HTTP Client**: Axios
 
-## 🚀 Technology Stack
+## 📋 Prerequisites
 
-### Frontend
-- **Framework**: React 19.0.0
-- **Build Tool**: Vite 6.3.1
-- **UI Library**: Chakra UI 2.8.2
-- **Routing**: React Router DOM 7.5.3
-- **State Management**: Context API
-- **Animations**: Framer Motion 12.9.2
-- **3D Graphics**: React Three Fiber
-- **Audio Processing**: WaveSurfer.js 7.9.4
-- **HTTP Client**: Axios 1.9.0
-- **AI Integration**: Google Generative AI
+- Node.js (v18 or higher)
+- npm or yarn package manager
+- Google AI Studio API key (for Gemini AI)
 
-### Styling & UX
-- **Design System**: Chakra UI Components
-- **Theme**: Custom Dark Music Theme
-- **Icons**: React Icons 5.5.0
-- **Responsive**: Mobile-first approach
-- **Accessibility**: ARIA compliant
+## 🔧 Installation & Setup
 
-## 🛠️ Installation
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd ensai/web
+   ```
 
-1. **Install dependencies:**
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. **Configure environment variables:**
-   Create `.env` file:
-   ```
+3. **Environment Variables Setup**
+   Create a `.env` file in the web directory and add the following variables:
+   ```bash
+   # Gemini AI API Key - Get from Google AI Studio
+   VITE_GEMINI_API_KEY=your_gemini_api_key_here
+   
+   # Backend API URL
    VITE_API_URL=http://localhost:3001/api
-   VITE_GEMINI_API_KEY=your_gemini_api_key
    ```
 
-3. **Start development server:**
+   **Getting your Gemini API Key:**
+   - Visit [Google AI Studio](https://aistudio.google.com/)
+   - Sign in with your Google account
+   - Create a new API key
+   - Copy the key and add it to your `.env` file
+
+4. **Start the development server**
    ```bash
    npm run dev
    ```
 
-4. **Production build:**
+5. **Build for production**
    ```bash
    npm run build
    ```
 
-## 📱 Pages
+## 🎵 How to Use
 
-- **Home (`/`)**: EnsAI introduction and features
-- **Authentication (`/auth`)**: Login/Register page
-- **AI Dashboard (`/dashboard`)**: Personal instrument learning dashboard
-- **Recording (`/record`)**: Audio recording and analysis
-- **Training (`/training`)**: AI-powered instrument training
-- **Profile (`/profile`)**: User profile management
+### Getting Started
+1. **Register/Login**: Create an account or log in to access all features
+2. **Dashboard**: View your recordings and progress
+3. **Record**: Start recording your instrument practice
+4. **Training**: Access AI-powered training modules
+5. **AI Assistant**: Get help from the intelligent music chatbot
 
-## 🎨 UI/UX Design
+### Recording Features
+- Real-time pitch detection and visualization
+- Multi-format audio support (MP3, WAV, OGG, M4A)
+- Waveform visualization
+- Performance analysis and feedback
 
-### Color Palette
-- **Primary Color**: Spotify Green (#1DB954)
-- **Accent Color**: Pink (#E91E63)
-- **Background**: Dark tones (#191729, #2A2438)
-- **Text**: White and gray tones
+### Training Modules
+- Beginner to advanced skill levels
+- Instrument-specific lessons
+- Real-time feedback during practice
+- Progress tracking and scoring
 
-### Typography
-- **Headings**: Poppins
-- **Body**: Inter
-- **Weight**: 300-700 variations
-
-### Animations
-- **Entry Animations**: Fade, slide, scale effects
-- **Hover Effects**: Transform and shadow changes
-- **Music Visualization**: Dynamic audio wave animations
-
-## 🤖 AI Integration
-
-### Gemini AI Features
-- **Instrument Training**: Personalized learning paths for musical instruments
-- **Audio Analysis**: Pitch and rhythm assessment for instrument performance
-- **Interactive Chat**: Ask instrument-related questions in natural language
-- **Learning Support**: Adaptive AI assistance for skill development
-
-### Context Management
-- **AuthContext**: User authentication state
-- **ChatbotContext**: AI chat history and state
-
-## 📦 Project Structure
-
-```
-src/
-├── api/                    # Backend API calls
-├── components/             # React components
-│   ├── auth/              # Authentication components
-│   ├── audio/             # Audio processing components
-│   ├── layout/            # Page layout components
-│   └── ui/                # General UI components
-├── context/               # React Context providers
-├── pages/                 # Page components
-├── utils/                 # Utility functions
-└── assets/               # Static files
-```
-
-## 🎯 Use Cases
-
-1. **Music Student**: Learn instrument fundamentals with AI instructor
-2. **Amateur Musician**: Practice pitch control and audio analysis for instruments
-3. **Music Educator**: Interactive training materials for students
-4. **Professional**: Performance analysis and skill development tracking
+### AI Assistant
+- Ask questions about music theory
+- Get practice tips and techniques
+- Troubleshoot technical issues
+- Receive personalized learning suggestions
 
 ## 🔒 Security
 
-- **JWT Authentication**: Secure session management
-- **API Rate Limiting**: DDoS protection
-- **Input Validation**: XSS and injection attack protection
-- **HTTPS Ready**: SSL/TLS support
+- API keys are stored in environment variables (not in code)
+- JWT-based authentication
+- Protected routes for authenticated content
+- CORS handling for API requests
 
-## 🚀 Deployment
+## 🎨 UI/UX Features
 
-### Development
-```bash
-npm run dev
-```
+- Dark theme optimized for music learning
+- Responsive design for all devices
+- Smooth animations and transitions
+- Interactive audio visualizations
+- Modern glassmorphism design elements
 
-### Production
-```bash
-npm run build
-npm run preview
-```
+## 📱 Browser Compatibility
 
-### Docker (Optional)
-```bash
-docker build -t ensai-web .
-docker run -p 80:80 ensai-web
-```
+- Chrome (recommended for best audio support)
+- Firefox
+- Safari
+- Edge
+
+Note: Microphone access is required for recording features.
+
+## 🚫 Important Notes
+
+- Never commit your actual API keys to version control
+- The `.env` file is gitignored for security
+- Make sure to keep your Gemini API key secure
+- For production deployment, use environment variables on your hosting platform
 
 ## 🤝 Contributing
 
-EnsAI is an open source project and we welcome contributions!
-
 1. Fork the repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
+2. Create your feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
 ## 📄 License
 
-This project is distributed under the MIT License.
+This project is part of the EnsAI platform for AI-powered instrument learning.
 
-## 🎵 Start Your Instrument Learning Journey with EnsAI!
+---
 
-Discover the future of AI-powered instrument learning. Develop your musical skills with your personal AI instructor and unleash your creativity. 
+**Made with ❤️ for music learners worldwide** 

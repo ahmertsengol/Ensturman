@@ -1,7 +1,7 @@
 // src/api/api.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 // Create axios instance
 const api = axios.create({
@@ -50,6 +50,24 @@ export const loginUser = (credentials) => {
 
 export const getUserProfile = () => {
   return api.get('/users/profile');
+};
+
+// Change user password with 2FA
+export const changePassword = (passwordData) => {
+  return api.put('/users/change-password', passwordData);
+};
+
+// 2FA Verification API calls
+export const requestPasswordChangeVerification = () => {
+  return api.post('/verification/password-change/request');
+};
+
+export const verifyPasswordChangeCode = (verificationCode) => {
+  return api.post('/verification/password-change/verify', { verificationCode });
+};
+
+export const getPasswordChangeVerificationStatus = () => {
+  return api.get('/verification/password-change/status');
 };
 
 // Audio recordings API calls

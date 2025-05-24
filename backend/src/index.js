@@ -10,6 +10,7 @@ require('dotenv').config();
 const userRoutes = require('./routes/userRoutes');
 const audioRoutes = require('./routes/audioRoutes');
 const trainingRoutes = require('./routes/trainingRoutes');
+const verificationRoutes = require('./routes/verificationRoutes');
 
 // Import logger
 const logger = require('./utils/logger');
@@ -46,7 +47,13 @@ app.use('/uploads', express.static(UPLOAD_DIR));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Server is running' });
+  res.json({ 
+    status: 'ok', 
+    service: 'EnsAI Backend',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    uptime: process.uptime()
+  });
 });
 
 // Debug endpoint to test CORS
@@ -58,6 +65,7 @@ app.get('/test-cors', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/audio', audioRoutes);
 app.use('/api/training', trainingRoutes);
+app.use('/api/verification', verificationRoutes);
 
 // Generic error handler
 app.use((err, req, res, next) => {

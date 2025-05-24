@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const db = require('../config/db');
 const logger = require('../utils/logger');
+const { processAudioFile } = require('../utils/audioConverter');
 
 // Upload a new audio recording
 const uploadAudio = async (req, res) => {
@@ -14,21 +15,59 @@ const uploadAudio = async (req, res) => {
 
     const { title, description } = req.body;
     
-    // Get the filename only
-    const filename = path.basename(req.file.path);
+    // Get the filename and path
+    const originalFilename = path.basename(req.file.path);
+    const originalFilePath = req.file.path;
+    
+    logger.info('Processing uploaded audio file', {
+      userId: req.user.id,
+      originalFilename: originalFilename,
+      originalName: req.file.originalname,
+      size: req.file.size,
+      mimetype: req.file.mimetype
+    });
+
+    // PROCESS AND CONVERT AUDIO IF NECESSARY
+    let processingResult;
+    try {
+      processingResult = await processAudioFile(originalFilePath);
+      
+      logger.info('Audio processing completed', {
+        userId: req.user.id,
+        filename: originalFilename,
+        converted: processingResult.converted,
+        originalFormat: processingResult.originalFormat
+      });
+    } catch (conversionError) {
+      logger.error('Audio conversion failed, using original file', {
+        userId: req.user.id,
+        filename: originalFilename,
+        error: conversionError.message
+      });
+      
+      // Use original file if conversion fails
+      processingResult = {
+        converted: false,
+        finalPath: originalFilePath,
+        originalFormat: 'Conversion failed'
+      };
+    }
     
     // Create relative URL path for web access (to be saved in database)
-    const urlPath = `/uploads/${filename}`;
+    const finalFilename = path.basename(processingResult.finalPath);
+    const urlPath = `/uploads/${finalFilename}`;
     
-    const fileSize = req.file.size;
+    const fileSize = fs.statSync(processingResult.finalPath).size; // Get actual file size after conversion
     
-    logger.info('File uploaded successfully', {
+    logger.info('File upload and processing completed', {
       userId: req.user.id,
-      filename: filename,
-      originalFilename: req.file.originalname,
+      originalFilename: originalFilename,
+      finalFilename: finalFilename,
       urlPath: urlPath,
-      size: fileSize,
-      mimetype: req.file.mimetype
+      originalSize: req.file.size,
+      finalSize: fileSize,
+      converted: processingResult.converted,
+      format: processingResult.originalFormat
     });
     
     // You can extract duration from the audio file if needed
@@ -232,4 +271,4 @@ module.exports = {
   getUserRecordings,
   getRecording,
   deleteRecording
-}; 
+};

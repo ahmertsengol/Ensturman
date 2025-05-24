@@ -191,7 +191,7 @@ const AudioRecorder = () => {
     }
   }, [showCelebration]);
   
-  // Start recording
+  // Start recording with enhanced error handling
   const startRecording = async () => {
     try {
       await recorder.startRecording();
@@ -205,15 +205,58 @@ const AudioRecorder = () => {
       }, 1000);
       
     } catch (error) {
-      console.error('Error starting recording:', error);
-      toast({
-        title: 'Error',
-        description: 'Could not access microphone. Please check permissions.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-        position: 'top'
-      });
+      console.error('❌ Error starting recording:', error);
+      
+      // Get specific error message from enhanced AudioRecorder
+      const errorMessage = error.message || 'Could not access microphone. Please check permissions.';
+      
+      // Show appropriate error based on error type
+      if (error.originalError?.name === 'NotAllowedError') {
+        toast({
+          title: 'Microphone Permission Denied',
+          description: 'Please allow microphone access and refresh the page to record audio.',
+          status: 'error',
+          duration: 8000,
+          isClosable: true,
+          position: 'top'
+        });
+      } else if (error.originalError?.name === 'NotFoundError') {
+        toast({
+          title: 'No Microphone Found',
+          description: 'Please connect a microphone and try again.',
+          status: 'error',
+          duration: 6000,
+          isClosable: true,
+          position: 'top'
+        });
+      } else if (error.originalError?.name === 'NotReadableError') {
+        toast({
+          title: 'Microphone In Use',
+          description: 'Your microphone is being used by another application. Please close other apps and try again.',
+          status: 'error',
+          duration: 6000,
+          isClosable: true,
+          position: 'top'
+        });
+      } else if (error.message.includes('not supported')) {
+        toast({
+          title: 'Browser Not Supported',
+          description: 'Audio recording is not supported in this browser. Please try Chrome, Firefox, or Safari.',
+          status: 'error',
+          duration: 8000,
+          isClosable: true,
+          position: 'top'
+        });
+      } else {
+        toast({
+          title: 'Recording Error',
+          description: errorMessage,
+          status: 'error',
+          duration: 6000,
+          isClosable: true,
+          position: 'top'
+        });
+      }
     }
   };
   
@@ -409,18 +452,32 @@ const AudioRecorder = () => {
     try {
       // Determine best file extension based on the MIME type
       // This ensures compatibility with mobile app files
-      let fileExtension = 'mp3'; // Default to mp3 for better compatibility with mobile
+      let fileExtension = 'm4a'; // Default to m4a for better compatibility with mobile
       const mimeType = audioBlob.type;
       
+      console.log('🎯 File Extension Detection:');
+      console.log(`📋 audioBlob.type: ${mimeType}`);
+      console.log(`📋 Default extension: ${fileExtension}`);
+      
+      // FORCE M4A: Always use .m4a extension regardless of browser format
+      // This ensures consistency across platforms and better mobile compatibility
+      fileExtension = 'm4a';
+      console.log('🔧 FORCING .m4a extension for cross-platform compatibility');
+      
+      // Keep original logic for logging purposes only
       if (mimeType.includes('webm')) {
-        fileExtension = 'webm';
+        console.log('📁 Original format: WebM (but using .m4a extension)');
       } else if (mimeType.includes('mp3') || mimeType.includes('mpeg')) {
-        fileExtension = 'mp3';
-      } else if (mimeType.includes('aac')) {
-        fileExtension = 'm4a'; // Use m4a for AAC audio (iOS compatible)
+        console.log('📁 Original format: MP3/MPEG (but using .m4a extension)');
+      } else if (mimeType.includes('aac') || mimeType.includes('mp4')) {
+        console.log('📁 Original format: AAC/MP4 (using .m4a extension)');
+      } else {
+        console.log('📁 Original format: Unknown (using .m4a extension)');
       }
       
-      console.log(`Uploading audio with MIME type: ${mimeType}, using extension: ${fileExtension}`);
+      console.log(`🎵 Final file extension: ${fileExtension}`);
+      console.log(`📝 Final filename: recording.${fileExtension}`);
+      console.log(`🔧 Uploading audio with MIME type: ${mimeType}, using extension: ${fileExtension}`);
       
       // Create form data
       const formData = new FormData();

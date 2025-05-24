@@ -32,11 +32,19 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
+  InputGroup,
+  InputRightElement,
+  Progress,
+  Alert,
+  AlertIcon,
+  AlertDescription,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FaPlay, FaPause, FaMusic, FaHeadphones, FaMicrophone, FaWaveSquare, FaEdit, FaUserAlt } from 'react-icons/fa';
+import { changePassword } from '../api/api';
+import TwoFactorAuth from '../components/TwoFactorAuth';
+import { FaPlay, FaPause, FaMusic, FaHeadphones, FaMicrophone, FaWaveSquare, FaEdit, FaUserAlt, FaLock, FaEye, FaEyeSlash, FaKey } from 'react-icons/fa';
 
 // Keyframes for wave animation
 const waveAnimation = keyframes`
@@ -78,8 +86,30 @@ const ProfilePage = () => {
     username: '',
     email: ''
   });
+  
+  // Password change states
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  
+  // 2FA states
+  const [is2FAOpen, setIs2FAOpen] = useState(false);
+  const [pendingPasswordData, setPendingPasswordData] = useState(null);
+  
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { 
+    isOpen: isPasswordOpen, 
+    onOpen: onPasswordOpen, 
+    onClose: onPasswordClose 
+  } = useDisclosure();
   const btnRef = useRef();
   
   // Dark theme colors
@@ -154,7 +184,129 @@ const ProfilePage = () => {
     setIsEditing(false);
     onClose();
   };
-  
+
+  // Calculate password strength
+  const calculatePasswordStrength = (password) => {
+    let strength = 0;
+    if (password.length >= 8) strength += 25;
+    if (/[a-z]/.test(password)) strength += 25;
+    if (/[A-Z]/.test(password)) strength += 25;
+    if (/[0-9]/.test(password)) strength += 15;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 10;
+    return Math.min(strength, 100);
+  };
+
+  // Handle password form input changes
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData({
+      ...passwordData,
+      [name]: value
+    });
+    
+    if (name === 'newPassword') {
+      setPasswordStrength(calculatePasswordStrength(value));
+    }
+  };
+
+  // Handle password change
+  const handlePasswordChangeOpen = () => {
+    setPasswordData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setPasswordStrength(0);
+    onPasswordOpen();
+  };
+
+  // Handle password form submission
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validation
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({
+        title: 'Error',
+        description: 'New passwords do not match.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+      });
+      return;
+    }
+
+    if (passwordData.newPassword.length < 8) {
+      toast({
+        title: 'Error',
+        description: 'Password must be at least 8 characters long.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+      });
+      return;
+    }
+
+    // Store password data and open 2FA modal
+    setPendingPasswordData({
+      currentPassword: passwordData.currentPassword,
+      newPassword: passwordData.newPassword
+    });
+    setIs2FAOpen(true);
+  };
+
+  // Handle 2FA verification success
+  const handle2FASuccess = async (verificationCode) => {
+    if (!pendingPasswordData) return;
+    
+    setIsChangingPassword(true);
+    
+    try {
+      await changePassword({
+        currentPassword: pendingPasswordData.currentPassword,
+        newPassword: pendingPasswordData.newPassword,
+        verificationCode: verificationCode // Use the actual verification code
+      });
+      
+      toast({
+        title: 'Password Updated',
+        description: 'Your password has been updated successfully with 2FA verification.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+      });
+      
+      onPasswordClose();
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+      setPendingPasswordData(null);
+    } catch (error) {
+      console.error('Password change error:', error);
+      toast({
+        title: 'Password Change Failed',
+        description: error.response?.data?.error || 'Failed to update password. Please try again.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+        position: 'top',
+      });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  // Handle 2FA modal close
+  const handle2FAClose = () => {
+    setIs2FAOpen(false);
+    setPendingPasswordData(null);
+  };
+
   return (
     <Container 
       maxW="container.lg" 
@@ -303,6 +455,16 @@ const ProfilePage = () => {
                 transition="all 0.2s ease"
               >
                 Edit Profile
+              </Button>
+              
+              <Button 
+                leftIcon={<FaLock />}
+                colorScheme="blue" 
+                onClick={handlePasswordChangeOpen} 
+                _hover={{ bg: "blue.600", transform: "scale(1.02)" }}
+                transition="all 0.2s ease"
+              >
+                Change Password
               </Button>
             </VStack>
           </CardBody>
@@ -464,6 +626,168 @@ const ProfilePage = () => {
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
+
+      {/* Change Password Drawer */}
+      <Drawer
+        isOpen={isPasswordOpen}
+        placement="right"
+        onClose={onPasswordClose}
+        size="md"
+      >
+        <DrawerOverlay />
+        <DrawerContent bg={cardBg} color={textColor}>
+          <DrawerCloseButton />
+          <DrawerHeader borderBottomWidth="1px" borderColor={borderColor}>
+            <HStack>
+              <FaKey style={{ marginRight: '8px' }} />
+              <Text>Change Password</Text>
+            </HStack>
+          </DrawerHeader>
+
+          <DrawerBody>
+            <form id="password-change-form" onSubmit={handlePasswordSubmit}>
+              <VStack spacing={6} mt={4}>
+                <FormControl id="currentPassword" isRequired>
+                  <FormLabel color={mutedTextColor}>Current Password</FormLabel>
+                  <InputGroup>
+                    <Input 
+                      name="currentPassword"
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={passwordData.currentPassword}
+                      onChange={handlePasswordChange}
+                      bg="dark.400"
+                      border="1px solid"
+                      borderColor={borderColor}
+                      _focus={{
+                        borderColor: accentColor,
+                        boxShadow: `0 0 0 1px ${accentColor}`,
+                      }}
+                    />
+                    <InputRightElement>
+                      <IconButton
+                        aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                        icon={showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      />
+                    </InputRightElement>
+                  </InputGroup>
+                </FormControl>
+                
+                <FormControl id="newPassword" isRequired>
+                  <FormLabel color={mutedTextColor}>New Password</FormLabel>
+                  <InputGroup>
+                    <Input 
+                      name="newPassword"
+                      type={showNewPassword ? "text" : "password"}
+                      value={passwordData.newPassword}
+                      onChange={handlePasswordChange}
+                      bg="dark.400"
+                      border="1px solid"
+                      borderColor={borderColor}
+                      _focus={{
+                        borderColor: accentColor,
+                        boxShadow: `0 0 0 1px ${accentColor}`,
+                      }}
+                    />
+                    <InputRightElement>
+                      <IconButton
+                        aria-label={showNewPassword ? "Hide password" : "Show password"}
+                        icon={showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                      />
+                    </InputRightElement>
+                  </InputGroup>
+                  
+                  {passwordData.newPassword && (
+                    <Box mt={2}>
+                      <Text fontSize="sm" color={mutedTextColor} mb={1}>
+                        Password Strength: {passwordStrength}%
+                      </Text>
+                      <Progress 
+                        value={passwordStrength} 
+                        colorScheme={passwordStrength < 50 ? "red" : passwordStrength < 80 ? "yellow" : "green"}
+                        size="sm"
+                        borderRadius="md"
+                      />
+                    </Box>
+                  )}
+                </FormControl>
+
+                <FormControl id="confirmPassword" isRequired>
+                  <FormLabel color={mutedTextColor}>Confirm New Password</FormLabel>
+                  <InputGroup>
+                    <Input 
+                      name="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={passwordData.confirmPassword}
+                      onChange={handlePasswordChange}
+                      bg="dark.400"
+                      border="1px solid"
+                      borderColor={borderColor}
+                      _focus={{
+                        borderColor: accentColor,
+                        boxShadow: `0 0 0 1px ${accentColor}`,
+                      }}
+                    />
+                    <InputRightElement>
+                      <IconButton
+                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                        icon={showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      />
+                    </InputRightElement>
+                  </InputGroup>
+                  
+                  {passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword && (
+                    <Alert status="error" mt={2} borderRadius="md">
+                      <AlertIcon />
+                      <AlertDescription fontSize="sm">
+                        Passwords do not match
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </FormControl>
+              </VStack>
+            </form>
+          </DrawerBody>
+
+          <DrawerFooter borderTopWidth="1px" borderColor={borderColor}>
+            <Button 
+              variant="outline" 
+              mr={3} 
+              onClick={onPasswordClose}
+              borderColor={borderColor}
+              color={textColor}
+              _hover={{ bg: 'rgba(255,255,255,0.1)' }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit"
+              form="password-change-form"
+              colorScheme="blue" 
+              isLoading={isChangingPassword}
+              loadingText="Updating..."
+              _hover={{ bg: "blue.600" }}
+            >
+              Update Password
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+      
+      {/* Two-Factor Authentication Modal */}
+      <TwoFactorAuth
+        isOpen={is2FAOpen}
+        onClose={handle2FAClose}
+        onVerificationSuccess={handle2FASuccess}
+      />
     </Container>
   );
 };

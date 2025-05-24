@@ -8,7 +8,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedLayout } from '@/components/ThemedLayout';
 import AudioRecorder from '@/utils/AudioRecorder';
-import { uploadAudio } from '@/api/api';
+import { uploadAudio, getCurrentNetworkStatus, refreshNetworkConnection } from '@/api/api';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Define PlaybackStatus interface
@@ -16,6 +16,12 @@ interface PlaybackStatus {
   isLoaded: boolean;
   didJustFinish?: boolean;
   [key: string]: any;
+}
+
+interface NetworkStatus {
+  host: string;
+  isConnected: boolean;
+  isLocal: boolean;
 }
 
 export default function AudioRecorderComponent() {
@@ -31,13 +37,16 @@ export default function AudioRecorderComponent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [networkStatus, setNetworkStatus] = useState<NetworkStatus | null>(null);
+  const [permissionStatus, setPermissionStatus] = useState<'unknown' | 'granted' | 'denied'>('unknown');
+  const [recordingQuality, setRecordingQuality] = useState<'checking' | 'ready' | 'error'>('checking');
   
   // Animation references
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
   
   // Audio level values for the visualizer bars
-  const NUM_BARS = 12; // Increased number of bars for better visualization
+  const NUM_BARS = 12;
   const audioLevelBars = useRef(
     Array.from({ length: NUM_BARS }, (_, i) => new Animated.Value(0.3))
   ).current;
@@ -46,6 +55,49 @@ export default function AudioRecorderComponent() {
   const audioLevelTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
   const router = useRouter();
+
+  // Check network status on mount
+  useEffect(() => {
+    const checkNetworkStatus = async () => {
+      try {
+        const status = await getCurrentNetworkStatus();
+        setNetworkStatus(status);
+        console.log('🌐 Network Status:', status);
+      } catch (error) {
+        console.error('❌ Failed to check network status:', error);
+        setNetworkStatus({ host: 'Unknown', isConnected: false, isLocal: false });
+      }
+    };
+
+    checkNetworkStatus();
+  }, []);
+
+  // Check audio permissions and quality on mount
+  useEffect(() => {
+    const initializeAudio = async () => {
+      try {
+        setRecordingQuality('checking');
+        
+        // Check permissions
+        const permissionResult = await recorder.requestPermissions();
+        setPermissionStatus(permissionResult.granted ? 'granted' : 'denied');
+        
+        if (permissionResult.granted) {
+          setRecordingQuality('ready');
+          console.log('✅ Audio recorder ready');
+        } else {
+          setRecordingQuality('error');
+          console.warn('⚠️ Audio permission denied:', permissionResult.error);
+        }
+      } catch (error) {
+        console.error('❌ Failed to initialize audio:', error);
+        setRecordingQuality('error');
+        setPermissionStatus('denied');
+      }
+    };
+
+    initializeAudio();
+  }, [recorder]);
   
   // Entry animation
   useEffect(() => {
@@ -62,9 +114,9 @@ export default function AudioRecorderComponent() {
       if (timerRef.current) clearInterval(timerRef.current);
       if (audioLevelTimerRef.current) clearInterval(audioLevelTimerRef.current);
       if (soundRef.current) soundRef.current.unloadAsync();
-      if (recorder.isRecording()) recorder.cancelRecording();
+      recorder.cleanup();
     };
-  }, []);
+  }, [recorder]);
   
   // Animation effects for pulse and audio level visualization when recording
   useEffect(() => {
@@ -91,30 +143,22 @@ export default function AudioRecorderComponent() {
       
       pulseAnimation.start();
       
-      // Start timer to update the audio levels - using a more efficient implementation
+      // Enhanced audio level visualization
       audioLevelTimerRef.current = setInterval(() => {
-        // Get the current audio level from the recorder
-        const level = recorder.getAudioLevel();
-        
-        // Create batch of animations for all bars
         const animations = audioLevelBars.map((bar, index) => {
-          // Different timing offsets for each bar to create wave effect
-          const offset = Math.sin((Date.now() / 600) + (index * 0.5)) * 0.3;
+          // Simulate realistic audio levels based on recording duration
+          const time = Date.now();
+          const baseLevel = Math.sin((time / 400) + (index * 0.4)) * 0.3 + 0.5;
+          const centerFactor = 1 - Math.abs((index - (NUM_BARS / 2 - 0.5)) / (NUM_BARS / 2)) * 0.4;
+          const randomFactor = Math.random() * 0.2;
           
-          // Central bars have higher amplitude
-          const centerFactor = 1 - Math.abs((index - (NUM_BARS / 2 - 0.5)) / (NUM_BARS / 2)) * 0.6;
-          
-          // Add small random factor for natural movement
-          const randomFactor = Math.random() * 0.15;
-          
-          // Calculate final level with limits
-          const finalLevel = Math.max(0.3, Math.min(0.95, 
-            (level * 0.7 + 0.3) * centerFactor + offset + randomFactor
+          const finalLevel = Math.max(0.2, Math.min(0.95, 
+            baseLevel * centerFactor + randomFactor
           ));
           
           return Animated.timing(bar, {
             toValue: finalLevel,
-            duration: 150, // Faster updates for responsive visualization
+            duration: 150,
             useNativeDriver: true,
           });
         });
@@ -127,14 +171,12 @@ export default function AudioRecorderComponent() {
       pulseAnim.setValue(1);
       audioLevelBars.forEach(bar => bar.setValue(0.3));
       
-      // Clear audio level timer
       if (audioLevelTimerRef.current) {
         clearInterval(audioLevelTimerRef.current);
         audioLevelTimerRef.current = null;
       }
     }
     
-    // Clean up animations on state change
     return () => {
       if (pulseAnimation) pulseAnimation.stop();
       
@@ -143,7 +185,7 @@ export default function AudioRecorderComponent() {
         audioLevelTimerRef.current = null;
       }
     };
-  }, [isRecording, audioLevelBars, pulseAnim, recorder]);
+  }, [isRecording, audioLevelBars, pulseAnim]);
   
   // Format time display (00:00)
   const formatTime = useCallback((milliseconds: number) => {
@@ -152,11 +194,33 @@ export default function AudioRecorderComponent() {
     const seconds = totalSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }, []);
-  
-  // Start recording - memoized to prevent rerenders
+
+  // Enhanced start recording with better error handling
   const startRecording = useCallback(async () => {
     try {
-      // Visual feedback animation before starting
+      if (permissionStatus !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Microphone permission is required to record audio. Please grant permission in settings.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Retry', 
+              onPress: async () => {
+                const permissionResult = await recorder.requestPermissions();
+                setPermissionStatus(permissionResult.granted ? 'granted' : 'denied');
+                if (permissionResult.granted) {
+                  setRecordingQuality('ready');
+                  startRecording();
+                }
+              }
+            }
+          ]
+        );
+        return;
+      }
+
+      // Visual feedback animation
       Animated.sequence([
         Animated.timing(fadeAnim, {
           toValue: 0.5,
@@ -170,47 +234,68 @@ export default function AudioRecorderComponent() {
         })
       ]).start();
       
-      await recorder.startRecording();
-      setIsRecording(true);
-      setRecordingStep('recording');
-      setRecordingDuration(0);
-      
-      // Start timer
-      timerRef.current = setInterval(() => {
-        const duration = recorder.getCurrentDuration();
-        setRecordingDuration(duration);
-      }, 100);
-      
-    } catch (error) {
-      console.error('Error starting recording:', error);
-      Alert.alert(
-        'Microphone Error',
-        'Could not access microphone. Please check permissions.'
-      );
-    }
-  }, [recorder, fadeAnim]);
-  
-  // Stop recording with useCallback
-  const stopRecording = useCallback(async () => {
-    try {
-      const uri = await recorder.stopRecording();
-      setIsRecording(false);
-      setAudioUri(uri);
-      setRecordingStep('preview');
-      
-      // Stop timer
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
+      const result = await recorder.startRecording((status) => {
+        setRecordingDuration(status.durationMillis || 0);
+      });
+
+      if (result.success) {
+        setIsRecording(true);
+        setRecordingStep('recording');
+        setRecordingDuration(0);
+        console.log('✅ Recording started successfully');
+      } else {
+        throw new Error(result.error || 'Failed to start recording');
       }
       
     } catch (error) {
-      console.error('Error stopping recording:', error);
-      setIsRecording(false);
+      console.error('❌ Error starting recording:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
       Alert.alert(
         'Recording Error',
-        'There was a problem with the recording.'
+        `Could not start recording: ${errorMessage}`,
+        [
+          { text: 'OK', style: 'default' },
+          { 
+            text: 'Check Network', 
+            onPress: async () => {
+              await refreshNetworkConnection();
+              const status = await getCurrentNetworkStatus();
+              setNetworkStatus(status);
+            }
+          }
+        ]
+      );
+    }
+  }, [recorder, fadeAnim, permissionStatus]);
+
+  // Enhanced stop recording
+  const stopRecording = useCallback(async () => {
+    try {
+      const result = await recorder.stopRecording();
+      setIsRecording(false);
+      
+      if (result.success && result.uri) {
+        setAudioUri(result.uri);
+        setRecordingStep('preview');
+        console.log('✅ Recording stopped successfully');
+        console.log('📁 File URI:', result.uri);
+        console.log('⏱️ Duration:', result.duration, 'ms');
+        if (result.fileSize) {
+          console.log('📊 File size:', result.fileSize, 'bytes');
+        }
+      } else {
+        throw new Error(result.error || 'Failed to stop recording');
+      }
+      
+    } catch (error) {
+      console.error('❌ Error stopping recording:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert(
+        'Recording Error',
+        `Could not stop recording: ${errorMessage}`
       );
     }
   }, [recorder]);
@@ -220,7 +305,7 @@ export default function AudioRecorderComponent() {
     try {
       // If currently recording, cancel it
       if (isRecording) {
-        await recorder.cancelRecording();
+        await recorder.cleanup();
         setIsRecording(false);
         
         if (timerRef.current) {
