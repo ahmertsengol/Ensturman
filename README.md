@@ -1,258 +1,265 @@
-# Ensturman 🎵
+# 🎵 EnsAI - AI-Powered Instrument Learning Platform
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+EnsAI is an innovative platform that combines artificial intelligence technologies with instrument education. Start your musical journey with your Gemini AI-powered personal music instructor!
 
-<p align="center">
-  <img src="web/public/vite.svg" alt="Ensturman Logo" width="120" height="120">
-</p>
+## 🚀 Project Overview
 
-## 📖 Overview
+EnsAI is designed as a democratizing and inclusive platform for instrument learning. It offers a personalized learning experience through AI technologies.
 
+### 🎯 Core Objectives
+- **Personalized Education**: AI-customized instrument training programs for every user
+- **Accessible Learning**: Appropriate content for users of all skill levels
+- **Real-Time Analysis**: Audio analysis and performance evaluation for instruments
+- **Interactive Experience**: Natural language interaction with AI assistant
 
-Ensturman is a comprehensive music education platform that provides real-time note detection and feedback for musical training. The system helps musicians improve their pitch accuracy through interactive training modules and real-time audio analysis.
-
-Built with modern web technologies and featuring cross-platform compatibility, Ensturman aims to make music education more accessible, interactive, and effective.
-
-## ✨ Key Features
-
-- **Real-time Pitch Detection**: Advanced YIN algorithm implementation with the Web Audio API
-- **Adaptive Audio Processing**:
-  - Dynamic noise gate filtering for improved detection accuracy
-  - Silence detection to eliminate false positives
-  - Fine-tuned confidence calculation combining cents deviation and frequency analysis
-- **Interactive Training Modules**:
-  - Progressive difficulty levels
-  - Sequential note practice exercises
-  - Customizable training sessions
-- **Performance Analytics**:
-  - Detailed accuracy metrics
-  - Progress tracking over time
-  - Session history and performance insights
-- **Cross-Platform Compatibility**:
-  - Web application (desktop and mobile browsers)
-  - Native mobile application (iOS and Android)
-
-## 🏗️ Architecture
-
-Ensturman follows a modern three-tier architecture:
+## 🏗️ Project Architecture
 
 ```
-├── Backend (Node.js)
-│   ├── RESTful API with Express
-│   ├── MySQL database integration
-│   ├── JWT authentication
-│   └── Audio processing utilities
-│
-├── Web Frontend (React)
-│   ├── Real-time audio processing
-│   ├── Interactive UI components
-│   ├── Training module interface
-│   └── Performance visualization
-│
-└── Mobile App (React Native with Expo)
-    ├── Native audio recording
-    ├── Cross-platform compatibility
-    ├── Offline capability
-    └── Native UI components
+EnsAI/
+├── 📱 mobile/          # React Native mobile application
+├── 🖥️ web/            # React web application
+├── ⚙️ backend/         # Node.js API server
+└── 📚 docs/           # Project documentation
 ```
 
-## 🚀 Getting Started
+### Technology Stack
+
+| Platform | Technologies |
+|----------|-------------|
+| **Web Frontend** | React 19, Vite, Chakra UI, TypeScript |
+| **Mobile** | React Native, Expo, TypeScript |
+| **Backend** | Node.js, Express, MongoDB, PostgreSQL |
+| **AI Integration** | Google Gemini AI, OpenAI (optional) |
+| **Audio Processing** | Web Audio API, WaveSurfer.js, FFmpeg |
+
+## 🌟 Main Features
+
+### 🤖 AI-Powered Features
+- **Gemini AI Assistant**: 24/7 instrument learning support
+- **Intelligent Audio Analysis**: Real-time pitch and rhythm detection for instruments
+- **Personalized Modules**: AI-optimized training content for instrument mastery
+- **Natural Language Processing**: Interactive conversational learning experience
+
+### 🎵 Instrument Learning Features
+- **Multi-Instrument Support**: Piano, guitar, violin, and more
+- **Audio Recording and Analysis**: High-quality audio processing for instruments
+- **Interactive Training**: Gamified instrument learning experience
+- **Progress Tracking**: Detailed performance reports for instrument skills
+
+### 📱 Platform Features
+- **Cross-Platform**: Web and mobile support
+- **Offline Mode**: Functionality without internet connection
+- **Sync**: Cross-device synchronization
+- **Social**: Music community integration
+
+## 🛠️ Installation and Setup
 
 ### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- MongoDB
+- PostgreSQL (optional)
+- Gemini AI API Key
 
-- Node.js (v16.x or higher)
-- npm (v8.x or higher) or yarn (v1.22.x or higher)
-- MySQL (v8.x or higher)
-- Web browser with Web Audio API support
-- For mobile development: Expo CLI and Android Studio/Xcode
-
-### Installation
-
-#### Clone the Repository
-
+### 1. Clone Repository
 ```bash
-git clone https://github.com/ahmertsengol/Ensturman.git
-cd Ensturman
+git clone https://github.com/yourusername/ensai.git
+cd ensai
 ```
 
-#### Backend Setup
-
+### 2. Backend Setup
 ```bash
 cd backend
-
-# Install dependencies
 npm install
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your database credentials and other configuration
-
-# Run database migrations
-npm run migrate
-
-# Start the server
-npm start
-```
-
-#### Web Application Setup
-
-```bash
-cd web
-
-# Install dependencies
-npm install
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your API endpoint and other settings
-
-# Start development server
+cp .env.example .env  # Configure API keys
 npm run dev
 ```
 
-#### Mobile Application Setup
+### 3. Web Frontend Setup  
+```bash
+cd web
+npm install
+cp .env.example .env  # Configure API URLs
+npm run dev
+```
 
+### 4. Mobile App Setup
 ```bash
 cd mobile
-
-# Install dependencies
 npm install
-
-# Start Expo development server
 npx expo start
 ```
 
-## 📱 Usage
+## 🔧 Development
 
-### Training Modules
+### Development Scripts
+```bash
+# Backend
+npm run dev          # Development server
+npm run start        # Production server
+npm test             # Run tests
 
-1. Log in to your account
-2. Navigate to the Training section
-3. Select a training module based on your skill level
-4. Grant microphone permissions when prompted
-5. Follow the on-screen instructions to practice notes
-6. Receive real-time feedback on your pitch accuracy
+# Frontend (Web)
+npm run dev          # Vite dev server
+npm run build        # Production build
+npm run preview      # Build preview
 
-### Recording and Analysis
-
-1. Navigate to the Record section
-2. Create a new recording session
-3. Play your instrument or sing
-4. Review the detailed analysis of your performance
-5. Save and track your progress over time
-
-## 🧪 Technical Details
-
-### Pitch Detection Algorithm
-
-Ensturman implements an enhanced version of the YIN algorithm with the following improvements:
-
-- **Adaptive Threshold**: Dynamically adjusts to ambient noise levels
-- **Harmonic Reinforcement**: Improved detection of fundamental frequencies
-- **Consecutive Frame Analysis**: Reduces jitter and improves stability
-- **Cents Deviation Calculation**: Precise measurement of pitch accuracy
-
-### Database Schema
-
-- `users`: User authentication and profile information
-- `training_modules`: Available training exercises and configurations
-- `training_sessions`: User session data and performance metrics
-- `audio_recordings`: Saved audio data and analysis results
-
-## 🛠️ Development
-
-### Codebase Structure
-
-```
-├── backend/
-│   ├── src/
-│   │   ├── controllers/  # Route handlers
-│   │   ├── routes/       # API endpoint definitions
-│   │   ├── models/       # Database models
-│   │   ├── middlewares/  # Express middlewares
-│   │   ├── utils/        # Utility functions
-│   │   └── config/       # Configuration files
-│   └── ...
-│
-├── web/
-│   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── pages/        # Page definitions
-│   │   ├── utils/        # Utility functions
-│   │   ├── context/      # React context providers
-│   │   └── api/          # API integration
-│   └── ...
-│
-└── mobile/
-    ├── app/              # Expo Router screens
-    ├── components/       # React Native components
-    ├── utils/            # Mobile-specific utilities
-    └── ...
+# Mobile
+npx expo start       # Expo dev server
+npx expo build       # Production build
 ```
 
-### API Documentation
+### Environment Variables
 
-The backend provides a RESTful API with the following main endpoints:
+#### Backend (.env)
+```
+NODE_ENV=development
+PORT=3001
+MONGODB_URI=mongodb://localhost:27017/ensai
+JWT_SECRET=your_jwt_secret
+GEMINI_API_KEY=your_gemini_api_key
+```
 
-- `/api/auth`: Authentication endpoints (register, login, refresh)
-- `/api/users`: User profile management
-- `/api/training`: Training module endpoints
-- `/api/audio`: Audio recording and analysis
+#### Web (.env)
+```
+VITE_API_URL=http://localhost:3001/api
+VITE_GEMINI_API_KEY=your_gemini_api_key
+```
 
-Detailed API documentation can be generated using the backend codebase.
+#### Mobile (.env)
+```
+EXPO_PUBLIC_API_URL=http://localhost:3001/api
+EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_api_key
+```
+
+## 🚀 Deployment
+
+### Docker Deployment
+```bash
+# Run all services
+docker-compose up -d
+
+# Backend only
+docker-compose up backend
+
+# Frontend only
+docker-compose up web
+```
+
+### Cloud Deployment
+- **Backend**: Heroku, AWS, Google Cloud
+- **Web**: Vercel, Netlify, GitHub Pages
+- **Mobile**: Expo Application Services (EAS)
+- **Database**: MongoDB Atlas, PlanetScale
+
+## 📚 API Documentation
+
+### Main Endpoints
+
+| Category | Endpoint | Description |
+|----------|----------|-------------|
+| **Auth** | `POST /api/users/register` | User registration |
+| **Auth** | `POST /api/users/login` | User login |
+| **Audio** | `POST /api/audio/upload` | Audio file upload |
+| **Audio** | `GET /api/audio/stream/:filename` | Audio file streaming |
+| **Training** | `GET /api/training/modules` | Training modules |
+| **Training** | `POST /api/training/sessions` | Save training session |
+
+For detailed API documentation: [API Docs](./backend/README.md)
+
+## 🎨 UI/UX Design
+
+### Design System
+- **Color Palette**: Spotify green, pink accents, dark theme
+- **Typography**: Poppins (headings), Inter (body)
+- **Components**: Custom components based on Chakra UI
+- **Animations**: Smooth transitions with Framer Motion
+
+### Responsive Design
+- **Mobile First**: Responsive design starting from 320px
+- **Tablet**: iPad and Android tablet support
+- **Desktop**: 1024px+ large screen optimization
 
 ## 🧪 Testing
 
+### Running Tests
 ```bash
-# Run backend tests
-cd backend
-npm test
+# Backend tests
+cd backend && npm test
 
-# Run web application tests
-cd web
-npm test
+# Frontend tests  
+cd web && npm test
 
-# Run mobile application tests
-cd mobile
-npm test
+# E2E tests
+npm run test:e2e
 ```
+
+### Test Coverage
+- Unit tests: Jest
+- Integration tests: Supertest
+- E2E tests: Cypress
+- Performance tests: Lighthouse
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+EnsAI is an open source project and we welcome your contributions!
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Contribution Process
+1. **Fork** the repository
+2. **Create feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Commit** changes (`git commit -m 'feat: Add amazing feature'`)
+4. **Push** to branch (`git push origin feature/amazing-feature`)
+5. **Open Pull Request**
 
-Please ensure your code follows the project's coding standards and includes appropriate tests.
+### Development Guidelines
+- Follow Clean Code principles
+- Use TypeScript
+- Write tests
+- Update documentation
+- Use Conventional Commits
+
+## 📊 Project Status
+
+### Development Stages
+- [x] **Alpha**: Core features and AI integration
+- [x] **Beta**: Web and mobile platforms
+- [ ] **v1.0**: Production-ready release
+- [ ] **v2.0**: Advanced AI features
+
+### Roadmap
+- [ ] Multi-language support
+- [ ] Social features
+- [ ] Advanced AI models
+- [ ] VR/AR integration
+- [ ] Blockchain integration
+
+## 📞 Contact and Support
+
+### Community
+- **Discord**: [EnsAI Community](https://discord.gg/ensai)
+- **GitHub Discussions**: Project discussions
+- **Reddit**: r/EnsAI
+
+### Support
+- **Issues**: Use GitHub Issues
+- **Email**: support@ensai.com
+- **Documentation**: [docs.ensai.com](https://docs.ensai.com)
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is distributed under the [MIT License](LICENSE).
 
-## 👥 Team
+## 🙏 Acknowledgments
 
-- Ahmet Şengöl - Project Lead & Developer
-
-## 📊 Performance Considerations
-
-- Audio processing is optimized for low-latency feedback
-- WebAssembly is used for computationally intensive operations
-- Efficient database queries with proper indexing
-- Lazy loading of application components for faster initial load
-
-## 🔗 Links
-
-- [Project Repository](https://github.com/ahmertsengol/Ensturman)
-- [Issue Tracker](https://github.com/ahmertsengol/Ensturman/issues)
-- [Documentation](https://github.com/ahmertsengol/Ensturman/wiki)
+- Google AI Team (Gemini API)
+- Open Source Community
+- Beta test users
+- Contributing developers
 
 ---
 
-<p align="center">
-  Built with ❤️ for music education
-</p> 
+## 🎵 Start Your Instrument Learning Journey with EnsAI!
+
+**Discover the future of AI-powered instrument learning. Develop your musical skills with your personal AI instructor and unleash your creativity.**
+
+[🚀 **Try Demo**](https://ensai-demo.vercel.app) | [📖 **Documentation**](./docs) | [💬 **Community**](https://discord.gg/ensai) 

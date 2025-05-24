@@ -84,10 +84,10 @@ const HomePage = () => {
                 bgGradient="linear(to-r, brand.500, accent.500)"
                 bgClip="text"
               >
-                Record, Store, and Share Your Audio
+                EnsAI - AI-Powered Instrument Learning
               </Heading>
               <Text fontSize="xl" color="gray.300">
-                LAZ Audio Recorder makes it easy to record high-quality audio directly from your browser, store it securely, and access it from anywhere.
+                Master musical instruments with EnsAI! Your AI-powered personal music assistant featuring real-time pitch detection, intelligent training modules, and interactive learning experience. The future of instrument education powered by artificial intelligence.
               </Text>
               
               <HStack spacing={4} mt={2} mb={6}>
@@ -140,7 +140,7 @@ const HomePage = () => {
                         transform: "translateY(-3px)"
                       }}
                     >
-                      My Recordings
+                      My AI Dashboard
                     </Button>
                   </>
                 ) : (
@@ -156,7 +156,7 @@ const HomePage = () => {
                       boxShadow: "0 10px 20px rgba(0,0,0,0.3)"
                     }}
                   >
-                    Get Started
+                    Start with AI
                   </Button>
                 )}
               </Stack>
@@ -217,10 +217,10 @@ const HomePage = () => {
                 bgGradient="linear(to-r, brand.500, accent.500)"
                 bgClip="text"
               >
-              Key Features
+              AI-Powered Features
             </Heading>
               <Text fontSize="lg" color="gray.400">
-              Record high-quality audio with our user-friendly platform
+              Revolutionary instrument learning experience enhanced by artificial intelligence
             </Text>
               
               <Box mt={6}>
@@ -242,24 +242,24 @@ const HomePage = () => {
             <AnimatedElement delay={0.1} flex={1}>
             <FeatureCard
               icon={FaMicrophone}
-              title="High-Quality Recording"
-              description="Record audio directly from your browser with crystal clear quality"
+              title="AI Audio Analysis"
+              description="Real-time pitch detection and AI-powered audio analysis to improve your instrument performance"
             />
             </AnimatedElement>
             
             <AnimatedElement delay={0.3} flex={1}>
             <FeatureCard
               icon={FaCloudUploadAlt}
-              title="Secure Storage"
-              description="All your recordings are securely stored and easily accessible"
+              title="Smart Training Modules"
+              description="AI-personalized instrument training modules tailored to your skill level and learning pace"
             />
             </AnimatedElement>
             
             <AnimatedElement delay={0.5} flex={1}>
             <FeatureCard
               icon={FaHeadphones}
-              title="Easy Playback"
-              description="Listen to your recordings from any device, anywhere, anytime"
+              title="AI Music Assistant"
+              description="Gemini AI-powered personal music instructor providing 24/7 instrument learning support"
             />
             </AnimatedElement>
           </Stack>
@@ -296,10 +296,10 @@ const HomePage = () => {
             <AnimatedElement animationType="slideRight" flex={2}>
               <VStack spacing={6} textAlign={{ base: 'center', md: 'left' }} align={{ base: 'center', md: 'flex-start' }}>
             <Heading as="h2" size="xl">
-              Ready to start recording?
+              Ready to master instruments with EnsAI?
             </Heading>
             <Text fontSize="lg" maxW="2xl">
-              Join LAZ Audio Recorder today and start creating, storing, and sharing your audio recordings.
+              Join EnsAI and discover the future of AI-powered instrument learning. Develop your musical skills with your personal AI instructor.
             </Text>
             {!isAuthenticated() && (
               <Button

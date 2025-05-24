@@ -1,14 +1,15 @@
-# LAZ Audio Recorder - Backend API
+# EnsAI - Backend API
 
-This is the backend API for the LAZ Audio Recorder application. It provides authentication, audio recording storage, and retrieval functionality.
+Backend API service for EnsAI (AI-Powered Instrument Learning Platform). Provides user authentication, audio recording management, training modules, and AI integration for instrument learning.
 
-## Technologies Used
+## Technologies
 
 - Node.js
 - Express.js
-- PostgreSQL
+- MongoDB (Mongoose) & PostgreSQL
 - JWT Authentication
 - Multer for file uploads
+- AI Integration Ready
 
 ## Setup Instructions
 
@@ -17,46 +18,63 @@ This is the backend API for the LAZ Audio Recorder application. It provides auth
    npm install
    ```
 
-2. Create a PostgreSQL database named "Laz"
-
-3. Set up environment variables in `.env` file:
+2. Configure environment variables in `.env` file:
    ```
-   PORT=5000
+   PORT=3001
    DB_USER=postgres
    DB_PASSWORD=postgres
    DB_HOST=localhost
    DB_PORT=5432
-   DB_NAME=Laz
-   JWT_SECRET=laz_audio_recording_app_secret_key
+   DB_NAME=EnsAI
+   JWT_SECRET=ensai_instrument_learning_app_secret_key
    NODE_ENV=development
+   GEMINI_API_KEY=your_gemini_api_key
    ```
 
-4. Initialize the database by running the SQL commands in `src/config/database.sql`
-
-5. Start the development server:
+3. Start the development server:
    ```
    npm run dev
    ```
 
 ## API Endpoints
 
-### Authentication
-- `POST /api/users/register` - Register a new user
-- `POST /api/users/login` - Login user
+### User Management
+- `POST /api/users/register` - Register new user
+- `POST /api/users/login` - User login
+- `POST /api/users/logout` - User logout (protected)
 - `GET /api/users/profile` - Get user profile (protected)
 
-### Audio Recordings
-- `POST /api/audio/upload` - Upload a new audio recording (protected)
-- `GET /api/audio` - Get all user recordings (protected)
-- `GET /api/audio/:id` - Get a specific recording (protected)
-- `DELETE /api/audio/:id` - Delete a recording (protected)
+### Audio Management
+- `POST /api/audio/upload` - Upload audio file (protected)
+- `GET /api/audio` - Get user audio recordings (protected)
+- `GET /api/audio/stream/:filename` - Stream audio file
+- `GET /api/audio/:id` - Get specific recording (protected)
+- `DELETE /api/audio/:id` - Delete recording (protected)
+
+### Training Modules (AI-Powered)
+- `POST /api/training/modules` - Create training module (protected)
+- `GET /api/training/modules` - List training modules (protected)
+- `GET /api/training/modules/:id` - Get specific module (protected)
+- `POST /api/training/sessions` - Save training session (protected)
+- `GET /api/training/history` - Get user training history (protected)
+- `GET /api/training/progress` - Get user progress report (protected)
+
+### Utility
+- `GET /health` - Server health check
+- `GET /test-cors` - CORS test endpoint
+
+## AI Features
+
+- Gemini AI integration
+- Instrument learning assistant
+- Audio analysis and pitch detection
+- Personalized training recommendations
 
 ## Folder Structure
 
 - `src/config` - Database and configuration files
 - `src/controllers` - Route controllers
 - `src/middlewares` - Express middlewares
-- `src/models` - Database models
 - `src/routes` - API routes
 - `src/utils` - Utility functions
-- `uploads` - Audio files storage directory 
+- `uploads` - Audio files storage directory
