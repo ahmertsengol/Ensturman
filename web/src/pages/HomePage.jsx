@@ -2,7 +2,7 @@ import { Box, Button, Container, Heading, Text, VStack, Flex, Image, Stack, Icon
 import { Link as RouterLink } from 'react-router-dom';
 import { FaMicrophone, FaHeadphones, FaCloudUploadAlt, FaMusic, FaPlayCircle } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
-import { AnimatedElement, GlassmorphicCard, AudioDecorations } from '../components/ui';
+import { AnimatedElement, GlassmorphicCard, AudioDecorations, AnimatedCard, MusicalBackground } from '../components/ui';
 import { useState } from 'react';
 
 const FeatureCard = ({ icon, title, description }) => {
@@ -35,11 +35,15 @@ const HomePage = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   
   const togglePlayback = () => {
+    console.log('Play button clicked! Current state:', isPlaying);
     setIsPlaying(!isPlaying);
   };
   
   return (
     <Box>
+      {/* Musical Background Animation */}
+      <MusicalBackground isActive={isPlaying} density={isPlaying ? 30 : 15} />
+      
       {/* Hero Section */}
       <Box
         bgGradient={bgGradient}
@@ -63,7 +67,7 @@ const HomePage = () => {
         
         <Container maxW="container.xl">
           <Flex
-            direction={{ base: 'column', md: 'row' }}
+            direction={{ base: 'column', lg: 'row' }}
             align="center"
             justify="space-between"
             gap={8}
@@ -71,10 +75,10 @@ const HomePage = () => {
             <AnimatedElement
               animationType="slideRight"
               asBox={true}
-              align={{ base: 'center', md: 'flex-start' }}
+              align={{ base: 'center', lg: 'flex-start' }}
               spacing={6}
-              maxW={{ base: 'full', md: '50%' }}
-              textAlign={{ base: 'center', md: 'left' }}
+              maxW={{ base: 'full', lg: '40%' }}
+              textAlign={{ base: 'center', lg: 'left' }}
             >
               <Heading
                 as="h1"
@@ -87,33 +91,26 @@ const HomePage = () => {
                 EnsAI - AI-Powered Instrument Learning
               </Heading>
               <Text fontSize="xl" color="gray.300">
-                Master musical instruments with EnsAI! Your AI-powered personal music assistant featuring real-time pitch detection, intelligent training modules, and interactive learning experience. The future of instrument education powered by artificial intelligence.
+                Master musical instruments with EnsAI! Your AI-powered personal music assistant featuring real-time pitch detection, intelligent training modules, and interactive learning experience.
               </Text>
-              
-              <HStack spacing={4} mt={2} mb={6}>
-                <AudioDecorations.Wave 
-                  isActive={isPlaying}
-                  waveCount={5}
-                  height="40px"
-                  width="120px"
-                />
-                <Icon 
-                  as={isPlaying ? FaMusic : FaPlayCircle} 
-                  color={isPlaying ? "accent.500" : "brand.500"} 
-                  boxSize={8} 
-                  cursor="pointer"
-                  onClick={togglePlayback}
-                  transition="all 0.3s ease"
-                  _hover={{ transform: "scale(1.1)" }}
-                />
-              </HStack>
-              
+            </AnimatedElement>
+            
+            {/* Animated Card Section */}
+            <AnimatedElement
+              animationType="scale"
+              delay={0.2}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              maxW={{ base: 'full', lg: '30%' }}
+            >
+              <AnimatedCard onPlayClick={togglePlayback} />
             </AnimatedElement>
             
             <AnimatedElement
               animationType="slideLeft"
-              delay={0.3}
-              maxW={{ base: '80%', md: '45%' }}
+              delay={0.4}
+              maxW={{ base: '80%', lg: '30%' }}
               overflow="hidden"
               borderRadius="xl"
               boxShadow="2xl"

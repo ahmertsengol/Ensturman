@@ -15,6 +15,68 @@ div[class*="css-h2yqag"],
   color: white !important;
   background-color: #1F1D36 !important;
   border-color: #2A2438 !important;
+  
+  /* 3D Animation Effects */
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: all 0.3s ease-in-out;
+  border-radius: 12px;
+  box-shadow: rgba(25, 23, 41, 0.2) 0px 8px 16px -4px, 
+              rgba(29, 185, 84, 0.1) 0px 4px 8px -2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.css-h2yqag::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(29, 185, 84, 0.1) 0%, 
+    rgba(233, 30, 99, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.css-h2yqag:hover {
+  transform: translateY(-4px) rotateX(5deg) rotateY(2deg);
+  box-shadow: rgba(25, 23, 41, 0.3) 0px 16px 32px -8px,
+              rgba(29, 185, 84, 0.2) 0px 8px 16px -4px;
+  background: linear-gradient(135deg, #1F1D36 0%, #2A2438 100%) !important;
+}
+
+.css-h2yqag:hover::before {
+  opacity: 1;
+}
+
+.css-h2yqag:active {
+  transform: translateY(-2px) rotateX(2deg) rotateY(1deg);
+  transition: all 0.1s ease;
+}
+
+/* Breathing animation for idle state */
+@keyframes breathe {
+  0%, 100% { 
+    transform: scale(1) rotateZ(0deg);
+    box-shadow: rgba(25, 23, 41, 0.2) 0px 8px 16px -4px;
+  }
+  50% { 
+    transform: scale(1.02) rotateZ(0.5deg);
+    box-shadow: rgba(25, 23, 41, 0.3) 0px 12px 24px -6px;
+  }
+}
+
+.css-h2yqag {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.css-h2yqag:hover {
+  animation: none; /* Stop breathing animation on hover */
 }
 
 /* Additional fixes for potential Chakra UI generated classes */
