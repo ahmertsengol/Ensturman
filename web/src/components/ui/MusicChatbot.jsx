@@ -181,7 +181,7 @@ const MusicChatbot = () => {
   return (
     <>
       {/* Floating chat button */}
-      <Tooltip label="Asistana sor" placement="left">
+      <Tooltip label="Ask me anything..." placement="left">
         <IconButton
           aria-label="Sohbeti aç"
           icon={<FaRobot />}
