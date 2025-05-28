@@ -1,11 +1,11 @@
-import { Box, Button, Container, Heading, Text, VStack, Flex, Image, Stack, Icon, HStack } from '@chakra-ui/react';
+import { Box, Button, Container, Heading, Text, VStack, Flex, Image, Stack, Icon, HStack, Badge } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import { FaMicrophone, FaHeadphones, FaCloudUploadAlt, FaMusic, FaPlayCircle } from 'react-icons/fa';
+import { FaMicrophone, FaHeadphones, FaCloudUploadAlt, FaMusic, FaPlayCircle, FaArrowRight, FaCheck, FaPlay } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
-import { AnimatedElement, GlassmorphicCard, AudioDecorations, AnimatedCard, MusicalBackground } from '../components/ui';
+import { AnimatedElement, GlassmorphicCard, AudioDecorations, AnimatedCard, MusicalBackground, InstrumentsCard, LearningCard } from '../components/ui';
 import { useState } from 'react';
 
-const FeatureCard = ({ icon, title, description }) => {
+const FeatureCard = ({ icon, title, description, isHighlighted = false }) => {
   return (
     <GlassmorphicCard
       p={6}
@@ -13,13 +13,13 @@ const FeatureCard = ({ icon, title, description }) => {
       textAlign="center"
       animationType="slideUp"
       hoverEffect={true}
-      glowEffect={true}
+      glowEffect={isHighlighted}
       height="100%"
     >
       <AnimatedElement animationType="scale" delay={0.3}>
         <Icon as={icon} boxSize={12} color="brand.500" mb={4} />
       </AnimatedElement>
-      <Heading as="h3" size="md" mb={3}>
+      <Heading as="h3" size="md" mb={3} color="white">
         {title}
       </Heading>
       <Text color="gray.300">
@@ -31,7 +31,7 @@ const FeatureCard = ({ icon, title, description }) => {
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
-  const bgGradient = 'linear-gradient(to bottom, #191729, #1F1D36)';
+  const bgGradient = 'linear-gradient(to bottom, #191729, #1F1D36, #1a202c)';
   const [isPlaying, setIsPlaying] = useState(false);
   
   const togglePlayback = () => {
@@ -47,7 +47,8 @@ const HomePage = () => {
       {/* Hero Section */}
       <Box
         bgGradient={bgGradient}
-        py={{ base: 16, md: 24 }}
+        pt={{ base: 20, md: 28 }}
+        pb={{ base: 16, md: 20 }}
         px={8}
         position="relative"
         overflow="hidden"
@@ -65,155 +66,234 @@ const HomePage = () => {
           pointerEvents="none"
         />
         
-        <Container maxW="container.xl">
-          <Flex
-            direction={{ base: 'column', lg: 'row' }}
-            align="center"
-            justify="space-between"
-            gap={8}
-          >
-            <AnimatedElement
-              animationType="slideRight"
-              asBox={true}
-              align={{ base: 'center', lg: 'flex-start' }}
-              spacing={6}
-              maxW={{ base: 'full', lg: '40%' }}
-              textAlign={{ base: 'center', lg: 'left' }}
-            >
-              <Heading
-                as="h1"
-                size="2xl"
-                fontWeight="bold"
+        <Container maxW="container.xl" position="relative" zIndex={2}>
+          <VStack spacing={12} textAlign="center">
+            {/* Header Badge */}
+            <AnimatedElement animationType="fadeIn">
+              <Badge
+                bg="brand.500"
                 color="white"
-                bgGradient="linear(to-r, brand.500, accent.500)"
-                bgClip="text"
+                px={4}
+                py={2}
+                borderRadius="full"
+                fontSize="sm"
+                fontWeight="600"
+                textTransform="none"
+                leftIcon={<FaMusic />}
               >
-                EnsAI - AI-Powered Instrument Learning
-              </Heading>
-              <Text fontSize="xl" color="gray.300">
-                Master musical instruments with EnsAI! Your AI-powered personal music assistant featuring real-time pitch detection, intelligent training modules, and interactive learning experience.
-              </Text>
+                AI-Powered Music Learning
+              </Badge>
             </AnimatedElement>
             
-            {/* Animated Card Section */}
-            <AnimatedElement
-              animationType="scale"
-              delay={0.2}
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              maxW={{ base: 'full', lg: '30%' }}
-            >
-              <AnimatedCard onPlayClick={togglePlayback} />
+            {/* Main Heading */}
+            <AnimatedElement animationType="slideUp" delay={0.1}>
+              <VStack spacing={6}>
+                <Heading
+                  as="h1"
+                  fontSize={{ base: "4xl", md: "6xl", lg: "7xl" }}
+                  fontWeight="800"
+                  lineHeight="1.1"
+                  letterSpacing="-0.02em"
+                  color="white"
+                  maxW="5xl"
+                >
+                  Master instruments with{" "}
+                  <Text
+                    as="span"
+                    bgGradient="linear(to-r, brand.500, accent.500)"
+                    bgClip="text"
+                    position="relative"
+                  >
+                    EnsAI
+                  </Text>
+                </Heading>
+                
+                <Text 
+                  fontSize={{ base: "lg", md: "xl", lg: "2xl" }}
+                  color="gray.300"
+                  maxW="3xl"
+                  lineHeight="1.6"
+                  fontWeight="400"
+                >
+                  Your AI-powered personal music assistant featuring real-time pitch detection, 
+                  intelligent training modules, and interactive learning experience.
+                </Text>
+              </VStack>
+              
             </AnimatedElement>
             
-            <AnimatedElement
-              animationType="slideLeft"
-              delay={0.4}
-              maxW={{ base: '80%', lg: '30%' }}
-              overflow="hidden"
-              borderRadius="xl"
-              boxShadow="2xl"
-              position="relative"
-            >
-              <Image
-                src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-                alt="Recording studio"
-                fallbackSrc="https://via.placeholder.com/500x300?text=Audio+Recorder"
-                transition="all 0.5s ease"
-                _hover={{ transform: "scale(1.03)" }}
-              />
-              
-              {/* Decorative equalizer overlay */}
-              <Box position="absolute" bottom="10px" left="10px" right="10px" zIndex={2}>
-                <AudioDecorations.BarGraph 
-                  isActive={true}
-                  height="30px"
-                  barCount={20}
-                  primaryColor="rgba(29, 185, 84, 0.7)"
-                  secondaryColor="rgba(233, 30, 99, 0.7)"
-              />
-            </Box>
-              
-              {/* Overlay gradient */}
-              <Box 
-                position="absolute"
-                bottom="0"
-                left="0"
-                right="0"
-                height="40%"
-                bgGradient="linear(to-t, rgba(25, 23, 41, 0.8), transparent)"
-                borderBottomRadius="xl"
-                zIndex={1}
-              />
+                <Box mt={6} mb={12}>
+                  <AudioDecorations.Equalizer 
+                    isActive={isPlaying} 
+                    barCount={16} 
+                    height="30px"
+                    spacing={1.5}
+                  />
+                  
+                  {/* Play me Button - Minimalist */}
+                  <HStack justify="center" mt={3}>
+                    <Box
+                      as="button"
+                      onClick={togglePlayback}
+                      position="relative"
+                      display="flex"
+                      alignItems="center"
+                      gap={2}
+                      px={4}
+                      py={2}
+                      bg="rgba(255, 255, 255, 0.05)"
+                      backdropFilter="blur(20px)"
+                      border="1px solid"
+                      borderColor={isPlaying ? "rgba(239, 68, 68, 0.3)" : "rgba(255, 255, 255, 0.1)"}
+                      borderRadius="full"
+                      color="gray.300"
+                      fontSize="xs"
+                      fontWeight="500"
+                      cursor="pointer"
+                      transition="all 0.3s ease"
+                      boxShadow={isPlaying ? "0 0 20px rgba(239, 68, 68, 0.3)" : "none"}
+                      _hover={{
+                        bg: "rgba(255, 255, 255, 0.08)",
+                        borderColor: isPlaying ? "red.400" : "brand.400",
+                        color: "white",
+                        transform: "translateY(-1px)",
+                        boxShadow: isPlaying ? "0 0 25px rgba(239, 68, 68, 0.4), 0 8px 32px rgba(0, 0, 0, 0.3)" : "0 0 20px rgba(128, 90, 213, 0.4), 0 8px 32px rgba(0, 0, 0, 0.3)"
+                      }}
+                    >
+                      <Icon 
+                        as={isPlaying ? FaPlayCircle : FaPlay} 
+                        boxSize={3} 
+                        color={isPlaying ? "red.400" : "brand.400"}
+                        transition="all 0.3s ease"
+                        transform={isPlaying ? "scale(1.1)" : "scale(1)"}
+                      />
+                      <Text fontSize="xs">
+                        {isPlaying ? 'Stop' : 'Play me'}
+                      </Text>
+                    </Box>
+                  </HStack>
+                </Box>
+            
+            {/* CTA Buttons */}
+            <AnimatedElement animationType="slideUp" delay={0.2}>
+              <HStack spacing={4} flexWrap="wrap" justify="center">
+                {!isAuthenticated() && (
+                  <Button
+                    as={RouterLink}
+                    to="/auth"
+                    size="lg"
+                    bg="brand.500"
+                    color="white"
+                    px={8}
+                    py={6}
+                    borderRadius="xl"
+                    fontSize="md"
+                    fontWeight="600"
+                    rightIcon={<FaArrowRight />}
+                    _hover={{
+                      bg: "brand.600",
+                      transform: "translateY(-2px)",
+                      boxShadow: "lg"
+                    }}
+                    transition="all 0.3s ease"
+                  >
+                    Start Learning
+                  </Button>
+                )}
+              </HStack>
             </AnimatedElement>
-          </Flex>
+            
+            {/* Interactive Cards Layout */}
+            <AnimatedElement animationType="fadeIn" delay={0.3}>
+              <HStack 
+                spacing={{ base: 8, md: 16, lg: 20 }} 
+                justify="center"
+                align="center"
+                flexWrap="wrap"
+                gap={{ base: 8, md: 12, lg: 20 }}
+                mt={12}
+              >
+                <Box>
+                  <InstrumentsCard />
+                </Box>
+                
+                {/* Animated Card in the center */}
+                <AnimatedElement animationType="scale" delay={0.4}>
+                  <Box maxW="400px">
+                    <AnimatedCard onPlayClick={togglePlayback} />
+                  </Box>
+                </AnimatedElement>
+                
+                <Box>
+                  <LearningCard />
+                </Box>
+              </HStack>
+            </AnimatedElement>
+          </VStack>
         </Container>
       </Box>
       
       {/* Features Section */}
-      <Container maxW="container.xl" py={{ base: 12, md: 20 }}>
-        <VStack spacing={12}>
-          <AnimatedElement animationType="fadeIn">
-          <VStack spacing={4} textAlign="center" maxW="3xl" mx="auto">
-              <Heading 
-                as="h2" 
-                size="xl"
-                bgGradient="linear(to-r, brand.500, accent.500)"
-                bgClip="text"
-              >
-              AI-Powered Features
-            </Heading>
-              <Text fontSize="lg" color="gray.400">
-              Revolutionary instrument learning experience enhanced by artificial intelligence
-            </Text>
-              
-              <Box mt={6}>
-                <AudioDecorations.Equalizer 
-                  isActive={true} 
-                  barCount={16} 
-                  height="30px"
-                  spacing={1.5}
+      <Box
+        bg="#1a202c"
+        py={{ base: 12, md: 20 }}
+      >
+        <Container maxW="container.xl">
+          <VStack spacing={12}>
+            <AnimatedElement animationType="fadeIn">
+              <VStack spacing={4} textAlign="center" maxW="3xl" mx="auto">
+                <Heading 
+                  as="h2" 
+                  size="xl"
+                  bgGradient="linear(to-r, brand.500, accent.500)"
+                  bgClip="text"
+                >
+                  AI-Powered Features
+                </Heading>
+                <Text fontSize="lg" color="gray.400">
+                  Revolutionary instrument learning experience enhanced by artificial intelligence
+                </Text>
+                
+              </VStack>
+            </AnimatedElement>
+            
+            <Stack
+              direction={{ base: 'column', md: 'row' }}
+              spacing={8}
+              w="full"
+            >
+              <AnimatedElement delay={0.1} flex={1}>
+                <FeatureCard
+                  icon={FaMicrophone}
+                  title="AI Audio Analysis"
+                  description="Real-time pitch detection and AI-powered audio analysis to improve your instrument performance"
                 />
-              </Box>
+              </AnimatedElement>
+              
+              <AnimatedElement delay={0.3} flex={1}>
+                <FeatureCard
+                  icon={FaCloudUploadAlt}
+                  title="Smart Training Modules"
+                  description="AI-personalized instrument training modules tailored to your skill level and learning pace"
+                  isHighlighted={true}
+                />
+              </AnimatedElement>
+              
+              <AnimatedElement delay={0.5} flex={1}>
+                <FeatureCard
+                  icon={FaHeadphones}
+                  title="AI Music Assistant"
+                  description="Gemini AI-powered personal music instructor providing 24/7 instrument learning support"
+                />
+              </AnimatedElement>
+            </Stack>
           </VStack>
-          </AnimatedElement>
-          
-          <Stack
-            direction={{ base: 'column', md: 'row' }}
-            spacing={8}
-            w="full"
-          >
-            <AnimatedElement delay={0.1} flex={1}>
-            <FeatureCard
-              icon={FaMicrophone}
-              title="AI Audio Analysis"
-              description="Real-time pitch detection and AI-powered audio analysis to improve your instrument performance"
-            />
-            </AnimatedElement>
-            
-            <AnimatedElement delay={0.3} flex={1}>
-            <FeatureCard
-              icon={FaCloudUploadAlt}
-              title="Smart Training Modules"
-              description="AI-personalized instrument training modules tailored to your skill level and learning pace"
-            />
-            </AnimatedElement>
-            
-            <AnimatedElement delay={0.5} flex={1}>
-            <FeatureCard
-              icon={FaHeadphones}
-              title="AI Music Assistant"
-              description="Gemini AI-powered personal music instructor providing 24/7 instrument learning support"
-            />
-            </AnimatedElement>
-          </Stack>
-        </VStack>
-      </Container>
+        </Container>
+      </Box>
       
       {/* CTA Section */}
       <Box
-        bgGradient="linear(to-r, brand.600, accent.600)"
+        bgGradient="linear(to-r, gray.800, brand.700, accent.700)"
         py={12}
         px={8}
         color="white"
@@ -240,33 +320,42 @@ const HomePage = () => {
           >
             <AnimatedElement animationType="slideRight" flex={2}>
               <VStack spacing={6} textAlign={{ base: 'center', md: 'left' }} align={{ base: 'center', md: 'flex-start' }}>
-            <Heading as="h2" size="xl">
-              Ready to master instruments with EnsAI?
-            </Heading>
-            <Text fontSize="lg" maxW="2xl">
-              Join EnsAI and discover the future of AI-powered instrument learning. Develop your musical skills with your personal AI instructor.
-            </Text>
-            {!isAuthenticated() && (
-              <Button
-                as={RouterLink}
-                to="/auth"
-                size="lg"
-                colorScheme="whiteAlpha"
-                mt={4}
+                <Heading as="h2" size="xl">
+                  Ready to master instruments with EnsAI?
+                </Heading>
+                <Text fontSize="lg" maxW="2xl">
+                  Join EnsAI and discover the future of AI-powered instrument learning. Develop your musical skills with your personal AI instructor.
+                </Text>
+                {!isAuthenticated() && (
+                  <Button
+                    as={RouterLink}
+                    to="/auth"
+                    size="lg"
+                    colorScheme="whiteAlpha"
+                    mt={4}
                     _hover={{
                       bg: "whiteAlpha.300",
                       transform: "translateY(-2px)",
                     }}
-              >
-                Sign Up Now
-              </Button>
-            )}
-          </VStack>
+                  >
+                    Sign Up Now
+                  </Button>
+                )}
+              </VStack>
             </AnimatedElement>
+            
+                <Box mt={6}>
+                  <AudioDecorations.Equalizer 
+                    isActive={isPlaying} 
+                    barCount={16} 
+                    height="30px"
+                    spacing={1.5}
+                  />
+                </Box>
             
             <AnimatedElement animationType="slideLeft" flex={1} display={{ base: 'none', md: 'flex' }} justifyContent="center">
               <AudioDecorations.Visualizer 
-                isActive={true} 
+                isActive={isPlaying} 
                 size="200px"
                 primaryColor="rgba(255, 255, 255, 0.8)"
                 secondaryColor="rgba(255, 255, 255, 0.5)"

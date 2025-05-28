@@ -8,7 +8,7 @@ const MusicalBackground = ({ isActive = true, density = 20 }) => {
 
   useEffect(() => {
     const generateNotes = () => {
-      const noteSymbols = ['♪', '♫', '♬', '♭', '♯', '𝄞', '𝄢', '𝄡', '𝅘𝅥', '𝅘𝅥𝅮', '𝅘𝅥𝅯', '𝅘𝅥𝅰'];
+      const noteSymbols = ['', '', '', '', ''];
       const newNotes = [];
       
       for (let i = 0; i < density; i++) {
@@ -18,7 +18,7 @@ const MusicalBackground = ({ isActive = true, density = 20 }) => {
           left: Math.random() * 100,
           animationDelay: Math.random() * 20,
           animationDuration: 15 + Math.random() * 10,
-          fontSize: 20 + Math.random() * 40,
+          fontSize: 10 + Math.random() * 40,
           opacity: 0.1 + Math.random() * 0.3,
           color: Math.random() > 0.5 ? '#1db954' : '#e91e63',
           rotationSpeed: 5 + Math.random() * 10,

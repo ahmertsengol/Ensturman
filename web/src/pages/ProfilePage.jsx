@@ -55,6 +55,60 @@ const waveAnimation = keyframes`
   100% { transform: scale(1) translateY(0); }
 `;
 
+// Enhanced keyframes for larger sound waves
+
+const mediumSoundWave = keyframes`
+  0% { height: 15px; transform: scaleX(1); }
+  30% { height: 45px; transform: scaleX(1.05); }
+  60% { height: 25px; transform: scaleX(1); }
+  90% { height: 55px; transform: scaleX(0.95); }
+  100% { height: 15px; transform: scaleX(1); }
+`;
+
+const smallSoundWave = keyframes`
+  0% { height: 10px; transform: scaleX(1); }
+  40% { height: 30px; transform: scaleX(1.03); }
+  80% { height: 18px; transform: scaleX(1); }
+  100% { height: 10px; transform: scaleX(1); }
+`;
+
+// Floating sound wave animation
+const floatingSoundWave = keyframes`
+  0% { 
+    transform: translateY(0) rotate(0deg); 
+    opacity: 0.6; 
+  }
+  25% { 
+    transform: translateY(-10px) rotate(2deg); 
+    opacity: 0.8; 
+  }
+  50% { 
+    transform: translateY(-20px) rotate(0deg); 
+    opacity: 1; 
+  }
+  75% { 
+    transform: translateY(-10px) rotate(-2deg); 
+    opacity: 0.8; 
+  }
+  100% { 
+    transform: translateY(0) rotate(0deg); 
+    opacity: 0.6; 
+  }
+`;
+
+// Pulsing border animation
+const pulsingBorder = keyframes`
+  0% { 
+    box-shadow: 0 0 0 0px rgba(29, 185, 84, 0.4);
+  }
+  70% { 
+    box-shadow: 0 0 0 10px rgba(29, 185, 84, 0);
+  }
+  100% { 
+    box-shadow: 0 0 0 0px rgba(29, 185, 84, 0);
+  }
+`;
+
 // Keyframes for equalizer animation
 const equalizerAnimation1 = keyframes`
   0% { height: 10px; }
@@ -345,13 +399,16 @@ const ProfilePage = () => {
               bg={accentColor} 
               color="white" 
               borderRadius="full"
+              animation={isPlaying ? `${pulsingBorder} 2s infinite` : 'none'}
             >
               <FaHeadphones size="24px" />
             </Box>
             <Heading as="h1" size="xl" color={textColor}>Music Profile</Heading>
+            
+           
           </HStack>
           
-          {/* Audio Equalizer - Only shows when playing */}
+          {/* Enhanced Audio Equalizer */}
           <HStack spacing={1} h="40px" alignItems="flex-end">
             {isPlaying && visualizerBars.map((_, index) => (
               <Box
@@ -372,6 +429,7 @@ const ProfilePage = () => {
               colorScheme={isPlaying ? "pink" : "green"}
               ml={2}
               borderRadius="full"
+              animation={isPlaying ? `${pulsingBorder} 2s infinite` : 'none'}
             />
           </HStack>
         </Flex>
@@ -400,6 +458,23 @@ const ProfilePage = () => {
                   border="4px solid"
                   borderColor={borderColor}
                 />
+                
+                {/* Floating Sound Waves around Avatar */}
+                {isPlaying && Array(6).fill(0).map((_, index) => (
+                  <Box
+                    key={`floating-wave-${index}`}
+                    position="absolute"
+                    width="8px"
+                    height="20px"
+                    bg={index % 2 === 0 ? accentColor : accentColor2}
+                    borderRadius="full"
+                    top={`${20 + (index * 15)}%`}
+                    left={`${index % 2 === 0 ? '-15px' : 'calc(100% + 8px)'}`}
+                    animation={`${floatingSoundWave} ${2 + (index * 0.3)}s infinite`}
+                    opacity="0.7"
+                  />
+                ))}
+                
                 <Box 
                   position="absolute"
                   bottom="0"
@@ -409,6 +484,7 @@ const ProfilePage = () => {
                   borderRadius="full"
                   onClick={handleEdit}
                   cursor="pointer"
+                  animation={isPlaying ? `${pulsingBorder} 1.5s infinite` : 'none'}
                 >
                   <FaEdit color="white" />
                 </Box>
@@ -511,13 +587,76 @@ const ProfilePage = () => {
             </Flex>
             
             <SimpleGrid columns={2} spacing={6} my={4}>
-              <Stat bg="dark.400" p={4} borderRadius="md" textAlign="center">
+              <Stat 
+                bg="dark.400" 
+                p={4} 
+                borderRadius="md" 
+                textAlign="center"
+                position="relative"
+                overflow="hidden"
+                border="2px solid"
+                borderColor={isPlaying ? accentColor : "transparent"}
+                animation={isPlaying ? `${pulsingBorder} 3s infinite` : 'none'}
+              >
+                {/* Left side sound waves */}
+                <VStack 
+                  position="absolute" 
+                  left="4px" 
+                  top="50%" 
+                  transform="translateY(-50%)"
+                  spacing={1}
+                >
+                  {Array(4).fill(0).map((_, i) => (
+                    <Box
+                      key={`left-wave-${i}`}
+                      width="3px"
+                      height="8px"
+                      bg={accentColor}
+                      borderRadius="sm"
+                      animation={isPlaying ? `${smallSoundWave} ${1.2 + (i * 0.2)}s infinite` : 'none'}
+                      opacity={isPlaying ? 0.8 : 0.3}
+                    />
+                  ))}
+                </VStack>
+                
                 <StatLabel color={mutedTextColor}>Total Recordings</StatLabel>
                 <StatNumber fontSize="2xl" color={accentColor} fontWeight="bold">
                   {currentUser.recordingCount || 0}
                 </StatNumber>
               </Stat>
-              <Stat bg="dark.400" p={4} borderRadius="md" textAlign="center">
+              
+              <Stat 
+                bg="dark.400" 
+                p={4} 
+                borderRadius="md" 
+                textAlign="center"
+                position="relative"
+                overflow="hidden"
+                border="2px solid"
+                borderColor={isPlaying ? accentColor2 : "transparent"}
+                animation={isPlaying ? `${pulsingBorder} 3.5s infinite` : 'none'}
+              >
+                {/* Right side sound waves */}
+                <VStack 
+                  position="absolute" 
+                  right="4px" 
+                  top="50%" 
+                  transform="translateY(-50%)"
+                  spacing={1}
+                >
+                  {Array(4).fill(0).map((_, i) => (
+                    <Box
+                      key={`right-wave-${i}`}
+                      width="3px"
+                      height="8px"
+                      bg={accentColor2}
+                      borderRadius="sm"
+                      animation={isPlaying ? `${mediumSoundWave} ${1.5 + (i * 0.25)}s infinite` : 'none'}
+                      opacity={isPlaying ? 0.8 : 0.3}
+                    />
+                  ))}
+                </VStack>
+                
                 <StatLabel color={mutedTextColor}>Total Duration</StatLabel>
                 <StatNumber fontSize="2xl" color={accentColor2} fontWeight="bold">
                   {currentUser.totalRecordingTime || '0 min'}
@@ -527,13 +666,77 @@ const ProfilePage = () => {
             
             <Divider my={6} borderColor={borderColor} />
             
-            <VStack spacing={4} align="stretch" bg="dark.400" p={4} borderRadius="md">
-              <Text fontWeight="medium" color={textColor} display="flex" alignItems="center">
-                <FaMicrophone style={{ marginRight: '8px' }} /> Recent Activities
-              </Text>
+            <VStack 
+              spacing={4} 
+              align="stretch" 
+              bg="dark.400" 
+              p={4} 
+              borderRadius="md"
+              position="relative"
+              overflow="hidden"
+              border="1px solid"
+              borderColor={isPlaying ? accentColor : borderColor}
+            >
+              {/* Background Sound Wave Pattern */}
+              <Box
+                position="absolute"
+                top="0"
+                left="0"
+                right="0"
+                bottom="0"
+                opacity="0.1"
+                zIndex={0}
+              >
+                <HStack justify="space-between" h="100%" align="center" px={2}>
+                  {Array(12).fill(0).map((_, index) => (
+                    <Box
+                      key={`bg-wave-${index}`}
+                      width="2px"
+                      height={`${20 + (index % 4) * 10}px`}
+                      bg={index % 2 === 0 ? accentColor : accentColor2}
+                      borderRadius="sm"
+                      animation={isPlaying ? `${smallSoundWave} ${1 + (index * 0.1)}s infinite` : 'none'}
+                    />
+                  ))}
+                </HStack>
+              </Box>
+              
+              <HStack spacing={3} position="relative" zIndex={1}>
+                <Box
+                  p={2}
+                  bg={accentColor}
+                  borderRadius="full"
+                  animation={isPlaying ? `${pulsingBorder} 2.5s infinite` : 'none'}
+                >
+                  <FaMicrophone color="white" />
+                </Box>
+                <Text fontWeight="medium" color={textColor}>
+                  Recent Activities
+                </Text>
+                
+                {/* Side mini equalizer */}
+                <HStack spacing={1} ml="auto">
+                  {Array(5).fill(0).map((_, i) => (
+                    <Box
+                      key={`mini-eq-${i}`}
+                      width="2px"
+                      height="12px"
+                      bg={i % 2 === 0 ? accentColor : accentColor2}
+                      borderRadius="sm"
+                      animation={isPlaying ? `${smallSoundWave} ${0.8 + (i * 0.15)}s infinite` : 'none'}
+                      opacity={isPlaying ? 0.9 : 0.4}
+                    />
+                  ))}
+                </HStack>
+              </HStack>
+              
               {/* Here you could map through recent activities */}
-              <HStack>
-                <FaWaveSquare color={accentColor} />
+              <HStack position="relative" zIndex={1}>
+                <Box
+                  animation={isPlaying ? `${floatingSoundWave} 3s infinite` : 'none'}
+                >
+                  <FaWaveSquare color={accentColor} />
+                </Box>
                 <Text color={mutedTextColor}>
                   {currentUser.lastActivity 
                     ? `Last activity: ${formatDate(currentUser.lastActivity)}`

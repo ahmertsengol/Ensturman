@@ -12,7 +12,7 @@ const AnimatedCard = ({ onPlayClick }) => {
             <span className="circle circle3" />
             <span className="circle circle4" />
             <span className="circle circle5">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="svg">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="svg" onClick={onPlayClick}>
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
               </svg>
             </span>
@@ -41,7 +41,7 @@ const AnimatedCard = ({ onPlayClick }) => {
               </button>
             </div>
             <div className="view-more">
-              <button className="view-more-button" onClick={onPlayClick}>Start Learning</button>
+              <button className="view-more-button" >Start Learning</button>
               <svg className="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
                 <path d="m6 9 6 6 6-6" />
               </svg>
