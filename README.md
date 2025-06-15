@@ -13,12 +13,12 @@
 
 *Welcome page showcasing the main features and getting started options*
 
-### Home Dashboard - Main Interface
+### Home Features - Main Interface
 <img src="./docs/screenshots/Home_Page1.png" alt="EnsAI Dashboard" width="800"/>
 
-*Main dashboard with navigation and feature overview*
+*Home page's features section*
 
-### Home Features Overview
+### Home Footer Overview
 <img src="./docs/screenshots/Home_Page2.png" alt="EnsAI Features" width="800"/>
 
 *Detailed features showcase and platform capabilities*
