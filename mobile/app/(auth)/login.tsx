@@ -65,7 +65,7 @@ export default function LoginScreen() {
         if (error.response.status === 401) {
           setErrorMessage('E-posta adresiniz veya şifreniz yanlış. Lütfen tekrar deneyin.');
         } else {
-          const serverMessage = error.response.data?.error || error.response.data?.message;
+        const serverMessage = error.response.data?.error || error.response.data?.message;
           setErrorMessage(serverMessage || `Bir şeyler ters gitti (${error.response.status}). Lütfen daha sonra tekrar deneyin.`);
         }
       } else {

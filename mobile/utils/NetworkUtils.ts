@@ -81,7 +81,10 @@ export class NetworkUtils {
    */
   private static async getCandidateIPs(): Promise<string[]> {
     const candidates = [
-      // Current hardcoded IP
+      // Current correct IP address
+      '10.192.231.110',
+      
+      // Previous hardcoded IP  
       '192.168.1.2',
       
       // Common local network ranges
@@ -183,7 +186,7 @@ export class NetworkUtils {
    * Get default fallback configuration
    */
   private static getDefaultConfig(): NetworkConfig {
-    const defaultHost = 'http://192.168.1.2:3001'; // Current default
+    const defaultHost = 'http://10.192.231.110:3001'; // Updated to correct IP
     
     return {
       backendHost: defaultHost,

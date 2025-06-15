@@ -88,25 +88,25 @@ const HomePage = () => {
             {/* Main Heading */}
             <AnimatedElement animationType="slideUp" delay={0.1}>
               <VStack spacing={6}>
-                <Heading
-                  as="h1"
+              <Heading
+                as="h1"
                   fontSize={{ base: "4xl", md: "6xl", lg: "7xl" }}
                   fontWeight="800"
                   lineHeight="1.1"
                   letterSpacing="-0.02em"
-                  color="white"
+                color="white"
                   maxW="5xl"
                 >
                   Master instruments with{" "}
                   <Text
                     as="span"
-                    bgGradient="linear(to-r, brand.500, accent.500)"
-                    bgClip="text"
+                bgGradient="linear(to-r, brand.500, accent.500)"
+                bgClip="text"
                     position="relative"
-                  >
+              >
                     EnsAI
                   </Text>
-                </Heading>
+              </Heading>
                 
                 <Text 
                   fontSize={{ base: "lg", md: "xl", lg: "2xl" }}
@@ -117,14 +117,14 @@ const HomePage = () => {
                 >
                   Your AI-powered personal music assistant featuring real-time pitch detection, 
                   intelligent training modules, and interactive learning experience.
-                </Text>
+              </Text>
               </VStack>
               
             </AnimatedElement>
             
                 <Box mt={6} mb={12}>
                   <AudioDecorations.Equalizer 
-                    isActive={isPlaying} 
+                  isActive={isPlaying}
                     barCount={16} 
                     height="30px"
                     spacing={1.5}
@@ -160,11 +160,11 @@ const HomePage = () => {
                         boxShadow: isPlaying ? "0 0 25px rgba(239, 68, 68, 0.4), 0 8px 32px rgba(0, 0, 0, 0.3)" : "0 0 20px rgba(128, 90, 213, 0.4), 0 8px 32px rgba(0, 0, 0, 0.3)"
                       }}
                     >
-                      <Icon 
+                <Icon 
                         as={isPlaying ? FaPlayCircle : FaPlay} 
                         boxSize={3} 
                         color={isPlaying ? "red.400" : "brand.400"}
-                        transition="all 0.3s ease"
+                  transition="all 0.3s ease"
                         transform={isPlaying ? "scale(1.1)" : "scale(1)"}
                       />
                       <Text fontSize="xs">
@@ -215,8 +215,8 @@ const HomePage = () => {
               >
                 <Box>
                   <InstrumentsCard />
-                </Box>
-                
+            </Box>
+              
                 {/* Animated Card in the center */}
                 <AnimatedElement animationType="scale" delay={0.4}>
                   <Box maxW="400px">
@@ -239,56 +239,56 @@ const HomePage = () => {
         py={{ base: 12, md: 20 }}
       >
         <Container maxW="container.xl">
-          <VStack spacing={12}>
-            <AnimatedElement animationType="fadeIn">
-              <VStack spacing={4} textAlign="center" maxW="3xl" mx="auto">
-                <Heading 
-                  as="h2" 
-                  size="xl"
-                  bgGradient="linear(to-r, brand.500, accent.500)"
-                  bgClip="text"
-                >
-                  AI-Powered Features
-                </Heading>
-                <Text fontSize="lg" color="gray.400">
-                  Revolutionary instrument learning experience enhanced by artificial intelligence
-                </Text>
-                
-              </VStack>
+        <VStack spacing={12}>
+          <AnimatedElement animationType="fadeIn">
+          <VStack spacing={4} textAlign="center" maxW="3xl" mx="auto">
+              <Heading 
+                as="h2" 
+                size="xl"
+                bgGradient="linear(to-r, brand.500, accent.500)"
+                bgClip="text"
+              >
+              AI-Powered Features
+            </Heading>
+              <Text fontSize="lg" color="gray.400">
+              Revolutionary instrument learning experience enhanced by artificial intelligence
+            </Text>
+              
+          </VStack>
+          </AnimatedElement>
+          
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            spacing={8}
+            w="full"
+          >
+            <AnimatedElement delay={0.1} flex={1}>
+            <FeatureCard
+              icon={FaMicrophone}
+              title="AI Audio Analysis"
+              description="Real-time pitch detection and AI-powered audio analysis to improve your instrument performance"
+            />
             </AnimatedElement>
             
-            <Stack
-              direction={{ base: 'column', md: 'row' }}
-              spacing={8}
-              w="full"
-            >
-              <AnimatedElement delay={0.1} flex={1}>
-                <FeatureCard
-                  icon={FaMicrophone}
-                  title="AI Audio Analysis"
-                  description="Real-time pitch detection and AI-powered audio analysis to improve your instrument performance"
-                />
-              </AnimatedElement>
-              
-              <AnimatedElement delay={0.3} flex={1}>
-                <FeatureCard
-                  icon={FaCloudUploadAlt}
-                  title="Smart Training Modules"
-                  description="AI-personalized instrument training modules tailored to your skill level and learning pace"
+            <AnimatedElement delay={0.3} flex={1}>
+            <FeatureCard
+              icon={FaCloudUploadAlt}
+              title="Smart Training Modules"
+              description="AI-personalized instrument training modules tailored to your skill level and learning pace"
                   isHighlighted={true}
-                />
-              </AnimatedElement>
-              
-              <AnimatedElement delay={0.5} flex={1}>
-                <FeatureCard
-                  icon={FaHeadphones}
-                  title="AI Music Assistant"
-                  description="Gemini AI-powered personal music instructor providing 24/7 instrument learning support"
-                />
-              </AnimatedElement>
-            </Stack>
-          </VStack>
-        </Container>
+            />
+            </AnimatedElement>
+            
+            <AnimatedElement delay={0.5} flex={1}>
+            <FeatureCard
+              icon={FaHeadphones}
+              title="AI Music Assistant"
+              description="Gemini AI-powered personal music instructor providing 24/7 instrument learning support"
+            />
+            </AnimatedElement>
+          </Stack>
+        </VStack>
+      </Container>
       </Box>
       
       {/* CTA Section */}
@@ -320,28 +320,28 @@ const HomePage = () => {
           >
             <AnimatedElement animationType="slideRight" flex={2}>
               <VStack spacing={6} textAlign={{ base: 'center', md: 'left' }} align={{ base: 'center', md: 'flex-start' }}>
-                <Heading as="h2" size="xl">
-                  Ready to master instruments with EnsAI?
-                </Heading>
-                <Text fontSize="lg" maxW="2xl">
-                  Join EnsAI and discover the future of AI-powered instrument learning. Develop your musical skills with your personal AI instructor.
-                </Text>
-                {!isAuthenticated() && (
-                  <Button
-                    as={RouterLink}
-                    to="/auth"
-                    size="lg"
-                    colorScheme="whiteAlpha"
-                    mt={4}
+            <Heading as="h2" size="xl">
+              Ready to master instruments with EnsAI?
+            </Heading>
+            <Text fontSize="lg" maxW="2xl">
+              Join EnsAI and discover the future of AI-powered instrument learning. Develop your musical skills with your personal AI instructor.
+            </Text>
+            {!isAuthenticated() && (
+              <Button
+                as={RouterLink}
+                to="/auth"
+                size="lg"
+                colorScheme="whiteAlpha"
+                mt={4}
                     _hover={{
                       bg: "whiteAlpha.300",
                       transform: "translateY(-2px)",
                     }}
-                  >
-                    Sign Up Now
-                  </Button>
-                )}
-              </VStack>
+              >
+                Sign Up Now
+              </Button>
+            )}
+          </VStack>
             </AnimatedElement>
             
                 <Box mt={6}>

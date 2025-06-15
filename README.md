@@ -1,265 +1,176 @@
 # 🎵 EnsAI - AI-Powered Instrument Learning Platform
 
-EnsAI is an innovative platform that combines artificial intelligence technologies with instrument education. Start your musical journey with your Gemini AI-powered personal music instructor!
+**Transform your musical journey with AI-powered personalized instrument learning. Learn piano, guitar, violin and more with your intelligent Gemini AI instructor.**
 
-## 🚀 Project Overview
+[![Demo](https://img.shields.io/badge/🚀-Live%20Demo-green)](https://ensai-demo.vercel.app)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/ensai)
 
-EnsAI is designed as a democratizing and inclusive platform for instrument learning. It offers a personalized learning experience through AI technologies.
+## 🖼️ Web Application Screenshots
 
-### 🎯 Core Objectives
-- **Personalized Education**: AI-customized instrument training programs for every user
-- **Accessible Learning**: Appropriate content for users of all skill levels
-- **Real-Time Analysis**: Audio analysis and performance evaluation for instruments
-- **Interactive Experience**: Natural language interaction with AI assistant
+### Home Page - Welcome Interface
+<img src="./docs/screenshots/Home_Page.png" alt="EnsAI Home Page" width="800"/>
 
-## 🏗️ Project Architecture
+*Welcome page showcasing the main features and getting started options*
 
-```
-EnsAI/
-├── 📱 mobile/          # React Native mobile application
-├── 🖥️ web/            # React web application
-├── ⚙️ backend/         # Node.js API server
-└── 📚 docs/           # Project documentation
-```
+### Home Dashboard - Main Interface
+<img src="./docs/screenshots/Home_Page1.png" alt="EnsAI Dashboard" width="800"/>
 
-### Technology Stack
+*Main dashboard with navigation and feature overview*
 
-| Platform | Technologies |
-|----------|-------------|
-| **Web Frontend** | React 19, Vite, Chakra UI, TypeScript |
-| **Mobile** | React Native, Expo, TypeScript |
-| **Backend** | Node.js, Express, MongoDB, PostgreSQL |
-| **AI Integration** | Google Gemini AI, OpenAI (optional) |
-| **Audio Processing** | Web Audio API, WaveSurfer.js, FFmpeg |
+### Home Features Overview
+<img src="./docs/screenshots/Home_Page2.png" alt="EnsAI Features" width="800"/>
 
-## 🌟 Main Features
+*Detailed features showcase and platform capabilities*
 
-### 🤖 AI-Powered Features
-- **Gemini AI Assistant**: 24/7 instrument learning support
-- **Intelligent Audio Analysis**: Real-time pitch and rhythm detection for instruments
-- **Personalized Modules**: AI-optimized training content for instrument mastery
-- **Natural Language Processing**: Interactive conversational learning experience
+### Audio Recordings Library
+<img src="./docs/screenshots/Recordings_Page.png" alt="Recordings Library" width="800"/>
 
-### 🎵 Instrument Learning Features
-- **Multi-Instrument Support**: Piano, guitar, violin, and more
-- **Audio Recording and Analysis**: High-quality audio processing for instruments
-- **Interactive Training**: Gamified instrument learning experience
-- **Progress Tracking**: Detailed performance reports for instrument skills
+*Your audio recordings library with playback and management options*
 
-### 📱 Platform Features
-- **Cross-Platform**: Web and mobile support
-- **Offline Mode**: Functionality without internet connection
-- **Sync**: Cross-device synchronization
-- **Social**: Music community integration
+### Voice Recording Interface
+<img src="./docs/screenshots/Voice_Record_Page.png" alt="Voice Recording" width="800"/>
 
-## 🛠️ Installation and Setup
+*Professional voice recording interface with real-time audio visualization*
+
+### AI Training - Getting Started
+<img src="./docs/screenshots/AI_Training__Enter_Page1.png" alt="AI Training Entry" width="800"/>
+
+*AI training module introduction and setup interface*
+
+### AI Training - Configuration
+<img src="./docs/screenshots/AI_Tarining_Enter_Page2.png" alt="AI Training Config" width="800"/>
+
+*AI training configuration and personalization options*
+
+### AI Training - Interactive Session
+<img src="./docs/screenshots/AI_Training_Page.png" alt="AI Training Session" width="800"/>
+
+*Interactive AI training session with real-time feedback and guidance*
+
+### User Profile & Settings
+<img src="./docs/screenshots/Profile_Page.png" alt="Profile Management" width="800"/>
+
+*User profile management and application settings configuration*
+
+## ✨ Key Features
+
+🤖 **AI-Powered Learning**
+- Gemini AI personal instructor
+- Real-time audio analysis
+- Personalized training modules
+- Natural language interaction
+
+🎵 **Multi-Instrument Support**
+- Piano, Guitar, Violin, Drums
+- High-quality audio processing
+- Interactive practice sessions
+- Performance evaluation
+
+📱 **Cross-Platform**
+- Progressive Web App (PWA)
+- React Native mobile app
+- Offline mode support
+- Real-time synchronization
+
+## 🛠️ Tech Stack
+
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | React 19, TypeScript, Chakra UI, Vite |
+| **Mobile** | React Native, Expo |
+| **Backend** | Node.js, Express, MongoDB |
+| **AI** | Google Gemini AI |
+| **Audio** | Web Audio API, WaveSurfer.js |
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+- Node.js 18+
 - MongoDB
-- PostgreSQL (optional)
 - Gemini AI API Key
 
-### 1. Clone Repository
+### Installation
+
 ```bash
+# Clone repository
 git clone https://github.com/yourusername/ensai.git
 cd ensai
-```
 
-### 2. Backend Setup
-```bash
+# Backend setup
 cd backend
 npm install
-cp .env.example .env  # Configure API keys
+cp .env.example .env  # Add your Gemini API key
 npm run dev
-```
 
-### 3. Web Frontend Setup  
-```bash
-cd web
+# Web frontend setup
+cd ../web
 npm install
-cp .env.example .env  # Configure API URLs
 npm run dev
-```
 
-### 4. Mobile App Setup
-```bash
-cd mobile
+# Mobile app (optional)
+cd ../mobile
 npm install
 npx expo start
 ```
 
-## 🔧 Development
+### Environment Configuration
 
-### Development Scripts
-```bash
-# Backend
-npm run dev          # Development server
-npm run start        # Production server
-npm test             # Run tests
-
-# Frontend (Web)
-npm run dev          # Vite dev server
-npm run build        # Production build
-npm run preview      # Build preview
-
-# Mobile
-npx expo start       # Expo dev server
-npx expo build       # Production build
-```
-
-### Environment Variables
-
-#### Backend (.env)
-```
-NODE_ENV=development
-PORT=3001
+**Backend (.env)**
+```env
+GEMINI_API_KEY=your_gemini_api_key
 MONGODB_URI=mongodb://localhost:27017/ensai
 JWT_SECRET=your_jwt_secret
-GEMINI_API_KEY=your_gemini_api_key
 ```
 
-#### Web (.env)
-```
+**Web (.env)**
+```env
 VITE_API_URL=http://localhost:3001/api
 VITE_GEMINI_API_KEY=your_gemini_api_key
 ```
 
-#### Mobile (.env)
-```
-EXPO_PUBLIC_API_URL=http://localhost:3001/api
-EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_api_key
-```
+## 🌐 Live Demo
 
-## 🚀 Deployment
+**Try EnsAI now**: [ensai-demo.vercel.app](https://ensai-demo.vercel.app)
 
-### Docker Deployment
-```bash
-# Run all services
-docker-compose up -d
+**Demo Credentials:**
+- Email: `demo@ensai.com`
+- Password: `demo123`
 
-# Backend only
-docker-compose up backend
+## 📱 Mobile App
 
-# Frontend only
-docker-compose up web
-```
+Download the mobile app for the complete EnsAI experience:
 
-### Cloud Deployment
-- **Backend**: Heroku, AWS, Google Cloud
-- **Web**: Vercel, Netlify, GitHub Pages
-- **Mobile**: Expo Application Services (EAS)
-- **Database**: MongoDB Atlas, PlanetScale
-
-## 📚 API Documentation
-
-### Main Endpoints
-
-| Category | Endpoint | Description |
-|----------|----------|-------------|
-| **Auth** | `POST /api/users/register` | User registration |
-| **Auth** | `POST /api/users/login` | User login |
-| **Audio** | `POST /api/audio/upload` | Audio file upload |
-| **Audio** | `GET /api/audio/stream/:filename` | Audio file streaming |
-| **Training** | `GET /api/training/modules` | Training modules |
-| **Training** | `POST /api/training/sessions` | Save training session |
-
-For detailed API documentation: [API Docs](./backend/README.md)
-
-## 🎨 UI/UX Design
-
-### Design System
-- **Color Palette**: Spotify green, pink accents, dark theme
-- **Typography**: Poppins (headings), Inter (body)
-- **Components**: Custom components based on Chakra UI
-- **Animations**: Smooth transitions with Framer Motion
-
-### Responsive Design
-- **Mobile First**: Responsive design starting from 320px
-- **Tablet**: iPad and Android tablet support
-- **Desktop**: 1024px+ large screen optimization
-
-## 🧪 Testing
-
-### Running Tests
-```bash
-# Backend tests
-cd backend && npm test
-
-# Frontend tests  
-cd web && npm test
-
-# E2E tests
-npm run test:e2e
-```
-
-### Test Coverage
-- Unit tests: Jest
-- Integration tests: Supertest
-- E2E tests: Cypress
-- Performance tests: Lighthouse
+- **iOS**: Available on App Store (Coming Soon)
+- **Android**: Available on Google Play (Coming Soon)
+- **Expo**: Scan QR code for beta testing
 
 ## 🤝 Contributing
 
-EnsAI is an open source project and we welcome your contributions!
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-### Contribution Process
-1. **Fork** the repository
-2. **Create feature branch** (`git checkout -b feature/amazing-feature`)
-3. **Commit** changes (`git commit -m 'feat: Add amazing feature'`)
-4. **Push** to branch (`git push origin feature/amazing-feature`)
-5. **Open Pull Request**
+```bash
+# Development workflow
+1. Fork the repository
+2. Create feature branch: git checkout -b feature/amazing-feature
+3. Commit changes: git commit -m 'feat: Add amazing feature'
+4. Push to branch: git push origin feature/amazing-feature
+5. Open Pull Request
+```
 
-### Development Guidelines
-- Follow Clean Code principles
-- Use TypeScript
-- Write tests
-- Update documentation
-- Use Conventional Commits
+## 📞 Support & Community
 
-## 📊 Project Status
-
-### Development Stages
-- [x] **Alpha**: Core features and AI integration
-- [x] **Beta**: Web and mobile platforms
-- [ ] **v1.0**: Production-ready release
-- [ ] **v2.0**: Advanced AI features
-
-### Roadmap
-- [ ] Multi-language support
-- [ ] Social features
-- [ ] Advanced AI models
-- [ ] VR/AR integration
-- [ ] Blockchain integration
-
-## 📞 Contact and Support
-
-### Community
-- **Discord**: [EnsAI Community](https://discord.gg/ensai)
-- **GitHub Discussions**: Project discussions
-- **Reddit**: r/EnsAI
-
-### Support
-- **Issues**: Use GitHub Issues
-- **Email**: support@ensai.com
-- **Documentation**: [docs.ensai.com](https://docs.ensai.com)
+- 💬 **Discord**: [Join our community](https://discord.gg/ensai)
+- 🐛 **Issues**: [Report bugs](https://github.com/yourusername/ensai/issues)
+- 📧 **Email**: support@ensai.com
+- 📖 **Docs**: [Documentation](https://docs.ensai.com)
 
 ## 📄 License
 
-This project is distributed under the [MIT License](LICENSE).
-
-## 🙏 Acknowledgments
-
-- Google AI Team (Gemini API)
-- Open Source Community
-- Beta test users
-- Contributing developers
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🎵 Start Your Instrument Learning Journey with EnsAI!
+**🎵 Ready to revolutionize your instrument learning experience?**
 
-**Discover the future of AI-powered instrument learning. Develop your musical skills with your personal AI instructor and unleash your creativity.**
-
-[🚀 **Try Demo**](https://ensai-demo.vercel.app) | [📖 **Documentation**](./docs) | [💬 **Community**](https://discord.gg/ensai) 
+[**Start Learning →**](https://ensai-demo.vercel.app) [**Join Community →**](https://discord.gg/ensai) [**View Docs →**](https://docs.ensai.com) 
