@@ -11,14 +11,18 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.xdappdev.mobile",
-      "requiredFullAccessPrivileges": []
+      "requiredFullAccessPrivileges": [],
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/Logo.png",
         "backgroundColor": "#191729"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.mert"
     },
     "web": {
       "bundler": "metro",
@@ -39,6 +43,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "10ce4e99-9317-4f76-93d0-37d49cc026b0"
+      }
     }
   }
 }
